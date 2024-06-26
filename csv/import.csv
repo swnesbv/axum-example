@@ -1,0 +1,6 @@
+id,email,username,password,created_at,updated_at
+1,one@example.com,one,password,2023-11-18 12:16:58,2023-11-19 09:12:23
+2,two@example.com,two,"$pbkdf2-sha256$i=600000,l=32$XYu9kHR3p5dT2xCys7peJw$oKnj1oGNJ9qqGnL9JCW1eLbjlof1eqB/qYeFAnElUGg",2024-01-09 19:31:15,2024-01-22 07:25:06
+3,three@example.com,three,"$pbkdf2-sha256$i=600000,l=32$DtAlCIe4p82a5eJuc7ne0A$ByTS2174RWfoHICUOycA7VScDAUhyzDV4WHoiDe5zXs",2024-01-10 17:41:00,2024-01-10 17:41:00
+4,four@example.com,four,"$pbkdf2-sha256$i=600000,l=32$AO+vxwFJEKUau2OxRjl4Dw$XZDOOLgpSI3XGHxjTHiyN6XVo+M8+9dGwfQ+gZfKhh8",2024-01-11 12:12:53,2024-01-11 12:12:53
+5,five@example.com,five,"$pbkdf2-sha256$i=600000,l=32$EsyRifNVgH+z+57T5IIJqA$XbjWnKfvf3cv79cWwZhdJu5rURrjUKwLjQ+lVehxTJg",2024-01-20 11:22:13,2024-01-20 11:22:13

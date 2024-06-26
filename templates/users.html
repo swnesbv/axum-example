@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %} users list {% endblock title %}
+
+{% block content %}
+
+<ul class="list-group list-group-flush">
+    {% for i in users %}
+        <li class="list-group-item">
+            <a href="/account/user/{{ i.username }}">{{ i.email }}</a>
+        </li>
+    {% endfor %}
+</ul>
+
+{% endblock content %}

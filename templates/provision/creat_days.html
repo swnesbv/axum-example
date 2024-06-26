@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %} create provision days {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">create provision days</h1>
+	
+<form class="card" method="POST">
+	
+	<div class="card-body">
+	<sup>title</sup>
+	<input required type="text" name="title" class="form-control">
+	<sup>description</sup>
+	<input type="text" name="description" class="form-control">
+	</div>
+
+    <div class="card-body row">
+	    <div class="col-sm">
+	        <sup class="float-start">start</sup>
+	        <input
+	            class="form-control my-2"
+	            type="date"
+	            name="st_date"
+	        />
+	    </div>
+	    <div class="col-sm">
+	        <sup class="float-start">end</sup>
+	        <input
+	            class="form-control my-2"
+	            type="date"
+	            name="en_date"
+	        />
+	    </div>
+	</div>
+
+	<div class="card-footer">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+
+</form>
+	  
+{% endblock content %}

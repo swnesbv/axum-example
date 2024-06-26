@@ -1,0 +1,34 @@
+{{template "./tpl/base.html"}}
+{{define "title"}} update art {{end}}
+
+{{block "content" .}}
+
+<h1 class="container lead my-3">update form: {{ .Title }}</h1>
+	
+<form class="card" method="POST">
+
+    <div class="card-body">
+    	
+    <sup>title</sup>
+    <input type="text" name="title" class="form-control" value="{{ .Title }}">
+    <sup>description</sup>
+    <input type="text" name="description" class="form-control"value="{{ .Description }}">
+
+    <div class="mt-5">
+        <sup class="float-start mb-2">completed</sup>
+        <input
+            checked
+            type="checkbox"
+            name="completed"
+        />
+    </div>
+
+    </div>
+
+    <div class="card-footer">
+    <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+    </div>
+
+</form>
+	  
+{{end}}
