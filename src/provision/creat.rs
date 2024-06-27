@@ -18,7 +18,10 @@ use headers::Cookie;
 use crate::{auth, schema};
 use crate::{
     common::{Pool, Templates},
-    provision::models::{FormPrD, AllPrD, NewPrD, UpPrD},
+    provision::models::{
+        FormPrD, AllPrD,
+        NewPrD,
+        UpPrD},
 };
 
 pub use axum_macros::debug_handler;
@@ -38,7 +41,55 @@ pub async fn get_creat_days(
     ))
 }
 
+
 #[debug_handler]
+pub async fn post_creat_days(
+    State(pool): State<Pool>,
+    TypedHeader(cookie): TypedHeader<Cookie>,
+    Form(form): Form<FormPrD>,
+) -> impl IntoResponse {
+
+    let token = auth::views::request_token(TypedHeader(cookie)).await;
+
+    let s_value = form.st_date.as_deref().unwrap_or("default string");
+    let e_value = form.en_date.as_deref().unwrap_or("default string");
+
+    let start: Option<NaiveDate>;
+    let end: Option<NaiveDate>;
+
+    if !s_value.is_empty() {
+        start = Some(NaiveDate::parse_from_str(s_value, "%Y-%m-%d").expect("REASON"));
+    } else {
+        start = None
+    }
+    if !e_value.is_empty() {
+        end = Some(NaiveDate::parse_from_str(e_value, "%Y-%m-%d").expect("REASON"));
+    } else {
+        end = None
+    }
+
+    let mut conn = pool.get().await.unwrap();
+    use schema::provision_d::dsl::*;
+
+    let prv = NewPrD {
+        user_id: token.clone().unwrap().claims.id,
+        title: form.title.clone(),
+        description: form.description.clone(),
+        st_date: start,
+        en_date: end,
+        created_at: Utc::now(),
+    };
+    let _ = diesel::insert_into(provision_d)
+        .values(prv)
+        .returning(NewPrD::as_returning())
+        .get_result(&mut conn)
+        .await
+        .unwrap();
+    Redirect::to("/").into_response()
+}
+
+
+/*#[debug_handler]
 pub async fn post_creat_days(
     State(pool): State<Pool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
@@ -113,7 +164,7 @@ pub async fn post_creat_days(
             .await;
     }
     Redirect::to("/").into_response()
-}
+}*/
 
 #[debug_handler]
 pub async fn get_update_days(
