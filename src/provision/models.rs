@@ -1,4 +1,4 @@
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -13,6 +13,16 @@ pub struct NewPrD {
     pub description: Option<String>,
     pub st_date: Option<NaiveDate>,
     pub en_date: Option<NaiveDate>,
+    pub created_at: DateTime<Utc>,
+}
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Selectable, Insertable)]
+#[diesel(table_name = crate::schema::provision_h)]
+pub struct NewPrH {
+    pub user_id: i32,
+    pub title: String,
+    pub description: Option<String>,
+    pub st_hour: Option<NaiveDateTime>,
+    pub en_hour: Option<NaiveDateTime>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -41,6 +51,13 @@ pub struct FormPrD {
     pub description: Option<String>,
     pub st_date: Option<String>,
     pub en_date: Option<String>,
+}
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FormPrH {
+    pub title: String,
+    pub description: Option<String>,
+    pub st_hour: Option<String>,
+    pub en_hour: Option<String>,
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FormPrdBkg {

@@ -16,8 +16,8 @@ pub fn build_routes(conn: Pool) -> Router {
             ("all_booking", include_str!("../templates/booking/all_booking.html")),
             ("period", include_str!("../templates/booking/period.html")),
             (
-                "all_days",
-                include_str!("../templates/booking/all_days.html"),
+                "search_days",
+                include_str!("../templates/booking/search_days.html"),
             ),
             // ("delete", include_str!("../templates/booking/delete.html")),
             // ("detail", include_str!("../templates/booking/detail.html")),

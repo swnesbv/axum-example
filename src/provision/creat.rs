@@ -5,7 +5,7 @@ use axum::{
     // body::Body,
     Extension,
 };
-use chrono::{NaiveDate, Utc};
+use chrono::{NaiveDate, NaiveDateTime, Utc};
 
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
@@ -19,8 +19,11 @@ use crate::{auth, schema};
 use crate::{
     common::{Pool, Templates},
     provision::models::{
-        FormPrD, AllPrD,
+        FormPrD,
+        FormPrH,
+        AllPrD,
         NewPrD,
+        NewPrH,
         UpPrD},
 };
 
@@ -89,83 +92,6 @@ pub async fn post_creat_days(
 }
 
 
-/*#[debug_handler]
-pub async fn post_creat_days(
-    State(pool): State<Pool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
-    Form(form): Form<FormPrD>,
-) -> impl IntoResponse {
-
-    let token = auth::views::request_token(TypedHeader(cookie)).await;
-
-    let s_value = form.st_date.as_deref().unwrap_or("default string");
-    let e_value = form.en_date.as_deref().unwrap_or("default string");
-    let start = NaiveDate::parse_from_str(s_value, "%Y-%m-%d");
-    let end = NaiveDate::parse_from_str(e_value, "%Y-%m-%d");
-
-    let mut conn = pool.get().await.unwrap();
-    use schema::provision_d::dsl::*;
-
-    if s_value.is_empty() && e_value.is_empty() {
-        let no_prv = NewPrD {
-            user_id: token.clone().unwrap().claims.id,
-            title: form.title.clone(),
-            description: form.description.clone(),
-            st_date: None,
-            en_date: None,
-            created_at: Utc::now(),
-        };
-        let _ = diesel::insert_into(provision_d)
-            .values(no_prv)
-            .returning(NewPrD::as_returning())
-            .get_result(&mut conn)
-            .await;
-    } else if !s_value.is_empty() && e_value.is_empty() {
-        let st_prv = NewPrD {
-            user_id: token.clone().unwrap().claims.id,
-            title: form.title.clone(),
-            description: form.description.clone(),
-            st_date: Some(start.expect("REASON")),
-            en_date: None,
-            created_at: Utc::now(),
-        };
-        let _ = diesel::insert_into(provision_d)
-            .values(st_prv)
-            .returning(NewPrD::as_returning())
-            .get_result(&mut conn)
-            .await;
-    } else if s_value.is_empty() && !e_value.is_empty() {
-        let en_prv = NewPrD {
-            user_id: token.clone().unwrap().claims.id,
-            title: form.title.clone(),
-            description: form.description.clone(),
-            st_date: None,
-            en_date: Some(end.expect("REASON")),
-            created_at: Utc::now(),
-        };
-        let _ = diesel::insert_into(provision_d)
-            .values(en_prv)
-            .returning(NewPrD::as_returning())
-            .get_result(&mut conn)
-            .await;
-    } else {
-        let prv = NewPrD {
-            user_id: token.clone().unwrap().claims.id,
-            title: form.title.clone(),
-            description: form.description.clone(),
-            st_date: Some(start.expect("REASON")),
-            en_date: Some(end.expect("REASON")),
-            created_at: Utc::now(),
-        };
-        let _ = diesel::insert_into(provision_d)
-            .values(prv)
-            .returning(NewPrD::as_returning())
-            .get_result(&mut conn)
-            .await;
-    }
-    Redirect::to("/").into_response()
-}*/
-
 #[debug_handler]
 pub async fn get_update_days(
     Path(prv_id): Path<String>,
@@ -206,11 +132,6 @@ pub async fn post_update_days(
     State(pool): State<Pool>,
     Form(form): Form<FormPrD>,
 ) -> impl IntoResponse {
-    
-    let s_value = form.st_date.as_deref().unwrap_or("default string");
-    let e_value = form.en_date.as_deref().unwrap_or("default string");
-    let start = NaiveDate::parse_from_str(s_value, "%Y-%m-%d");
-    let end = NaiveDate::parse_from_str(e_value, "%Y-%m-%d");
 
     let number: i32 = prv_id.parse().expect("Not a valid number");
     let mut conn = pool.get().await.unwrap();
@@ -222,55 +143,105 @@ pub async fn post_update_days(
         .first(&mut conn)
         .await
         .unwrap();
+    
+    let s_value = form.st_date.as_deref().unwrap_or("default string");
+    let e_value = form.en_date.as_deref().unwrap_or("default string");
 
-    if s_value.is_empty() && e_value.is_empty() {
-        let no_prv = UpPrD {
-            title: form.title.clone(),
-            description: form.description.clone(),
-            st_date: i.st_date,
-            en_date: i.en_date,
-            updated_at: Some(Utc::now()),
-        };
-        let _ = diesel::update(provision_d.filter(id.eq(number)))
-            .set(no_prv)
-            .execute(&mut conn)
-            .await;
-    } else if !s_value.is_empty() && e_value.is_empty() {
-        let st_prv = UpPrD {
-            title: form.title.clone(),
-            description: form.description.clone(),
-            st_date: Some(start.expect("REASON")),
-            en_date: i.en_date,
-            updated_at: Some(Utc::now()),
-        };
-        let _ = diesel::update(provision_d.filter(id.eq(number)))
-            .set(st_prv)
-            .execute(&mut conn)
-            .await;
-    } else if s_value.is_empty() && !e_value.is_empty() {
-        let en_prv = UpPrD {
-            title: form.title.clone(),
-            description: form.description.clone(),
-            st_date: i.st_date,
-            en_date: Some(end.expect("REASON")),
-            updated_at: Some(Utc::now()),
-        };
-        let _ = diesel::update(provision_d.filter(id.eq(number)))
-            .set(en_prv)
-            .execute(&mut conn)
-            .await;
+    let start: Option<NaiveDate>;
+    let end: Option<NaiveDate>;
+
+    if !s_value.is_empty() {
+        start = Some(NaiveDate::parse_from_str(s_value, "%Y-%m-%d").expect("REASON"));
     } else {
-        let prv = UpPrD {
-            title: form.title.clone(),
-            description: form.description.clone(),
-            st_date: Some(start.expect("REASON")),
-            en_date: Some(end.expect("REASON")),
-            updated_at: Some(Utc::now()),
-        };
-        let _ = diesel::update(provision_d.filter(id.eq(number)))
-            .set(prv)
-            .execute(&mut conn)
-            .await;
+        start = i.st_date
     }
+    if !e_value.is_empty() {
+        end = Some(NaiveDate::parse_from_str(e_value, "%Y-%m-%d").expect("REASON"));
+    } else {
+        end = i.en_date
+    }
+
+    let prv = UpPrD {
+        title: form.title.clone(),
+        description: form.description.clone(),
+        st_date: start,
+        en_date: end,
+        updated_at: Some(Utc::now()),
+    };
+    let _ = diesel::update(provision_d.filter(id.eq(number)))
+        .set(prv)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+
+    Redirect::to("/").into_response()
+}
+
+
+// Hours..
+pub async fn get_creat_hours(
+    TypedHeader(cookie): TypedHeader<Cookie>,
+    Extension(templates): Extension<Templates>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+
+    let token = auth::views::request_user(TypedHeader(cookie)).await;
+    let _ = match token {
+        Ok(Some(expr)) => expr,
+        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(_) => return Err(Redirect::to("/account/login").into_response()),
+    };
+    Ok(Html(
+        templates.render("creat_hours", &Context::new()).unwrap(),
+    ))
+}
+
+
+#[debug_handler]
+pub async fn post_creat_hours(
+    State(pool): State<Pool>,
+    TypedHeader(cookie): TypedHeader<Cookie>,
+    Form(form): Form<FormPrH>,
+) -> impl IntoResponse {
+
+    let token = auth::views::request_token(TypedHeader(cookie)).await;
+
+    let s_value = form.st_hour.as_deref().unwrap_or("default string");
+    let e_value = form.en_hour.as_deref().unwrap_or("default string");
+
+    let start: Option<NaiveDateTime>;
+    let end: Option<NaiveDateTime>;
+
+    if !s_value.is_empty() {
+        start = Some(
+            NaiveDateTime::parse_from_str(s_value, "%Y-%m-%d %H:%M:%S").expect("REASON")
+        );
+    } else {
+        start = None
+    }
+    if !e_value.is_empty() {
+        end = Some(
+            NaiveDateTime::parse_from_str(e_value, "%Y-%m-%d %H:%M:%S").expect("REASON")
+        );
+    } else {
+        end = None
+    }
+
+    let mut conn = pool.get().await.unwrap();
+    use schema::provision_h::dsl::*;
+
+    let prv = NewPrH {
+        user_id: token.clone().unwrap().claims.id,
+        title: form.title.clone(),
+        description: form.description.clone(),
+        st_hour: start,
+        en_hour: end,
+        created_at: Utc::now(),
+    };
+    let _ = diesel::insert_into(provision_h)
+        .values(prv)
+        .returning(NewPrH::as_returning())
+        .get_result(&mut conn)
+        .await
+        .unwrap();
     Redirect::to("/").into_response()
 }

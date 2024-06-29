@@ -14,7 +14,7 @@ pbkdf2 = { version = "0.12", features = ["simple"] }
 rand_core = { version = "0.6", features = ["std"] }
 rand_chacha = "0.3"
 tera = "1.19"
-diesel = { version = "2", features = ["postgres", "chrono"] }
+diesel = { version = "2", features = ["postgres", "chrono", "postgres_backend"] }
 diesel-async = { version = "0.4", features = ["postgres", "bb8"] }
 bb8 = "0.8"
 dotenv = "0.15"

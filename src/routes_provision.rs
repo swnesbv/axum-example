@@ -29,7 +29,7 @@ pub fn build_routes(conn: Pool) -> Router {
                 "update_dates",
                 include_str!("../templates/provision/update_dates.html"),
             ),
-            // ("creat_hours", include_str!("../templates/provision/detail.html")),
+            ("creat_hours", include_str!("../templates/provision/creat_hours.html")),
             // ("detail_hours", include_str!("../templates/provision/export_csv.html")),
         ])
         .unwrap();
@@ -56,9 +56,9 @@ pub fn build_routes(conn: Pool) -> Router {
                 get(provision::handlers::get_detail_days)
                     .post(provision::handlers::post_detail_days),
             )
-            // .route(
-            //     "/creat-hours", get(profile::accreditation::get_signup).post(profile::accreditation::post_signup)
-            // )
+            .route(
+                "/creat-hours", get(provision::creat::get_creat_hours).post(provision::creat::post_creat_days)
+            )
             // .route(
             //     "/detail-hours", get(profile::accreditation::get_password_change).post(profile::accreditation::post_password_change)
             // )

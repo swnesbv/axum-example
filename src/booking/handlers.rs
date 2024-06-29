@@ -5,9 +5,9 @@ use axum::{
     // body::Body,
     Extension,
 };
-// use chrono::Utc;
+use chrono::NaiveDate;
 
-use diesel::prelude::*;
+// use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 
 use tera::Context;
@@ -15,12 +15,13 @@ use tera::Context;
 use axum_extra::TypedHeader;
 use headers::Cookie;
 
-use crate::schema;
+// use crate::schema;
 use crate::{
     common::{Pool, DBConnection, Templates},
     booking::models::{
         Claims,
-        AllPrD,
+        SqlPrD,
+        // AllPrD,
         // LtBkg
     },
     booking::views::{all_bkg},
@@ -80,16 +81,31 @@ pub async fn get_search_days(
     // let current_time = Utc::now().date_naive();
 
     let mut conn = pool.get().await.unwrap();
-    use schema::provision_d::dsl::*;
-    let pr_list = provision_d
-        .filter(st_date.lt(k.start).and(en_date.gt(k.end)))
-        .select(AllPrD::as_select())
-        .load(&mut conn)
+    // use schema::provision_d::dsl::*;
+
+    let custom_query = "SELECT * FROM provision_d WHERE st_date <= $1 AND en_date >= $2 AND NOT daterange($1, $2, '[]') @> ANY(dates) OR dates IS NULL";
+    
+    use diesel::sql_query;
+    use diesel::sql_types::Date;
+    let pr_list:Vec<SqlPrD> = sql_query(custom_query)
+        .bind::<Date, NaiveDate>(k.start)
+        .bind::<Date, NaiveDate>(k.end)
+        .load::<SqlPrD>(&mut conn)
         .await
         .unwrap();
+
+    // let pr_list = provision_d
+    //     .filter(st_date.lt(k.start).and(en_date.gt(k.end)))
+    //     .filter(
+    //         dates.ne(vec![k.start, k.end])
+    //     )
+    //     .select(AllPrD::as_select())
+    //     .load(&mut conn)
+    //     .await
+    //     .unwrap();
 
     let mut context = Context::new();
     context.insert("k", &k);
     context.insert("pr_list", &pr_list);
-    Ok(Html(templates.render("all_days", &context).unwrap()))
+    Ok(Html(templates.render("search_days", &context).unwrap()))
 }

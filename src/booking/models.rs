@@ -52,6 +52,26 @@ pub struct LtBkg {
 }
 
 
+use diesel::deserialize::QueryableByName;
+
+#[derive(QueryableByName, AsChangeset, Identifiable, Queryable, PartialEq, Debug, Clone, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::provision_d)]
+pub struct SqlPrD {
+    pub id: i32,
+    pub user_id: i32,
+    pub title: String,
+    pub description: Option<String>,
+    pub st_date: Option<NaiveDate>,
+    pub en_date: Option<NaiveDate>,
+    pub s_dates: Option<Vec<Option<NaiveDate>>>,
+    pub e_dates: Option<Vec<Option<NaiveDate>>>,
+    pub dates: Option<Vec<Option<NaiveDate>>>,
+    pub completed: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
+
 #[derive(AsChangeset, Identifiable, Queryable, PartialEq, Debug, Clone, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::provision_d)]
 pub struct AllPrD {

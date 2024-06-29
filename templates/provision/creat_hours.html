@@ -1,7 +1,7 @@
-{{ template "./tpl/base.html" }}
-{{ define "title" }} create prv hours {{ end }}
+{% extends "base.html" %}
+{% block title %} create prv hours {% endblock title %}
 
-{{ block "content" . }}
+{% block content %}
 
 <h1 class="container lead my-3">create provision hours</h1>
 	
@@ -21,7 +21,7 @@
 	        	required
 	            class="form-control my-2"
 	            type="datetime-local"
-	            name="start"
+	            name="st_hour"
 	        />
 	    </div>
 	    <div class="col-sm">
@@ -30,9 +30,19 @@
 	        	required
 	            class="form-control my-2"
 	            type="datetime-local"
-	            name="end"
+	            name="en_hour"
 	        />
 	    </div>
+	</div>
+
+    <div id="addinput" class="card-body">
+    	<sup class="float-start">the beginning of the reception</sup>
+	</div>
+
+    <div class="card-footer action-buttons">
+    <button class="btn btn-sm btn-outline-primary" onclick="addFn(); return false;">
+    	make an appointment - add Input
+    </button>
 	</div>
 
 	<div class="card-footer">
@@ -40,5 +50,20 @@
 	</div>
 
 </form>
+
+<script>
+    function addFn() {
+        const divEle = document.getElementById("addinput");
+        const wrapper = document.createElement("div");
+        const iFeild = document.createElement("input");
+        iFeild.setAttribute("type", "datetime-local");
+        iFeild.setAttribute("name", "list");
+        iFeild.setAttribute("placeholder", "Enter value");
+        iFeild.classList.add("form-control");
+        iFeild.classList.add("mt-2");
+        wrapper.appendChild(iFeild);
+        divEle.appendChild(wrapper);
+    }
+</script>
 	  
-{{ end }}
+{% endblock content %}
