@@ -1,3 +1,5 @@
+use sqlx::postgres::PgPool;
+
 use axum::{
     body::Body,
     extract::{Form, State},
@@ -6,9 +8,6 @@ use axum::{
     Extension,
 };
 use chrono::Utc;
-
-use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
 
 use tera::Context;
 
@@ -20,27 +19,59 @@ use pbkdf2::{
     Pbkdf2,
 };
 
-use crate::{auth, schema};
+use crate::auth;
 use crate::{
-    common::{Pool, Templates},
+    common::{Templates},
     profile::models::{
-        FormNewUser, FormPasswordChange, FormUpdateUser, NewUser, PasswordChange, UpdateUser,
+        NewUser,
+        UpdateUser,
+        FormNewUser,
+        FormUpdateUser,
+        FormPasswordChange, PasswordChange,
     },
+    profile::views::{update_details},
 };
 
-pub use axum_macros::debug_handler;
 
 pub async fn get_signup(Extension(templates): Extension<Templates>) -> impl IntoResponse {
     Html(templates.render("signup", &Context::new()).unwrap())
 }
 
-#[debug_handler]
+
 pub async fn post_signup(
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     Extension(templates): Extension<Templates>,
     Form(form): Form<FormNewUser>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
-    let mut conn = pool.get().await.unwrap();
+
+    let mut context = Context::new();
+    // ..
+    let q_email = sqlx::query!(
+        "SELECT email FROM users WHERE email=$1", form.email.clone()
+        )
+        .fetch_optional(&pool).await;
+        println!("email..{:?}", q_email);
+    match q_email {
+        Ok(None) => (),
+        _ => {
+            context.insert("for_email", "email already exists..");
+            return Err(Html(templates.render("signup", &context).unwrap()));
+        },
+    };
+    // ..
+    let q_name = sqlx::query!(
+        "SELECT username FROM users WHERE username=$1", form.username.clone()
+        )
+        .fetch_optional(&pool).await;
+        println!("email..{:?}", q_name);
+    match q_name {
+        Ok(None) => (),
+        _ => {
+            context.insert("for_username", "username already exists..");
+            return Err(Html(templates.render("signup", &context).unwrap()));
+        },
+    };
+    // ..
 
     let salt = SaltString::generate(&mut OsRng);
     let pass = Pbkdf2.hash_password(form.password.as_bytes(), &salt);
@@ -49,112 +80,85 @@ pub async fn post_signup(
         Err(_) => "Err password".to_string(),
     };
 
-    use schema::users::dsl::*;
-
-    let in_names = users
-        .filter(username.eq(form.username.clone()))
-        .select(username)
-        .first::<String>(&mut conn)
-        .await
-        .optional()
-        .unwrap();
-
-    let in_emails = users
-        .filter(email.eq(form.email.clone()))
-        .select(email)
-        .first::<String>(&mut conn)
-        .await
-        .optional()
-        .unwrap();
-
-    let mut context = Context::new();
-
-    if in_names == Some(form.username.clone()) {
-        context.insert("for_name", "name already exists..");
-        return Err(Html(templates.render("signup", &context).unwrap()));
-    }
-    if in_emails == Some(form.email.clone()) {
-        context.insert("for_email", "email already exists..");
-        return Err(Html(templates.render("signup", &context).unwrap()));
-    }
-
-    let new_user = NewUser {
+    let u = NewUser {
         email: form.email.clone(),
         username: form.username.clone(),
         password: hashed_password,
         created_at: Utc::now(),
     };
-
-    let _ = diesel::insert_into(users)
-        .values(new_user)
-        .returning(NewUser::as_returning())
-        .get_result(&mut conn)
-        .await;
+    let _ = sqlx::query(
+        "INSERT INTO users (email, username, password, created_at) VALUES ($1,$2,$3,$4)"
+        )
+        .bind(&u.email)
+        .bind(&u.username)
+        .bind(&u.password)
+        .bind(u.created_at)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     Ok(Redirect::to("/account/users").into_response())
 }
 
-#[debug_handler]
+
 pub async fn get_update(
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
-    let token = auth::views::request_user(TypedHeader(cookie)).await;
-    let ok_token = match token {
-        Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
-    };
-
-    use schema::users::dsl::*;
-    let mut conn = pool.get().await.unwrap();
-
-    let user: Option<UpdateUser> = Some(
-        users
-            .filter(id.eq(ok_token.id))
-            .select(UpdateUser::as_select())
-            .first(&mut conn)
-            .await
-            .unwrap(),
-    );
 
     let mut context = Context::new();
-    if user.is_some() {
-        context.insert("user", &user);
-        Ok(Html(templates.render("update", &context).unwrap()))
-    } else {
-        context.insert("not_user", "None..");
-        Ok(Html(templates.render("update", &context).unwrap()))
+
+    let token = auth::views::err_user(TypedHeader(cookie)).await;
+    let t = match token {
+        Ok(Some(expr)) => expr,
+        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(err) => return Ok(
+            {
+                context.insert("err_token", &err);
+                Html(templates.render("update", &context).unwrap())
+            }
+        ),
+    };
+
+    let user = update_details(pool, t.id).await;
+
+    match user {
+        Ok(user) => {
+            context.insert("user", &user);
+            Ok(Html(templates.render("update", &context).unwrap()))
+        },
+        Err(err) => {
+            context.insert("not_details", &err);
+            Ok(Html(templates.render("update", &context).unwrap()))
+        },
     }
+
 }
 
-#[debug_handler]
+
 pub async fn post_update_user(
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Form(form): Form<FormUpdateUser>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
+
     let token = auth::views::request_user(TypedHeader(cookie)).await;
 
-    let ok_token = match token {
+    let t = match token {
         Ok(Some(expr)) => expr,
         Ok(None) => return Err(Redirect::to("/account/login").into_response()),
         Err(_) => return Err(Redirect::to("/account/login").into_response()),
     };
 
-    let mut conn = pool.get().await.unwrap();
-    use schema::users::dsl::*;
-
-    let up_user = UpdateUser {
+    let u = UpdateUser {
         email: form.email.clone(),
         username: form.username.clone(),
         updated_at: Some(Utc::now()),
     };
 
-    let _ = diesel::update(users.filter(id.eq(ok_token.id)))
-        .set(up_user)
-        .execute(&mut conn)
+    let _ = sqlx::query_as!(UpdateUser, "UPDATE users SET email=$2, username=$3, updated_at=$4 WHERE id=$1", t.id, u.email, u.username, u.updated_at)
+        .fetch_one(&pool)
         .await;
 
     Ok(Response::builder()
@@ -171,57 +175,55 @@ pub async fn post_update_user(
         .unwrap())
 }
 
-#[debug_handler]
+
 pub async fn get_password_change(
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
-    let token = auth::views::request_user(TypedHeader(cookie)).await;
-
-    let ok_token = match token {
-        Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
-    };
-
-    use schema::users::dsl::*;
-    let mut conn = pool.get().await.unwrap();
-
-    let user: Option<UpdateUser> = Some(
-        users
-            .filter(id.eq(ok_token.id))
-            .select(UpdateUser::as_select())
-            .first(&mut conn)
-            .await
-            .unwrap(),
-    );
 
     let mut context = Context::new();
-    if user.is_some() {
-        context.insert("user", &user);
-        Ok(Html(templates.render("password_change", &context).unwrap()))
-    } else {
-        context.insert("not_user", "None..");
-        Ok(Html(templates.render("password_change", &context).unwrap()))
+
+    let token = auth::views::err_user(TypedHeader(cookie)).await;
+    let t = match token {
+        Ok(Some(expr)) => expr,
+        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(err) => return Ok(
+            {
+                context.insert("err_token", &err);
+                Html(templates.render("update", &context).unwrap())
+            }
+        ),
+    };
+
+    let user = update_details(pool, t.id).await;
+
+    match user {
+        Ok(user) => {
+            context.insert("user", &user);
+            Ok(Html(templates.render("password_change", &context).unwrap()))
+        },
+        Err(err) => {
+            context.insert("not_details", &err);
+            Ok(Html(templates.render("password_change", &context).unwrap()))
+        },
     }
 }
 
-#[debug_handler]
+
 pub async fn post_password_change(
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Form(form): Form<FormPasswordChange>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
+
     let token = auth::views::request_user(TypedHeader(cookie)).await;
 
-    let ok_token = match token {
+    let t = match token {
         Ok(Some(expr)) => expr,
         Ok(None) => return Err(Redirect::to("/account/login").into_response()),
         Err(_) => return Err(Redirect::to("/account/login").into_response()),
     };
-
-    let mut conn = pool.get().await.unwrap();
 
     let salt = SaltString::generate(&mut OsRng);
     let pass = Pbkdf2.hash_password(form.password.as_bytes(), &salt);
@@ -230,15 +232,13 @@ pub async fn post_password_change(
         Err(_) => "Err password".to_string(),
     };
 
-    let up_user = PasswordChange {
+    let u = PasswordChange {
         password: hashed_password,
         updated_at: Some(Utc::now()),
     };
 
-    use schema::users::dsl::*;
-    let _ = diesel::update(users.filter(id.eq(ok_token.id)))
-        .set(up_user)
-        .execute(&mut conn)
+    let _ = sqlx::query_as!(PasswordChange, "UPDATE users SET password=$2, updated_at=$3 WHERE id=$1", t.id, u.password, u.updated_at)
+        .fetch_one(&pool)
         .await;
 
     Ok(Redirect::to("/account/login").into_response())

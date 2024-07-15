@@ -1,34 +1,36 @@
+use sqlx::postgres::PgPool;
+
 use axum::{
     extract::{Form, Path, State},
     response::{Html, IntoResponse, Redirect},
     Extension,
 };
-use chrono::{Utc};
-
-use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
+use chrono::{Utc, NaiveDate};
 
 use tera::Context;
 
 use axum_extra::TypedHeader;
 use headers::Cookie;
 
-use crate::{auth, schema};
+use crate::{auth};
 use crate::{
-    common::{Pool, Templates},
+    common::{Templates},
     provision::models::{
-        FormPrdBkg, AllPrD, BkgPrD, UpPrdBkg,
+        FormPrdBkg, BkgPrD,
     },
-    provision::views::{creat_bkg, update_prv, all_days},
+    provision::views::{creat_bkg, all_days,
+        details,
+        // update_prv
+    },
 };
 
 
 pub async fn get_all_days(
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     Extension(templates): Extension<Templates>
 ) -> impl IntoResponse {
 
-    let all = all_days(State(pool)).await.unwrap();
+    let all = all_days(pool).await.unwrap();
 
     let mut context = Context::new();
     context.insert("all", &all);
@@ -38,7 +40,7 @@ pub async fn get_all_days(
 
 pub async fn get_detail_days(
     Path(prv_id): Path<String>,
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
@@ -51,39 +53,31 @@ pub async fn get_detail_days(
     };
     let number: i32 = prv_id.parse().expect("Not a valid number");
 
-    let mut conn = pool.get().await.unwrap();
-    use schema::provision_d::dsl::*;
-
-    let i: Option<AllPrD> = Some(
-        provision_d
-            .filter(id.eq(number))
-            .select(AllPrD::as_select())
-            .first(&mut conn)
-            .await
-            .unwrap(),
-    );
+    let i = details(pool, number).await.unwrap();
 
     let mut context = Context::new();
     context.insert("i", &i);
     Ok(Html(templates.render("detail_days", &context).unwrap()))
 }
 
+
 pub async fn post_detail_days(
     Path(prv_id): Path<String>,
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Form(form): Form<FormPrdBkg>,
 ) -> impl IntoResponse {
 
+    let number: i32 = prv_id.parse().expect("Not a valid number");
+
     let token = auth::views::request_token(TypedHeader(cookie)).await;
     let owner = token.clone().unwrap().claims.id;
 
-    let start = form.s_dates;
-    let end = form.e_dates;
+    let start = Some(form.s_dates);
+    let end   = Some(form.e_dates);
+    println!("start.. {:?}", start);
 
-    let number: i32 = prv_id.parse().expect("Not a valid number");
-
-    let bkg = BkgPrD {
+    let b = BkgPrD {
         user_id: owner,
         provision_d_id: Some(number),
         title: form.title.clone(),
@@ -92,25 +86,59 @@ pub async fn post_detail_days(
         en_date: end,
         created_at: Utc::now(),
     };
+    let _ = creat_bkg(pool.clone(), b).await.unwrap();
 
-    let _ = creat_bkg(State(pool.clone()), bkg).await;
 
-    let s_vec = vec![start];
-    println!("s vec..{:?}", s_vec);
+    let s_val = form.s_dates;
+    let e_val = form.e_dates;
 
-    let e_vec = vec![end];
-    println!("e vec..{:?}", e_vec);
+    let zero_date = NaiveDate::parse_from_str(
+        "0001-01-01", "%Y-%m-%d"
+    ).expect("msg");
 
-    let d_vec = vec![start, end];
-    println!("d vec..{:?}", d_vec);
+    if start.is_none() && end.is_none() {
+        Redirect::to("/booking/all-booking").into_response();
+    }
+    if start.is_some() && end.is_some() {
+        let s_vec = vec![s_val];
+        let e_vec = vec![e_val];
+        let d_vec = vec![s_val, e_val];
+        let result = sqlx::query!(
+            "UPDATE provision_d SET s_dates=ARRAY_CAT(s_dates, $2), e_dates=ARRAY_CAT(e_dates, $3), dates=ARRAY_CAT(dates, $4), updated_at=$5 WHERE id=$1", number, &s_vec, &e_vec, &d_vec, Some(Utc::now())
+            )
+            .fetch_one(&pool).await;
+        let _ = match result {
+            Ok(result) => Ok(result),
+            Err(err) => Err(err.to_string()),
+        };
+    }
 
-    let prv = UpPrdBkg {
-        s_dates: Some(s_vec),
-        e_dates: Some(e_vec),
-        dates:   Some(d_vec),
-        updated_at: Some(Utc::now()),
-    };
-    let _ = update_prv(State(pool), prv, number).await;
+    if start.is_some() && end.is_none() {
+        let s_vec = vec![s_val];
+        let e_vec = vec![zero_date];
+        let d_vec = vec![s_val, zero_date];
+        let result = sqlx::query!(
+            "UPDATE provision_d SET s_dates=ARRAY_CAT(s_dates, $2), e_dates=ARRAY_CAT(e_dates, $3), dates=ARRAY_CAT(dates, $4), updated_at=$5 WHERE id=$1", number, &s_vec, &e_vec, &d_vec, Some(Utc::now())
+            )
+            .fetch_one(&pool).await;
+        let _ = match result {
+            Ok(result) => Ok(result),
+            Err(err) => Err(err.to_string()),
+        };
+    }
+    if start.is_none() && end.is_some() {
+        let s_vec = vec![zero_date];
+        let e_vec = vec![e_val];
+        let d_vec = vec![zero_date, e_val];
+        let result = sqlx::query!(
+            "UPDATE provision_d SET s_dates=ARRAY_CAT(s_dates, $2), e_dates=ARRAY_CAT(e_dates, $3), dates=ARRAY_CAT(dates, $4), updated_at=$5 WHERE id=$1", number, &s_vec, &e_vec, &d_vec, Some(Utc::now())
+            )
+            .fetch_one(&pool).await;
+        let _ = match result {
+            Ok(result) => Ok(result),
+            Err(err) => Err(err.to_string()),
+        };
+    }
 
     Redirect::to("/booking/all-booking").into_response()
 }

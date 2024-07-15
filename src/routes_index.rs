@@ -1,13 +1,14 @@
+use sqlx::postgres::PgPool;
 use std::sync::Arc;
 
 use axum::{routing::get, Extension, Router};
 
 use tera::Tera;
 
-use crate::{common::Pool, profile};
+use crate::{profile};
 
 
-pub fn build_routes(conn: Pool) -> Router {
+pub fn build_routes(pool: PgPool) -> Router {
 
     let mut base_tera = Tera::default();
     base_tera
@@ -25,5 +26,5 @@ pub fn build_routes(conn: Pool) -> Router {
                 .route("/", get(profile::handlers::index))
                 .layer(Extension(Arc::new(base_tera))),
         );
-    Router::new().nest("/", index_routes.with_state(conn))
+    Router::new().nest("/", index_routes.with_state(pool))
 }

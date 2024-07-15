@@ -1,17 +1,45 @@
-use axum::extract::State;
+// use sqlx::postgres::PgPool;
+// use axum::extract::State;
 
 use axum_extra::TypedHeader;
 use headers::Cookie;
 
-use jsonwebtoken::{errors, DecodingKey, TokenData};
-
-use crate::auth;
-use crate::{
-    auth::models::{Claims, ListUser},
-    common::Pool,
+use jsonwebtoken::{errors,
+    DecodingKey,
+    TokenData
 };
 
-// pub use axum_macros::debug_handler;
+// use crate::auth;
+use crate::{
+    auth::models::{
+        Claims,
+        // ListUser
+    },
+};
+
+
+pub async fn err_user(
+    cookie: TypedHeader<Cookie>,
+) -> Result<Option<Claims>, Option<String>> {
+
+    let token = match cookie.get("visit") {
+        Some(token) => token,
+        None => return Ok(None),
+    };
+
+    let jwt_secret = dotenv::var("JWT_SECRET").expect("JWT SEC.. must be set");
+
+    let decode_token = jsonwebtoken::decode::<Claims>(
+        token,
+        &DecodingKey::from_secret(jwt_secret.as_ref()),
+        &jsonwebtoken::Validation::default(),
+    );
+    match decode_token {
+        Ok(claims) => Ok(Some(claims.claims)),
+        Err(err) => Err(Some(err.to_string())),
+    }
+}
+
 
 pub async fn request_user(
     cookie: TypedHeader<Cookie>,
@@ -38,6 +66,7 @@ pub async fn request_user(
 pub async fn request_token(
     TypedHeader(cookie): TypedHeader<Cookie>,
 ) -> Result<TokenData<Claims>, Option<String>> {
+
     let token = match cookie.get("visit") {
         Some(token) => token,
         None => return Err(Some("Token not found".to_string())),
@@ -54,8 +83,8 @@ pub async fn request_token(
     }
 }
 
-pub async fn request_auth(
-    State(pool): State<Pool>,
+/*pub async fn request_auth(
+    State(pool): State<PgPool>,
     cookie: TypedHeader<Cookie>,
 ) -> Result<Option<ListUser>, Option<String>> {
     
@@ -87,4 +116,4 @@ pub async fn user_token(cookie: TypedHeader<Cookie>) -> Result<Option<Claims>, &
     .unwrap();
 
     Ok(Some(decode_token.claims))
-}
+}*/

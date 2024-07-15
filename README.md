@@ -1,3 +1,3 @@
 # axum-example
 
-axum-diesel-tera-jwt-auth-csv
+axum-sqlx-tera-jwt-auth-csv

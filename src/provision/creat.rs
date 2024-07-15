@@ -1,3 +1,5 @@
+use sqlx::postgres::PgPool;
+
 use axum::{
     extract::{Form, Path, State},
     response::{Html, IntoResponse, Redirect},
@@ -5,34 +7,40 @@ use axum::{
     // body::Body,
     Extension,
 };
-use chrono::{NaiveDate, NaiveDateTime, Utc};
 
-use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
+use chrono::{
+    NaiveDate,
+    // NaiveDateTime,
+    Utc
+};
 
 use tera::Context;
 
 use axum_extra::TypedHeader;
 use headers::Cookie;
 
-use crate::{auth, schema};
+use crate::{auth};
 use crate::{
-    common::{Pool, Templates},
+    common::{Templates},
     provision::models::{
         FormPrD,
-        FormPrH,
-        AllPrD,
-        NewPrD,
-        NewPrH,
-        UpPrD},
+        // FormPrH,
+        // AllPrD,
+        // NewPrH,
+        UpPrD
+    },
+    provision::views::{
+        list_update_prd,
+        post_update_prd,
+    }
 };
 
-pub use axum_macros::debug_handler;
 
 pub async fn get_creat_days(
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
+    
     let token = auth::views::request_user(TypedHeader(cookie)).await;
     let _ = match token {
         Ok(Some(expr)) => expr,
@@ -45,9 +53,8 @@ pub async fn get_creat_days(
 }
 
 
-#[debug_handler]
 pub async fn post_creat_days(
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Form(form): Form<FormPrD>,
 ) -> impl IntoResponse {
@@ -57,45 +64,37 @@ pub async fn post_creat_days(
     let s_value = form.st_date.as_deref().unwrap_or("default string");
     let e_value = form.en_date.as_deref().unwrap_or("default string");
 
-    let start: Option<NaiveDate>;
-    let end: Option<NaiveDate>;
-
-    if !s_value.is_empty() {
-        start = Some(NaiveDate::parse_from_str(s_value, "%Y-%m-%d").expect("REASON"));
+    let start: Option<NaiveDate> = if !s_value.is_empty() {
+        Some(NaiveDate::parse_from_str(s_value, "%Y-%m-%d").expect("REASON"))
     } else {
-        start = None
-    }
-    if !e_value.is_empty() {
-        end = Some(NaiveDate::parse_from_str(e_value, "%Y-%m-%d").expect("REASON"));
-    } else {
-        end = None
-    }
-
-    let mut conn = pool.get().await.unwrap();
-    use schema::provision_d::dsl::*;
-
-    let prv = NewPrD {
-        user_id: token.clone().unwrap().claims.id,
-        title: form.title.clone(),
-        description: form.description.clone(),
-        st_date: start,
-        en_date: end,
-        created_at: Utc::now(),
+        None
     };
-    let _ = diesel::insert_into(provision_d)
-        .values(prv)
-        .returning(NewPrD::as_returning())
-        .get_result(&mut conn)
+
+    let end: Option<NaiveDate> = if !e_value.is_empty() {
+        Some(NaiveDate::parse_from_str(e_value, "%Y-%m-%d").expect("REASON"))
+    } else {
+        None
+    };
+
+    let _ = sqlx::query(
+        "INSERT INTO provision_d (user_id, title, description, st_date, en_date, created_at) VALUES ($1,$2,$3,$4,$5,$6)"
+        )
+        .bind(token.clone().unwrap().claims.id)
+        .bind(form.title.clone())
+        .bind(form.description.clone())
+        .bind(start)
+        .bind(end)
+        .bind(Utc::now())
+        .execute(&pool)
         .await
         .unwrap();
-    Redirect::to("/").into_response()
+    Redirect::to("/provision/all-days").into_response()
 }
 
 
-#[debug_handler]
 pub async fn get_update_days(
     Path(prv_id): Path<String>,
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
@@ -109,77 +108,58 @@ pub async fn get_update_days(
 
     let number: i32 = prv_id.parse().expect("Not a valid number");
 
-    let mut conn = pool.get().await.unwrap();
-    use schema::provision_d::dsl::*;
-
-    let i: Option<AllPrD> = Some(
-        provision_d
-            .filter(id.eq(number))
-            .select(AllPrD::as_select())
-            .first(&mut conn)
-            .await
-            .unwrap(),
-    );
+    let i = list_update_prd(pool, number).await.unwrap();
 
     let mut context = Context::new();
     context.insert("i", &i);
     Ok(Html(templates.render("update_dates", &context).unwrap()))
 }
 
-#[debug_handler]
+
 pub async fn post_update_days(
     Path(prv_id): Path<String>,
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     Form(form): Form<FormPrD>,
 ) -> impl IntoResponse {
 
     let number: i32 = prv_id.parse().expect("Not a valid number");
-    let mut conn = pool.get().await.unwrap();
-    use schema::provision_d::dsl::*;
 
-    let i: UpPrD = provision_d
-        .filter(id.eq(number))
-        .select(UpPrD::as_select())
-        .first(&mut conn)
-        .await
-        .unwrap();
+    let i = list_update_prd(pool.clone(), number).await.unwrap();
     
     let s_value = form.st_date.as_deref().unwrap_or("default string");
     let e_value = form.en_date.as_deref().unwrap_or("default string");
 
-    let start: Option<NaiveDate>;
-    let end: Option<NaiveDate>;
-
-    if !s_value.is_empty() {
-        start = Some(NaiveDate::parse_from_str(s_value, "%Y-%m-%d").expect("REASON"));
+    let start: Option<NaiveDate> = if !s_value.is_empty() {
+        Some(NaiveDate::parse_from_str(s_value, "%Y-%m-%d").expect("REASON"))
     } else {
-        start = i.st_date
-    }
-    if !e_value.is_empty() {
-        end = Some(NaiveDate::parse_from_str(e_value, "%Y-%m-%d").expect("REASON"));
-    } else {
-        end = i.en_date
-    }
+        i.st_date
+    };
 
-    let prv = UpPrD {
+    let end: Option<NaiveDate> = if !e_value.is_empty() {
+        Some(NaiveDate::parse_from_str(e_value, "%Y-%m-%d").expect("REASON"))
+    } else {
+        i.en_date
+    };
+
+    let p = UpPrD {
         title: form.title.clone(),
         description: form.description.clone(),
         st_date: start,
         en_date: end,
         updated_at: Some(Utc::now()),
     };
-    let _ = diesel::update(provision_d.filter(id.eq(number)))
-        .set(prv)
-        .execute(&mut conn)
-        .await
-        .unwrap();
+    let result = post_update_prd(pool, number, p).await;
+    let _ =match result {
+        Ok(result) => Ok(result),
+        Err(err) => Err(err.to_string()),
+    };
 
-    Redirect::to("/").into_response()
+    Redirect::to(&("/provision/detail-days/".to_owned() + &prv_id.to_string())).into_response()
 }
 
 
 // Hours..
-pub async fn get_creat_hours(
+/*pub async fn get_creat_hours(
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
@@ -198,7 +178,7 @@ pub async fn get_creat_hours(
 
 #[debug_handler]
 pub async fn post_creat_hours(
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Form(form): Form<FormPrH>,
 ) -> impl IntoResponse {
@@ -226,9 +206,6 @@ pub async fn post_creat_hours(
         end = None
     }
 
-    let mut conn = pool.get().await.unwrap();
-    use schema::provision_h::dsl::*;
-
     let prv = NewPrH {
         user_id: token.clone().unwrap().claims.id,
         title: form.title.clone(),
@@ -244,4 +221,4 @@ pub async fn post_creat_hours(
         .await
         .unwrap();
     Redirect::to("/").into_response()
-}
+}*/

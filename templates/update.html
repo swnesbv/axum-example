@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% block title %} update {{ user.email }} {% endblock %}
+{% block title %} update {% if user %}{{ user.email }}{% endif %} {% endblock %}
 
 {% block content %}
 
-<h1 class="lead my-3">update <small>user: {{ user.email }}</small></h1>
+{% if user %}
+<h1 class="lead my-3">update <small>user {{ user.email }}</small></h1>
 
 <form class="card" method="POST">
     <div class="card-body">
@@ -39,5 +40,6 @@
         <a href="/account/password-change">password change</a>
     </div>
 </div>
+{% endif %}
 
 {% endblock %}

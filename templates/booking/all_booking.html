@@ -5,6 +5,7 @@
 
 <h1 class="container lead my-2">all booking..</h1>
 
+{% if bkg %}
 {% for i in bkg %}
 <div class="card">
 
@@ -72,5 +73,7 @@
 
 <hr>
 
-{% endfor %}	  
+{% endfor %}
+{% endif %}
+
 {% endblock content %}

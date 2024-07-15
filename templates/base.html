@@ -27,11 +27,22 @@
 <p><sup>{{ token.email }}</sup></p>
 </div>
 {% endif %}
+{% if err_token %}
+<div class="container card">
+<p>{% if err_token %} {{ err_token }} {% endif %}</p>
+</div>
+{% endif %}
 {% if not_user %}
 <div class="container card">
 <p><sup>{{ not_user }}</sup></p>
 </div>
 {% endif %}
+{% if not_details %}
+<div class="container card">
+<p>{% if not_details %} {{ not_details }} {% endif %}</p>
+</div>
+{% endif %}
+
 
 <main role="main" class="base_main container">
     {% block content %}{% endblock %}

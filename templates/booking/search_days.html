@@ -16,6 +16,7 @@
 {% endif %}
 </p>
 
+{% if pr_list %}
 {% for i in pr_list %}
 <div class="card">
 
@@ -97,5 +98,7 @@
 
 <hr>
 
-{% endfor %}	  
+{% endfor %}
+{% endif %}
+
 {% endblock content %}

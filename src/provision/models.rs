@@ -1,22 +1,10 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
-use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::util::date_config::date_format;
 use chrono::serde::ts_seconds_option;
 
-#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Selectable, Insertable)]
-#[diesel(table_name = crate::schema::provision_d)]
-pub struct NewPrD {
-    pub user_id: i32,
-    pub title: String,
-    pub description: Option<String>,
-    pub st_date: Option<NaiveDate>,
-    pub en_date: Option<NaiveDate>,
-    pub created_at: DateTime<Utc>,
-}
-#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Selectable, Insertable)]
-#[diesel(table_name = crate::schema::provision_h)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct NewPrH {
     pub user_id: i32,
     pub title: String,
@@ -26,8 +14,7 @@ pub struct NewPrH {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(AsChangeset, Identifiable, Queryable, PartialEq, Debug, Clone, Selectable, Deserialize, Serialize)]
-#[diesel(table_name = crate::schema::provision_d)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AllPrD {
     pub id: i32,
     pub user_id: i32,
@@ -35,9 +22,9 @@ pub struct AllPrD {
     pub description: Option<String>,
     pub st_date: Option<NaiveDate>,
     pub en_date: Option<NaiveDate>,
-    pub s_dates: Option<Vec<Option<NaiveDate>>>,
-    pub e_dates: Option<Vec<Option<NaiveDate>>>,
-    pub dates: Option<Vec<Option<NaiveDate>>>,
+    pub s_dates: Option<Vec<NaiveDate>>,
+    pub e_dates: Option<Vec<NaiveDate>>,
+    pub dates:   Option<Vec<NaiveDate>>,
     pub completed: bool,
     #[serde(with = "date_format")]
     pub created_at: DateTime<Utc>,
@@ -63,12 +50,11 @@ pub struct FormPrH {
 pub struct FormPrdBkg {
     pub title: String,
     pub description: Option<String>,
-    pub s_dates: Option<NaiveDate>,
-    pub e_dates: Option<NaiveDate>,
+    pub s_dates: NaiveDate,
+    pub e_dates: NaiveDate,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Selectable, Insertable, AsChangeset)]
-#[diesel(table_name = crate::schema::provision_d)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UpPrD {
     pub title: String,
     pub description: Option<String>,
@@ -79,8 +65,7 @@ pub struct UpPrD {
 }
 
 
-#[derive(Queryable, PartialEq, Debug, Clone, Deserialize, Serialize, Selectable, Insertable)]
-#[diesel(table_name = crate::schema::booking)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct BkgPrD {
     pub user_id: i32,
     pub provision_d_id: Option<i32>,
@@ -91,12 +76,11 @@ pub struct BkgPrD {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Selectable, Insertable, AsChangeset)]
-#[diesel(table_name = crate::schema::provision_d)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UpPrdBkg {
-    pub s_dates: Option<Vec<Option<NaiveDate>>>,
-    pub e_dates: Option<Vec<Option<NaiveDate>>>,
-    pub dates: Option<Vec<Option<NaiveDate>>>,
+    pub s_dates: Vec<NaiveDate>,
+    pub e_dates: Vec<NaiveDate>,
+    pub dates:   Vec<NaiveDate>,
     #[serde(with = "ts_seconds_option")]
     pub updated_at: Option<DateTime<Utc>>,
 }

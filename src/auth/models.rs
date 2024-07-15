@@ -1,12 +1,10 @@
 use chrono::{DateTime, Utc};
-use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::util::date_config::date_format;
 use chrono::serde::ts_seconds_option;
 
-#[derive(Debug, Clone, Serialize, Queryable, Selectable)]
-#[diesel(table_name = crate::schema::users)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListUser {
     pub id: i32,
     pub email: String,

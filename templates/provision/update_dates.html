@@ -7,7 +7,7 @@
 
 {% if i %}
 <h1 class="container lead my-3">update dates: {{ i.title }}</h1>
-<p>start {% if i.st_date %} {{ i.st_date }} & end {% endif %} {% if i.en_date %} {{ i.en_date }} {% endif %}</p>
+<p>{% if i.st_date %} {{ i.st_date }} &  {% endif %} {% if i.en_date %} {{ i.en_date }} {% endif %}</p>
 <form class="card" method="POST">
 
     <div class="card-body">

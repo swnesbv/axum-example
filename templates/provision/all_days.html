@@ -30,18 +30,22 @@
 	<li class="list-group-item">
 	<span class="badge text-bg-light">start dates</span>
 	{% if i.s_dates %}
-	{{ i.s_dates }}
+	{% for s in i.s_dates %}
+		{{ s }},
+	{% endfor %}
 	{% endif %}
 	<span class="badge text-bg-light">end dates</span>
 	{% if i.e_dates %}
-	{{ i.e_dates }}
+	{% for e in i.e_dates %}
+		{{ e }},
+	{% endfor %}
 	{% endif %}
 	</li>
 	<li class="list-group-item">
 	<span class="badge text-bg-light">dates</span>
 	{% if i.dates %}
-	{% for v in i.dates %}
-	{{ v }}
+	{% for d in i.dates %}
+	{{ d }},
 	{% endfor %}
 	{% endif %}
 	</li>

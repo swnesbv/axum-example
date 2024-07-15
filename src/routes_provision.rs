@@ -1,13 +1,14 @@
+use sqlx::postgres::PgPool;
 use std::sync::Arc;
 
 use axum::{routing::get, Extension, Router};
 
 use tera::Tera;
 
-use crate::{common::Pool, provision};
+use crate::{provision};
 
 
-pub fn build_routes(conn: Pool) -> Router {
+pub fn build_routes(pool: PgPool) -> Router {
 
     let mut provision_tera = Tera::default();
     provision_tera
@@ -29,7 +30,7 @@ pub fn build_routes(conn: Pool) -> Router {
                 "update_dates",
                 include_str!("../templates/provision/update_dates.html"),
             ),
-            ("creat_hours", include_str!("../templates/provision/creat_hours.html")),
+            // ("creat_hours", include_str!("../templates/provision/creat_hours.html")),
             // ("detail_hours", include_str!("../templates/provision/export_csv.html")),
         ])
         .unwrap();
@@ -56,13 +57,13 @@ pub fn build_routes(conn: Pool) -> Router {
                 get(provision::handlers::get_detail_days)
                     .post(provision::handlers::post_detail_days),
             )
-            .route(
-                "/creat-hours", get(provision::creat::get_creat_hours).post(provision::creat::post_creat_days)
-            )
+            // .route(
+            //     "/creat-hours", get(provision::creat::get_creat_hours).post(provision::creat::post_creat_days)
+            // )
             // .route(
             //     "/detail-hours", get(profile::accreditation::get_password_change).post(profile::accreditation::post_password_change)
             // )
             .layer(Extension(Arc::new(provision_tera))),
     );
-    Router::new().nest("/", provision_routes.with_state(conn))
+    Router::new().nest("/", provision_routes.with_state(pool))
 }

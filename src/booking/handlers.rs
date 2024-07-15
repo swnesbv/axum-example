@@ -1,75 +1,58 @@
+use sqlx::postgres::PgPool;
+
 use axum::{
     extract::State,
-    response::{Html, IntoResponse, Redirect},
+    response::{
+        Html,
+        IntoResponse,
+        Redirect,
+    },
     // http::{Request,Response,StatusCode},
     // body::Body,
     Extension,
 };
-use chrono::NaiveDate;
-
-// use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
 
 use tera::Context;
 
 use axum_extra::TypedHeader;
 use headers::Cookie;
+// use chrono::NaiveDate;
 
-// use crate::schema;
 use crate::{
-    common::{Pool, DBConnection, Templates},
+    common::{Templates},
+    booking::views::{all, slt},
     booking::models::{
         Claims,
-        SqlPrD,
-        // AllPrD,
-        // LtBkg
     },
-    booking::views::{all_bkg},
 };
 
-pub use axum_macros::debug_handler;
 
-pub async fn get_all(
-    DBConnection(conn): DBConnection,
-    Extension(templates): Extension<Templates>
+pub async fn bkg_all(
+    State(pool): State<PgPool>,
+    Extension(templates): Extension<Templates>,
 ) -> impl IntoResponse {
 
-    let bkg = all_bkg(DBConnection(conn)).await.unwrap();
+    let bkg = all(pool).await.unwrap();
 
     let mut context = Context::new();
     context.insert("bkg", &bkg);
     Html(templates.render("all_booking", &context).unwrap())
 }
-/*pub async fn get_all(
-    DBConnection(mut conn): DBConnection,
-    Extension(templates): Extension<Templates>
-) -> impl IntoResponse {
-
-    use schema::booking::dsl::*;
-    let bkg = booking
-        .select(LtBkg::as_select())
-        .load(&mut conn)
-        .await
-        .unwrap();
-
-    let mut context = Context::new();
-    context.insert("bkg", &bkg);
-    Html(templates.render("all_booking", &context).unwrap())
-}*/
 
 
-#[debug_handler]
-pub async fn get_search_days(
-    State(pool): State<Pool>,
+pub async fn search_days(
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
     
     let token = match cookie.get("period") {
         Some(expr) => expr,
-        None => return Err(Redirect::to("/booking/creat-period-days").into_response()),
+        None => return Err(
+            Redirect::to("/booking/creat-period-days").into_response()
+        ),
     };
-
+    // let current_time = Utc::now().date_naive();
     use base64::{engine::general_purpose::STANDARD, Engine as _};
 
     let t_64 = match STANDARD.decode(token) {
@@ -78,31 +61,7 @@ pub async fn get_search_days(
     };
     let k: Claims = bincode::deserialize(&t_64[..]).unwrap();
 
-    // let current_time = Utc::now().date_naive();
-
-    let mut conn = pool.get().await.unwrap();
-    // use schema::provision_d::dsl::*;
-
-    let custom_query = "SELECT * FROM provision_d WHERE st_date <= $1 AND en_date >= $2 AND NOT daterange($1, $2, '[]') @> ANY(dates) OR dates IS NULL";
-    
-    use diesel::sql_query;
-    use diesel::sql_types::Date;
-    let pr_list:Vec<SqlPrD> = sql_query(custom_query)
-        .bind::<Date, NaiveDate>(k.start)
-        .bind::<Date, NaiveDate>(k.end)
-        .load::<SqlPrD>(&mut conn)
-        .await
-        .unwrap();
-
-    // let pr_list = provision_d
-    //     .filter(st_date.lt(k.start).and(en_date.gt(k.end)))
-    //     .filter(
-    //         dates.ne(vec![k.start, k.end])
-    //     )
-    //     .select(AllPrD::as_select())
-    //     .load(&mut conn)
-    //     .await
-    //     .unwrap();
+    let pr_list = slt(pool, k.start, k.end).await.unwrap();
 
     let mut context = Context::new();
     context.insert("k", &k);

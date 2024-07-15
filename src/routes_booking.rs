@@ -1,13 +1,18 @@
+use sqlx::postgres::PgPool;
 use std::sync::Arc;
 
-use axum::{routing::get, Extension, Router};
+use axum::{
+    routing::get,
+    Extension, Router
+};
 
 use tera::Tera;
 
-use crate::{booking, common::Pool};
+use crate::{booking};
 
-pub fn build_routes(conn: Pool) -> Router {
-    
+
+pub fn build_routes(pool: PgPool) -> Router {
+
     let mut booking_tera = Tera::default();
     booking_tera
         .add_raw_templates(vec![
@@ -30,14 +35,14 @@ pub fn build_routes(conn: Pool) -> Router {
     let booking_routes = Router::new().nest(
         "/booking",
         Router::new()
-            .route("/all-booking", get(booking::handlers::get_all))
+            .route("/all-booking", get(booking::handlers::bkg_all))
             .route(
                 "/creat-period-days",
                 get(booking::creat::get_period).post(booking::creat::post_period),
             )
             .route(
                 "/search-period-days",
-                get(booking::handlers::get_search_days),
+                get(booking::handlers::search_days),
             )
             /*.route(
                 "/creat-period-hours", get(profile::accreditation::get_signup).post(profile::accreditation::post_signup)
@@ -47,5 +52,5 @@ pub fn build_routes(conn: Pool) -> Router {
             )*/
             .layer(Extension(Arc::new(booking_tera))),
     );
-    Router::new().nest("/", booking_routes.with_state(conn))
+    Router::new().nest("/", booking_routes.with_state(pool))
 }

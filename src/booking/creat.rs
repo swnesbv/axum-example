@@ -14,9 +14,6 @@ use axum::{
     Extension,
 };
 
-// use diesel::prelude::*;
-// use diesel_async::{RunQueryDsl};
-
 use tera::Context;
 
 // use headers::Cookie;
@@ -29,14 +26,17 @@ use crate::{
         Templates,
     },
 };
-// use crate::{schema, auth};
 
 pub use axum_macros::debug_handler;
 
 #[debug_handler]
-pub async fn get_period(Extension(templates): Extension<Templates>) -> impl IntoResponse {
+pub async fn get_period(
+    Extension(templates): Extension<Templates>
+) -> impl IntoResponse {
+
     Html(templates.render("period", &Context::new()).unwrap())
 }
+
 
 #[debug_handler]
 pub async fn post_period(Form(form): Form<FormSE>) -> impl IntoResponse {

@@ -1,4 +1,6 @@
-use chrono::Utc;
+use sqlx::postgres::PgPool;
+
+use chrono::{Utc};
 
 use axum::{
     body::Body,
@@ -8,46 +10,35 @@ use axum::{
         Response,
         StatusCode,
     },
-    response::{Html, IntoResponse, Redirect},
+    response::{
+        Html, IntoResponse,
+        // Redirect
+    },
     Extension,
 };
 
 use tera::Context;
-
-use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
-
-use csv::{Reader, Writer};
 
 use pbkdf2::{
     password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
     Pbkdf2,
 };
 
-use crate::schema;
 use crate::{
-    common::{Pool, Templates},
-    import_export::models::{CsvUser, ExCsvUser},
+    common::{Templates},
+    import_export::models::{ExCsvUser, ExCsv},
+    import_export::views::{all},
 };
 
-pub use axum_macros::debug_handler;
 
-#[debug_handler]
-pub async fn import_users(State(pool): State<Pool>) -> impl IntoResponse {
-    let mut conn = pool.get().await.unwrap();
+pub async fn import_users(State(pool): State<PgPool>) -> impl IntoResponse {
 
-    use schema::users::dsl::*;
+    let data = all(pool).await.unwrap();
 
-    let data = users
-        .select(CsvUser::as_select())
-        .load(&mut conn)
-        .await
-        .unwrap();
+    let mut wtr = csv::Writer::from_writer(vec![]);
 
-    let mut wtr = Writer::from_writer(vec![]);
-
-    for pat in data {
-        wtr.serialize(pat).unwrap();
+    for i in data {
+        wtr.serialize(i).unwrap();
     }
     wtr.flush().unwrap();
 
@@ -61,60 +52,71 @@ pub async fn import_users(State(pool): State<Pool>) -> impl IntoResponse {
 
 // export
 
-#[debug_handler]
-pub async fn get_export_users(Extension(templates): Extension<Templates>) -> impl IntoResponse {
+pub async fn get_export_users(
+    Extension(templates): Extension<Templates>
+) -> impl IntoResponse {
+
     Html(templates.render("export_csv", &Context::new()).unwrap())
 }
 
-#[debug_handler]
-pub async fn export_users(State(pool): State<Pool>, mut multipart: Multipart) -> impl IntoResponse {
+
+pub async fn export_users(
+    State(pool): State<PgPool>,
+    Extension(templates): Extension<Templates>,
+    mut multipart: Multipart,
+) -> impl IntoResponse {
+
+    let mut context = Context::new();
+
     while let Some(field) = multipart.next_field().await.unwrap() {
         let data = field.bytes().await.unwrap();
 
         let body = String::from_utf8(data.to_vec()).unwrap();
-        let mut rdr = Reader::from_reader(body.as_bytes());
 
-        let mut conn = pool.get().await.unwrap();
-        use schema::users::dsl::*;
+        let mut rdr = csv::ReaderBuilder::new()
+            .has_headers(false)
+            .from_reader(body.as_bytes());
 
         for result in rdr.deserialize() {
-            let record: ExCsvUser = result.unwrap();
-            println!("record .. {:?}", record);
-            println!("result id .. {:?}", record.password);
+            let i: ExCsvUser = result.unwrap();
+            println!(" i.. {:?}", i);
 
             let salt = SaltString::generate(&mut OsRng);
-            let pass = Pbkdf2.hash_password(record.password.as_bytes(), &salt);
+            let pass = Pbkdf2.hash_password(i.password.as_bytes(), &salt);
             let hashed_password = match pass {
                 Ok(pass) => pass.to_string(),
                 Err(_) => "Err password".to_string(),
             };
 
-            let new_user = CsvUser {
-                id: record.id,
-                email: record.email,
-                username: record.username,
+            let u = ExCsv {
+                email: i.email,
+                username: i.username,
                 password: hashed_password,
-                img: record.img,
+                img: i.img,
                 created_at: Utc::now(),
                 updated_at: Some(Utc::now()),
             };
-            diesel::insert_into(users)
-                .values(new_user)
-                .returning(CsvUser::as_returning())
-                .get_result(&mut conn)
-                .await
-                .unwrap();
-        }
-    }
 
-    Redirect::to("/").into_response()
+            let result = sqlx::query(
+                "INSERT INTO users(email, username, password, img, created_at)  VALUES ($1,$2,$3,$4,$5)", 
+                )
+                .bind(&u.email)
+                .bind(&u.username)
+                .bind(&u.password)
+                .bind(&u.img)
+                .bind(u.created_at)
+                .execute(&pool)
+                .await;
+
+            if let Err(err) = result {
+                println!("Error inserting employee: {:#?}", u);
+                println!("Error message: [{}].\n", err);
+                context.insert("not_details", &err.to_string());
+                return Err(Html(templates.render("export_csv", &context).unwrap()));
+            };
+        } // for
+    } // while
+
+    context.insert("not_details", "Ok! Export csv..");
+    Ok(Html(templates.render("export_csv", &context).unwrap()))
 }
-
-// use axum::body;
-// req: Request<Body>
-// let buf = body::to_bytes(
-//     req.into_body(), usize::MAX
-// ).await.unwrap();
-// let body = String::from_utf8(buf.to_vec()).unwrap();
-
-// let mut rdr = Reader::from_reader(body.as_bytes());

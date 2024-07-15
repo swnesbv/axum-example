@@ -1,12 +1,11 @@
+use sqlx::postgres::PgPool;
+
 use axum::{
     extract::{Multipart, State},
     response::{Html, IntoResponse, Redirect},
     Extension,
 };
 use chrono::Utc;
-
-use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
 
 use std::fs;
 use std::fs::File;
@@ -17,35 +16,50 @@ use tera::Context;
 use axum_extra::TypedHeader;
 use headers::Cookie;
 
-use crate::{auth, schema};
+use crate::{auth};
 use crate::{
-    common::{Pool, Templates},
+    common::{Templates},
     photo::models::ImgUser,
 };
 
-pub use axum_macros::debug_handler;
 
-#[debug_handler]
-pub async fn get_photo_users(Extension(templates): Extension<Templates>) -> impl IntoResponse {
-    Html(templates.render("photo", &Context::new()).unwrap())
+pub async fn get_photo_users(
+    TypedHeader(cookie): TypedHeader<Cookie>,
+    Extension(templates): Extension<Templates>,
+) -> impl IntoResponse {
+
+    let mut context = Context::new();
+    let token = auth::views::request_user(TypedHeader(cookie)).await;
+    match token {
+        Ok(Some(expr)) => expr,
+        Ok(None) =>  return Ok(Redirect::to("/account/login").into_response()),
+        Err(err) => {
+                context.insert("err_token", &err.expect("REASON").to_string());
+                return Err(Html(templates.render("photo", &context).unwrap()));
+            }
+    };
+    Err(Html(templates.render("photo", &Context::new()).unwrap()))
 }
 
-#[debug_handler]
+
 pub async fn photo_users(
-    State(pool): State<Pool>,
+    State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
+    Extension(templates): Extension<Templates>,
     mut multipart: Multipart,
-) -> Result<impl IntoResponse, impl IntoResponse> {
+) -> impl IntoResponse {
+
+    let mut context = Context::new();
 
     let token = auth::views::request_user(TypedHeader(cookie)).await;
-    let ok_token = match token {
+    let t = match token {
         Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
+        Ok(None) => return Ok(Redirect::to("/account/login").into_response()),
+        Err(err) => {
+                context.insert("err_token", &err.expect("REASON").to_string());
+                return Err(Html(templates.render("photo", &context).unwrap()));
+            }
     };
-
-    let mut conn = pool.get().await.unwrap();
-    use schema::users::dsl::*;
 
     while let Some(field) = multipart.next_field().await.unwrap() {
         let f_name = field.file_name().unwrap().to_string();
@@ -55,15 +69,19 @@ pub async fn photo_users(
         let mut buffer = File::create(format!("./assets/img/user/{}", f_name)).unwrap();
         buffer.write_all(&data).unwrap();
 
-        let img_user = ImgUser {
+        let i = ImgUser {
             img: format!("/assets/img/user/{}", f_name),
             updated_at: Utc::now(),
         };
 
-        let _ = diesel::update(users.filter(id.eq(ok_token.id)))
-            .set(img_user)
-            .execute(&mut conn)
-            .await;
+        sqlx::query_as!(
+            ImgUser, "UPDATE users SET img=$2, updated_at=$3 WHERE id=$1", t.id, &i.img, Some(Utc::now())
+            )
+            .fetch_one(&pool)
+            .await
+            .unwrap();
     }
-    Ok(Redirect::to("/").into_response())
+    Ok(
+        Redirect::to(&("/account/user/".to_owned() + &t.id.to_string())).into_response()
+    )
 }

@@ -1,26 +1,23 @@
+use sqlx::postgres::PgPool;
 use axum::{
-    extract::Path,
+    extract::{State, Path},
     response::{Html, IntoResponse},
     Extension,
 };
-
-use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
 
 use tera::Context;
 
 use axum_extra::TypedHeader;
 use headers::Cookie;
 
-use crate::{auth, schema};
 use crate::{
-    common::{DBConnection, Templates},
-    profile::models::ListUser,
+    common::{Templates},
+    auth::views::{request_user},
+    profile::views::{all, details},
+    // profile::models::{ListUser},
 };
 
-pub use axum_macros::debug_handler;
 
-#[debug_handler]
 pub async fn index(
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
@@ -28,7 +25,7 @@ pub async fn index(
     
     let mut context = Context::new();
 
-    let token = auth::views::request_user(TypedHeader(cookie)).await;
+    let token = request_user(TypedHeader(cookie)).await;
 
     match token {
         Ok(Some(token)) => {
@@ -39,8 +36,8 @@ pub async fn index(
             context.insert("not_user", "unauthorized");
             Err(Html(templates.render("index", &context).unwrap()))
         }
-        Err(_) => {
-            context.insert("not_user", "err token");
+        Err(err) => {
+            context.insert("not_user", &err.expect("REASON").to_string());
             Err(Html(templates.render("index", &context).unwrap()))
         }
     }
@@ -48,44 +45,35 @@ pub async fn index(
 
 
 pub async fn users(
-    DBConnection(mut conn): DBConnection,
+    State(pool): State<PgPool>,
     Extension(templates): Extension<Templates>,
 ) -> impl IntoResponse {
     
-    use schema::users::dsl::*;
-    let obj = users
-        .select(ListUser::as_select())
-        .load(&mut conn)
-        .await
-        .unwrap();
+    let users = all(pool).await.unwrap();
 
     let mut context = Context::new();
-    context.insert("users", &obj);
+    context.insert("users", &users);
     Html(templates.render("users", &context).unwrap())
 }
 
 pub async fn user(
     Path(name): Path<String>,
-    DBConnection(mut conn): DBConnection,
+    State(pool): State<PgPool>,
     Extension(templates): Extension<Templates>,
-) -> impl IntoResponse {
-    use schema::users::dsl::*;
+) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let user: Option<ListUser> = Some(
-        users
-            .filter(username.eq(name))
-            .select(ListUser::as_select())
-            .first(&mut conn)
-            .await
-            .unwrap(),
-    );
+    let user = details(pool, name).await;
 
     let mut context = Context::new();
-    if user.is_some() {
-        context.insert("user", &user);
-        Html(templates.render("user", &context).unwrap())
-    } else {
-        context.insert("not_user", "None..");
-        Html(templates.render("user", &context).unwrap())
+
+    match user {
+        Ok(user) => {
+            context.insert("user", &user);
+            Ok(Html(templates.render("user", &context).unwrap()))
+        },
+        Err(err) => {
+            context.insert("not_details", &err);
+            Err(Html(templates.render("user", &context).unwrap()))
+        }
     }
 }

@@ -1,30 +1,27 @@
-// use axum::{
-//     extract::{State},
-// };
+use sqlx::postgres::PgPool;
 
-use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
+use chrono::NaiveDate;
 
-use crate::{schema};
 use crate::{
-    common::{DBConnection},
     booking::models::{
-    	LtBkg,
-        // UpPrdBkg,
+        LtBkg,
+        SllPrD
     },
 };
 
 
-pub async fn all_bkg(
-	DBConnection(mut conn): DBConnection,
-) -> QueryResult<Vec<LtBkg>> {
+pub async fn all(pool: PgPool) -> Result<Vec<LtBkg>, String> {
+    let result = sqlx::query_as!(LtBkg, "SELECT * FROM booking")
+        .fetch_all(&pool).await.unwrap();
+    Ok(result)
+}
 
-	use schema::booking::dsl::*;
 
-    let bkg = booking.select(LtBkg::as_select())
-        .load(&mut conn)
-        .await
-        .unwrap();
-
-    Ok(bkg)
+pub async fn slt(
+    pool: PgPool, start: NaiveDate, end: NaiveDate
+) -> Result<Vec<SllPrD>, String> {
+    
+    let result = sqlx::query_as!(SllPrD, "SELECT id, user_id, title, description, st_date, en_date, s_dates, e_dates, dates, completed, created_at, updated_at FROM provision_d WHERE st_date <= $1 AND en_date >= $2 AND NOT daterange($1, $2, '[]') @> ANY(dates) OR dates IS NULL ORDER BY id", start, end)
+        .fetch_all(&pool).await.unwrap();
+    Ok(result)
 }
