@@ -22,6 +22,14 @@
 
 {% include "navbar.html" %}
 
+{% if msg %}
+<div class="container card">
+<p  class="alert alert-{{ msg.alert }}" role="alert">
+    <span>{{ msg.msg }}</span>
+</p>
+</div>
+{% endif %}
+
 {% if token %}
 <div class="container card">
 <p><sup>{{ token.email }}</sup></p>

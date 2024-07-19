@@ -30,7 +30,7 @@ pub fn build_routes(pool: PgPool) -> Router {
                 "update_dates",
                 include_str!("../templates/provision/update_dates.html"),
             ),
-            // ("creat_hours", include_str!("../templates/provision/creat_hours.html")),
+            ("creat_hours", include_str!("../templates/provision/creat_hours.html")),
             // ("detail_hours", include_str!("../templates/provision/export_csv.html")),
         ])
         .unwrap();
@@ -38,8 +38,6 @@ pub fn build_routes(pool: PgPool) -> Router {
     let provision_routes = Router::new().nest(
         "/provision",
         Router::new()
-            // .route("/all-prv-days", get(profile::handlers::users))
-            // .route("/all-prv-hours", get(profile::handlers::user))
             .route(
                 "/creat-days",
                 get(provision::creat::get_creat_days).post(provision::creat::post_creat_days),

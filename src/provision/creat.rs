@@ -3,14 +3,14 @@ use sqlx::postgres::PgPool;
 use axum::{
     extract::{Form, Path, State},
     response::{Html, IntoResponse, Redirect},
-    // http::{Request,Response,StatusCode},
+    // http::{Request, Response, StatusCode},
     // body::Body,
     Extension,
 };
 
 use chrono::{
     NaiveDate,
-    // NaiveDateTime,
+    NaiveDateTime,
     Utc
 };
 
@@ -24,9 +24,8 @@ use crate::{
     common::{Templates},
     provision::models::{
         FormPrD,
-        // FormPrH,
+        FormPrH,
         // AllPrD,
-        // NewPrH,
         UpPrD
     },
     provision::views::{
@@ -159,7 +158,7 @@ pub async fn post_update_days(
 
 
 // Hours..
-/*pub async fn get_creat_hours(
+pub async fn get_creat_hours(
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
@@ -176,7 +175,6 @@ pub async fn post_update_days(
 }
 
 
-#[debug_handler]
 pub async fn post_creat_hours(
     State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
@@ -188,37 +186,32 @@ pub async fn post_creat_hours(
     let s_value = form.st_hour.as_deref().unwrap_or("default string");
     let e_value = form.en_hour.as_deref().unwrap_or("default string");
 
-    let start: Option<NaiveDateTime>;
-    let end: Option<NaiveDateTime>;
-
-    if !s_value.is_empty() {
-        start = Some(
+    let start: Option<NaiveDateTime> = if !s_value.is_empty() {
+        Some(
             NaiveDateTime::parse_from_str(s_value, "%Y-%m-%d %H:%M:%S").expect("REASON")
-        );
+        )
     } else {
-        start = None
-    }
-    if !e_value.is_empty() {
-        end = Some(
-            NaiveDateTime::parse_from_str(e_value, "%Y-%m-%d %H:%M:%S").expect("REASON")
-        );
-    } else {
-        end = None
-    }
-
-    let prv = NewPrH {
-        user_id: token.clone().unwrap().claims.id,
-        title: form.title.clone(),
-        description: form.description.clone(),
-        st_hour: start,
-        en_hour: end,
-        created_at: Utc::now(),
+        None
     };
-    let _ = diesel::insert_into(provision_h)
-        .values(prv)
-        .returning(NewPrH::as_returning())
-        .get_result(&mut conn)
+    let end: Option<NaiveDateTime> = if !e_value.is_empty() {
+        Some(
+            NaiveDateTime::parse_from_str(e_value, "%Y-%m-%d %H:%M:%S").expect("REASON")
+        )
+    } else {
+        None
+    };
+
+    let _ = sqlx::query(
+        "INSERT INTO provision_h (user_id, title, description, st_hour, en_hour, created_at) VALUES ($1,$2,$3,$4,$5,$6)"
+        )
+        .bind(token.clone().unwrap().claims.id)
+        .bind(form.title.clone())
+        .bind(form.description.clone())
+        .bind(start)
+        .bind(end)
+        .bind(Utc::now())
+        .execute(&pool)
         .await
         .unwrap();
     Redirect::to("/").into_response()
-}*/
+}

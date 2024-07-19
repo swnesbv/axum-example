@@ -17,16 +17,29 @@ use pbkdf2::{
 
 use jsonwebtoken::{encode, EncodingKey, Header};
 
+use axum_extra::TypedHeader;
+use headers::Cookie;
+
 use tera::Context;
 
 use crate::{
-    auth::models::{Claims, FormLogin, ListUser},
     common::{Templates},
+    photo::views::{read_msg},
+    auth::models::{Claims, FormLogin, ListUser},
 };
 
 
-pub async fn get_login(Extension(templates): Extension<Templates>) -> impl IntoResponse {
-    Html(templates.render("login", &Context::new()).unwrap())
+pub async fn get_login(
+    TypedHeader(cookie): TypedHeader<Cookie>,
+    Extension(templates): Extension<Templates>
+) -> impl IntoResponse {
+
+    let msg = read_msg(TypedHeader(cookie)).await.unwrap();
+    println!("msg..{:?}", msg);
+
+    let mut context = Context::new();
+    context.insert("msg", &msg.unwrap());
+    Html(templates.render("login", &context).unwrap())
 }
 
 pub async fn post_login(

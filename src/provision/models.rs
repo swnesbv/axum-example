@@ -1,18 +1,12 @@
-use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
+use chrono::{DateTime, NaiveDate,
+    // NaiveDateTime,
+    Utc
+};
 use serde::{Deserialize, Serialize};
 
 use crate::util::date_config::date_format;
 use chrono::serde::ts_seconds_option;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct NewPrH {
-    pub user_id: i32,
-    pub title: String,
-    pub description: Option<String>,
-    pub st_hour: Option<NaiveDateTime>,
-    pub en_hour: Option<NaiveDateTime>,
-    pub created_at: DateTime<Utc>,
-}
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AllPrD {

@@ -27,9 +27,7 @@ use crate::{
     },
 };
 
-pub use axum_macros::debug_handler;
 
-#[debug_handler]
 pub async fn get_period(
     Extension(templates): Extension<Templates>
 ) -> impl IntoResponse {
@@ -37,8 +35,6 @@ pub async fn get_period(
     Html(templates.render("period", &Context::new()).unwrap())
 }
 
-
-#[debug_handler]
 pub async fn post_period(Form(form): Form<FormSE>) -> impl IntoResponse {
     let s_value = form.start;
     let e_value = form.end;

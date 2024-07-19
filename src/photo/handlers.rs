@@ -16,10 +16,11 @@ use tera::Context;
 use axum_extra::TypedHeader;
 use headers::Cookie;
 
-use crate::{auth};
 use crate::{
+    auth,
     common::{Templates},
     photo::models::ImgUser,
+    photo::views::{add_msg},
 };
 
 
@@ -28,17 +29,17 @@ pub async fn get_photo_users(
     Extension(templates): Extension<Templates>,
 ) -> impl IntoResponse {
 
-    let mut context = Context::new();
     let token = auth::views::request_user(TypedHeader(cookie)).await;
     match token {
-        Ok(Some(expr)) => expr,
-        Ok(None) =>  return Ok(Redirect::to("/account/login").into_response()),
-        Err(err) => {
-                context.insert("err_token", &err.expect("REASON").to_string());
-                return Err(Html(templates.render("photo", &context).unwrap()));
-            }
+        Ok(Some(token)) => token,
+        Ok(None) =>  return Err(Redirect::to("/account/login").into_response()),
+        Err(err) => return Err(
+            add_msg(
+                err.expect("REASON").to_string(), "/account/login".to_string(), "danger".to_string()
+            ).await
+        )
     };
-    Err(Html(templates.render("photo", &Context::new()).unwrap()))
+    Ok(Html(templates.render("photo", &Context::new()).unwrap()))
 }
 
 
