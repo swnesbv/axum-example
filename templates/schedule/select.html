@@ -17,7 +17,7 @@
 			<span class="badge text-bg-light">owner</span>{{ i.user_id }}
 		</li>
 		<li class="list-group-item">{{ i.title }}</li>
-		{{ if i.description }}
+		{% if i.description %}
 			<li class="list-group-item">{{ i.description }}</li>
 		{% endif %}
 		<li class="list-group-item">
@@ -28,7 +28,7 @@
 		</li>
 	</ul>
 
-	{{ if i.occupied }}
+	{% if i.occupied %}
 		<ul class="list-group list-group-flush">
 			<li class="list-group-item">
 				<span class="badge text-bg-light">list occupied</span>
@@ -86,14 +86,14 @@
 		<li class="list-group-item">
 		<span class="badge text-bg-light">created</span>
 		<time>
-		{{ i.created_at | date(format="%Y-%m-%d %H:%M")  }}
+		{{ i.created_at  }}
 		</time>
 		</li>
 		<li class="list-group-item">
 		{% if i.updated_at %}
 		<sup>updated</sup> 
 		<time>
-		{{ i.Updated_at | date(format="%Y-%m-%d %H:%M") }}
+		{{ i.Updated_at | date(format="%Y-%m-%d %H:%M:%S") }}
 		</time>
 		{% else %}
 			there are no updates

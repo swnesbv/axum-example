@@ -3,12 +3,6 @@ use sqlx::postgres::PgPool;
 use axum::{
     extract::{Form, State},
     response::{Html, IntoResponse, Redirect},
-    // http::{
-    //     // Request,
-    //     Response,
-    //     // StatusCode
-    // },
-    // body::Body,
     Extension,
 };
 
@@ -27,7 +21,6 @@ use crate::{
     common::{Templates},
     schedule::models::{
         FormSch,
-        // ParseForm,
     },
 };
 
@@ -78,10 +71,11 @@ pub async fn post_creat(
     let l_val = form.vec_list.as_deref().unwrap();
     let mut hours = Vec::new();
     if !l_val.is_empty() {
+        for i in l_val.split(&[','][..]) {
+            hours.push(NaiveDateTime::parse_from_str(i, "%Y-%m-%d %H:%M").unwrap())
+        };
         Some(
-            for i in l_val.split(&[','][..]) {
-                hours.push(NaiveDateTime::parse_from_str(i, "%Y-%m-%d %H:%M").unwrap())
-            }
+            ()
         )
     } else {
         None

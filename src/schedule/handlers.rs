@@ -24,7 +24,7 @@ use crate::{auth};
 use crate::{
     common::{Templates},
     schedule::models::{FormSelect},
-    schedule::views::{sch_select},
+    schedule::views::{all_sch, sch_select},
 };
 
 
@@ -33,7 +33,7 @@ pub async fn get_all(
     Extension(templates): Extension<Templates>,
 ) -> impl IntoResponse {
 
-    let all = sch_select(pool).await.unwrap();
+    let all = all_sch(pool).await.unwrap();
 
     let mut context = Context::new();
     context.insert("all", &all);
@@ -57,7 +57,7 @@ pub async fn get_select(
 
     let mut context = Context::new();
     context.insert("all", &all);
-    Ok(Html(templates.render("detail_days", &context).unwrap()))
+    Ok(Html(templates.render("select", &context).unwrap()))
 }
 
 
