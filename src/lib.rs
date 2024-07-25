@@ -6,6 +6,7 @@ pub mod routes_index;
 pub mod routes_account;
 pub mod routes_booking;
 pub mod routes_provision;
+pub mod routes_schedule;
 
 pub mod util {
     pub mod date_config;
@@ -43,6 +44,12 @@ pub mod booking {
     pub mod views;
 }
 pub mod provision {
+    pub mod creat;
+    pub mod handlers;
+    pub mod models;
+    pub mod views;
+}
+pub mod schedule {
     pub mod creat;
     pub mod handlers;
     pub mod models;

@@ -18,7 +18,7 @@ use crate::{
     provision::models::{
         FormPrdBkg, BkgPrD,
     },
-    provision::views::{creat_bkg, all_days, all_hours, 
+    provision::views::{creat_bkg, all_days,
         details,
         // update_prv
     },
@@ -35,18 +35,6 @@ pub async fn get_all_days(
     let mut context = Context::new();
     context.insert("all", &all);
     Html(templates.render("all_days", &context).unwrap())
-}
-
-pub async fn get_all_hours(
-    State(pool): State<PgPool>,
-    Extension(templates): Extension<Templates>
-) -> impl IntoResponse {
-
-    let all = all_hours(pool).await.unwrap();
-
-    let mut context = Context::new();
-    context.insert("all", &all);
-    Html(templates.render("all_hours", &context).unwrap())
 }
 
 

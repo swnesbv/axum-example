@@ -3,11 +3,7 @@ use sqlx::postgres::PgPool;
 use axum::{
     extract::{Form, Path, State},
     response::{Html, IntoResponse, Redirect},
-    // http::{
-    //     Request,
-    //     Response,
-    //     StatusCode
-    // },
+    // http::{Request, Response, StatusCode},
     // body::Body,
     Extension,
 };
@@ -91,7 +87,6 @@ pub async fn post_creat_days(
         .execute(&pool)
         .await
         .unwrap();
-
     Redirect::to("/provision/all-days").into_response()
 }
 
@@ -193,14 +188,14 @@ pub async fn post_creat_hours(
 
     let start: Option<NaiveDateTime> = if !s_value.is_empty() {
         Some(
-            NaiveDateTime::parse_from_str(s_value, "%Y-%m-%dT%H:%M").unwrap()
+            NaiveDateTime::parse_from_str(s_value, "%Y-%m-%d %H:%M:%S").expect("REASON")
         )
     } else {
         None
     };
     let end: Option<NaiveDateTime> = if !e_value.is_empty() {
         Some(
-            NaiveDateTime::parse_from_str(e_value, "%Y-%m-%dT%H:%M").unwrap()
+            NaiveDateTime::parse_from_str(e_value, "%Y-%m-%d %H:%M:%S").expect("REASON")
         )
     } else {
         None
@@ -218,5 +213,5 @@ pub async fn post_creat_hours(
         .execute(&pool)
         .await
         .unwrap();
-    Redirect::to("/provision/all-hours").into_response()
+    Redirect::to("/").into_response()
 }

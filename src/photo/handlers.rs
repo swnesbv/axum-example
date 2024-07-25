@@ -3,6 +3,11 @@ use sqlx::postgres::PgPool;
 use axum::{
     extract::{Multipart, State},
     response::{Html, IntoResponse, Redirect},
+    // http::{
+    //     // Request,
+    //     Response,
+    //     // StatusCode
+    // },
     Extension,
 };
 use chrono::Utc;
@@ -43,6 +48,7 @@ pub async fn get_photo_users(
 }
 
 
+
 pub async fn photo_users(
     State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
@@ -75,14 +81,18 @@ pub async fn photo_users(
             updated_at: Utc::now(),
         };
 
-        sqlx::query_as!(
+        let result = sqlx::query_as!(
             ImgUser, "UPDATE users SET img=$2, updated_at=$3 WHERE id=$1", t.id, &i.img, Some(Utc::now())
             )
             .fetch_one(&pool)
-            .await
-            .unwrap();
+            .await;
+        let _ = match result {
+            Ok(result) => Ok(result),
+            Err(err) => Err(err.to_string()),
+        };
     }
+
     Ok(
-        Redirect::to(&("/account/user/".to_owned() + &t.id.to_string())).into_response()
+        Redirect::to(&("/account/user/".to_owned() + &t.username.to_string())).into_response()
     )
 }

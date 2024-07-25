@@ -23,11 +23,13 @@
 {% include "navbar.html" %}
 
 {% if msg %}
+{% if msg.msg != "" %}
 <div class="container card">
 <p  class="alert alert-{{ msg.alert }}" role="alert">
     <span>{{ msg.msg }}</span>
 </p>
 </div>
+{% endif %}
 {% endif %}
 
 {% if token %}

@@ -1,0 +1,88 @@
+{{ template "./tpl/base.html" }}
+{{ define "title" }} all schedule {{ end }}
+
+{{ block "content" . }}
+
+<h1 class="container lead my-3">all schedule</h1>
+	
+{{ range . }}
+
+<div class="card">
+
+<div class="card-body">
+<ul class="list-group list-group-flush">
+	<li class="list-group-item">
+		<span class="badge text-bg-primary">completed</span> {{ .Completed }}
+	</li>
+	<li class="list-group-item">
+	<span class="badge text-bg-light">id</span>{{ .Id }}
+	<span class="badge text-bg-light">owner</span>{{ .Owner }}
+	<span class="badge text-bg-light">start</span>{{ .St_hour.Format "2006-01-02 15:04:05" }}
+	<span class="badge text-bg-light">end</span>{{ .En_hour.Format "2006-01-02 15:04:05" }}
+	</li>
+</ul>
+
+<ul class="list-group list-group-flush">
+	<li class="list-group-item">
+		<span class="badge text-bg-light">list dates</span>
+		{{ range .Hours }}
+		<span>{{ . }}</span>
+		{{ end }}
+	</li>
+</ul>
+
+{{ if ne .Occupied nil }}
+<ul class="list-group list-group-flush">
+	<li class="list-group-item">
+		<span class="badge text-bg-light">list occupied</span>
+		{{ range .Occupied }}
+		{{ . }},
+		{{ end }}	
+	</li>
+</ul>
+{{ end }}
+
+<ul class="list-group list-group-flush">
+
+	<li class="list-group-item">
+		<sup>title</sup> {{ .Title }}
+	</li>
+	
+	<li class="list-group-item">
+	<sup>created</sup>
+	<time>
+	{{ .Created_at.Format "2006-01-02 15:04:05" }}
+	</time>
+	</li>
+	<li class="list-group-item">
+	{{ if ne .Updated_at nil }}
+	<sup>updated</sup> 
+	<time>
+	{{ .Updated_at.Format "2006-01-02 15:04:05" }}
+	</time>
+	{{ else }}
+		there are no updates
+	{{ end }}
+	</li>
+</ul>
+
+</div>
+
+<div class="card-footer">
+<a class="btn btn-outline-primary btn-sm" href="/id-prv-days?id={{ .Id }}" role="button">
+	details
+</a>
+</div>
+
+</div>
+
+<hr>
+
+{{ end }}
+
+<script>
+document.body.innerHTML = document.body.innerHTML.replaceAll("0001-01-01", "");
+document.body.innerHTML = document.body.innerHTML.replaceAll(" BC", "");
+</script>
+	  
+{{ end }}

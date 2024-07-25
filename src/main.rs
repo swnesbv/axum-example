@@ -14,6 +14,7 @@ use axum_example::routes_index;
 use axum_example::routes_account;
 use axum_example::routes_booking;
 use axum_example::routes_provision;
+use axum_example::routes_schedule;
 
 #[tokio::main]
 async fn main() {
@@ -30,13 +31,15 @@ async fn main() {
     let account_router = routes_account::build_routes(pool.clone());
     let booking_router = routes_booking::build_routes(pool.clone());
     let provision_router = routes_provision::build_routes(pool.clone());
+    let schedule_router = routes_schedule::build_routes(pool.clone());
 
     let app = Router::new()
         .merge(assets_router)
         .merge(index_router)
         .merge(account_router)
         .merge(booking_router)
-        .merge(provision_router);
+        .merge(provision_router)
+        .merge(schedule_router);
 
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, 8000));
     let listener = TcpListener::bind(&addr).await.unwrap();

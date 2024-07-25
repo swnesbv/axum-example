@@ -3,7 +3,6 @@ use sqlx::postgres::PgPool;
 use crate::{
     provision::models::{
         AllPrD,
-        AllPrH,
     	BkgPrD,
         UpPrD,
     },
@@ -15,14 +14,6 @@ pub async fn all_days(
 ) -> Result<Vec<AllPrD>, String> {
 
     let result = sqlx::query_as!(AllPrD, "SELECT * FROM provision_d")
-        .fetch_all(&pool).await.unwrap();
-    Ok(result)
-}
-pub async fn all_hours(
-    pool: PgPool,
-) -> Result<Vec<AllPrH>, String> {
-
-    let result = sqlx::query_as!(AllPrH, "SELECT * FROM provision_h")
         .fetch_all(&pool).await.unwrap();
     Ok(result)
 }

@@ -1,18 +1,11 @@
-{% extends "base.html" %}
-{% block title %} create prv hours {% endblock title %}
+{{ template "./tpl/base.html" }}
+{{ define "title" }} create period {{ end }}
 
-{% block content %}
+{{ block "content" . }}
 
-<h1 class="container lead my-3">create provision hours</h1>
+<h1 class="lead my-4">create period</h1>
 	
 <form class="card" method="POST">
-	
-	<div class="card-body">
-	<sup>title</sup>
-	<input required type="text" name="title" class="form-control">
-	<sup>description</sup>
-	<input required type="text" name="description" class="form-control">
-	</div>
 
     <div class="card-body row">
 	    <div class="col-sm">
@@ -21,7 +14,7 @@
 	        	required
 	            class="form-control my-2"
 	            type="datetime-local"
-	            name="st_hour"
+	            name="start"
 	        />
 	    </div>
 	    <div class="col-sm">
@@ -30,7 +23,7 @@
 	        	required
 	            class="form-control my-2"
 	            type="datetime-local"
-	            name="en_hour"
+	            name="end"
 	        />
 	    </div>
 	</div>
@@ -41,4 +34,4 @@
 
 </form>
 	  
-{% endblock content %}
+{{ end }}

@@ -16,7 +16,7 @@ pub fn build_routes(pool: PgPool) -> Router {
             ("base.html", include_str!("../templates/base.html")),
             ("navbar.html", include_str!("../templates/navbar.html")),
             ("all_days", include_str!("../templates/provision/all_days.html")),
-            // ("all_hours", include_str!("../templates/provision/creat.html")),
+            ("all_hours", include_str!("../templates/provision/all_hours.html")),
             (
                 "creat_days",
                 include_str!("../templates/provision/creat_days.html"),
@@ -55,9 +55,13 @@ pub fn build_routes(pool: PgPool) -> Router {
                 get(provision::handlers::get_detail_days)
                     .post(provision::handlers::post_detail_days),
             )
-            // .route(
-            //     "/creat-hours", get(provision::creat::get_creat_hours).post(provision::creat::post_creat_days)
-            // )
+            .route(
+                "/creat-hours", get(provision::creat::get_creat_hours).post(provision::creat::post_creat_hours)
+            )
+            .route(
+                "/all-hours",
+                get(provision::handlers::get_all_hours)
+            )
             // .route(
             //     "/detail-hours", get(profile::accreditation::get_password_change).post(profile::accreditation::post_password_change)
             // )

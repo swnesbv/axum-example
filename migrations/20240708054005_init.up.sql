@@ -69,6 +69,32 @@ CREATE TABLE booking (
     FOREIGN KEY (provision_d_id) REFERENCES provision_d(id) ON DELETE CASCADE,
     FOREIGN KEY (provision_h_id) REFERENCES provision_h(id) ON DELETE CASCADE
 );
+CREATE TABLE schedule (
+    id          SERIAL       PRIMARY KEY,
+    user_id     INTEGER      NOT NULL,
+    title       VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
+    st_hour     TIMESTAMP,
+    en_hour     TIMESTAMP,
+    hours       TIMESTAMP[],
+    occupied    TIMESTAMP[],
+    completed   BOOLEAN      NOT NULL DEFAULT false,
+    created_at  TIMESTAMPTZ  NOT NULL,
+    updated_at  TIMESTAMPTZ,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE recording (
+    id          SERIAL      PRIMARY KEY,
+    user_id     INTEGER     NOT NULL,
+    to_schedule INTEGER     NOT NULL,
+    record_d    Date        NOT NULL,
+    record_h    TIMESTAMP   NOT NULL,
+    completed   BOOLEAN     NOT NULL DEFAULT false,
+    created_at  TIMESTAMPTZ NOT NULL,
+    updated_at  TIMESTAMPTZ,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (to_schedule) REFERENCES schedule(id) ON DELETE CASCADE
+);
 CREATE TABLE sessions (
     session_token BYTEA             PRIMARY KEY,
     id integer REFERENCES users(id) ON DELETE CASCADE
