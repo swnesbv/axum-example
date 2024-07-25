@@ -59,6 +59,7 @@ pub async fn get_creat_days(
 pub async fn post_creat_days(
     State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
+    Extension(templates): Extension<Templates>,
     Form(form): Form<FormPrD>,
 ) -> impl IntoResponse {
 
@@ -79,7 +80,7 @@ pub async fn post_creat_days(
         None
     };
 
-    let _ = sqlx::query(
+    let result = sqlx::query(
         "INSERT INTO provision_d (user_id, title, description, st_date, en_date, created_at) VALUES ($1,$2,$3,$4,$5,$6)"
         )
         .bind(token.clone().unwrap().claims.id)
@@ -89,10 +90,16 @@ pub async fn post_creat_days(
         .bind(end)
         .bind(Utc::now())
         .execute(&pool)
-        .await
-        .unwrap();
-
-    Redirect::to("/provision/all-days").into_response()
+        .await;
+    match result {
+        Ok(result) => result,
+        Err(err) => {
+            let mut context = Context::new();
+            context.insert("err_token", &err.to_string());
+            return Err(Html(templates.render("creat_days", &context).unwrap()));
+        }
+    };
+    Ok(Redirect::to("/provision/all-days").into_response())
 }
 
 
@@ -206,7 +213,7 @@ pub async fn post_creat_hours(
         None
     };
 
-    let _ = sqlx::query(
+    let result = sqlx::query(
         "INSERT INTO provision_h (user_id, title, description, st_hour, en_hour, created_at) VALUES ($1,$2,$3,$4,$5,$6)"
         )
         .bind(token.clone().unwrap().claims.id)
@@ -216,7 +223,14 @@ pub async fn post_creat_hours(
         .bind(end)
         .bind(Utc::now())
         .execute(&pool)
-        .await
-        .unwrap();
-    Redirect::to("/provision/all-hours").into_response()
+        .await;
+    match result {
+        Ok(result) => result,
+        Err(err) => {
+            let mut context = Context::new();
+            context.insert("err_token", &err.to_string());
+            return Err(Html(templates.render("creat_hours", &context).unwrap()));
+        }
+    };
+    Ok(Redirect::to("/provision/all-hours").into_response())
 }

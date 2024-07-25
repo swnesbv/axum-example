@@ -24,33 +24,41 @@
 
 {% if msg %}
 {% if msg.msg != "" %}
-<div class="container card">
-<p  class="alert alert-{{ msg.alert }}" role="alert">
-    <span>{{ msg.msg }}</span>
-</p>
-</div>
+    <div class="container card">
+    <p class="alert alert-{{ msg.alert }}" role="alert">
+        <span>{{ msg.msg }}</span>
+    </p>
+    </div>
 {% endif %}
 {% endif %}
 
 {% if token %}
-<div class="container card">
-<p><sup>{{ token.email }}</sup></p>
-</div>
+    <div class="container card">
+    <p class="alert alert-danger" role="alert">
+        <sup>{{ token.email }}</sup>
+    </p>
+    </div>
 {% endif %}
 {% if err_token %}
-<div class="container card">
-<p>{% if err_token %} {{ err_token }} {% endif %}</p>
-</div>
+    <div class="container card">
+    <p class="alert alert-danger" role="alert">
+        {% if err_token %} {{ err_token }} {% endif %}
+    </p>
+    </div>
 {% endif %}
 {% if not_user %}
-<div class="container card">
-<p><sup>{{ not_user }}</sup></p>
-</div>
+    <div class="container card">
+    <p class="alert alert-danger" role="alert">
+        <sup>{{ not_user }}</sup>
+    </p>
+    </div>
 {% endif %}
 {% if not_details %}
-<div class="container card">
-<p>{% if not_details %} {{ not_details }} {% endif %}</p>
-</div>
+    <div class="container card">
+    <p class="alert alert-danger" role="alert">
+        {% if not_details %} {{ not_details }} {% endif %}
+    </p>
+    </div>
 {% endif %}
 
 

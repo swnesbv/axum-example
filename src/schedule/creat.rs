@@ -45,6 +45,7 @@ pub async fn get_creat(
 pub async fn post_creat(
     State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
+    Extension(templates): Extension<Templates>,
     Form(form): Form<FormSch>,
 ) -> impl IntoResponse {
 
@@ -81,7 +82,7 @@ pub async fn post_creat(
         None
     };
 
-    let _ = sqlx::query(
+    let result = sqlx::query(
         "INSERT INTO schedule (user_id, title, description, st_hour, en_hour, hours, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)"
         )
         .bind(token.clone().unwrap().claims.id)
@@ -92,7 +93,14 @@ pub async fn post_creat(
         .bind(&hours)
         .bind(Utc::now())
         .execute(&pool)
-        .await
-        .unwrap();
-    Redirect::to("/schedule/all").into_response()
+        .await;
+    match result {
+        Ok(result) => result,
+        Err(err) => {
+            let mut context = Context::new();
+            context.insert("err_token", &err.to_string());
+            return Err(Html(templates.render("creat", &context).unwrap()));
+        }
+    };
+    Ok(Redirect::to("/schedule/all").into_response())
 }
