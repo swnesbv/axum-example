@@ -22,7 +22,8 @@ pub struct Schedule {
     pub updated_at:  Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+
+#[derive(Debug, Deserialize, PartialEq, Serialize)]
 pub struct FormSch {
     pub title:       String,
     pub description: Option<String>,
@@ -30,6 +31,7 @@ pub struct FormSch {
     pub en_hour:     Option<String>,
     pub vec_list:    Option<String>,
 }
+
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FormSelect {

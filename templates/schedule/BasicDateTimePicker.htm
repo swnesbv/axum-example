@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>DateTime</title>
+	</head>
+
+<body>
+
+	<p>DateTime : </p>
+
+	<input id="input" type="datetime-local" />
+	<input id="output" type="text" />
+
+	<div id="dtBox"></div>
+
+	<script>
+	document.getElementById("input").oninput = () => {
+	  	var input = document.getElementById('input').value;
+	  	var n = input.toString();
+	  	var output = document.getElementById('output');
+	  	output.value += n.replace('T', ' ') + ", ";
+
+	};
+	</script>
+
+	<p>DateTime onclick </p>
+	<input type="datetime-local" id="for" />
+    <input
+    	id="to"
+    	class="form-control my-2"
+        type="text"
+        name="to"
+    />
+	<div>
+		<button class="btn btn-sm btn-outline-primary" onclick="get_date(); return false;">add</button>
+	</div>
+	<script>
+	    function get_date() {
+	        var x = document.getElementById("for").value;
+	        var n = x.toString();
+	        document.getElementById("to").value = n;
+	    }
+	</script>
+	
+</body>
+
+</html>

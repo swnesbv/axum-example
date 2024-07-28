@@ -190,6 +190,7 @@ pub async fn get_creat_hours(
 pub async fn post_creat_hours(
     State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
+    Extension(templates): Extension<Templates>,
     Form(form): Form<FormPrH>,
 ) -> impl IntoResponse {
 
