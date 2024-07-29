@@ -29,8 +29,18 @@ pub struct FormSch {
     pub description: Option<String>,
     pub st_hour:     Option<String>,
     pub en_hour:     Option<String>,
-    pub vec_list:    Option<String>,
+    pub list:        Option<Vec<String>>,
 }
+
+
+/*#[derive(Debug, Deserialize, PartialEq, Serialize)]
+pub struct FormSch {
+    pub title:       String,
+    pub description: Option<String>,
+    pub st_hour:     Option<String>,
+    pub en_hour:     Option<String>,
+    pub vec_list:    Option<String>,
+}*/
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

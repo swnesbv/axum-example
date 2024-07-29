@@ -32,15 +32,17 @@
 	    </div>
 	</div>
 
-    <div id="addinput" class="card-body">
-    	<sup class="float-start">the beginning of the reception</sup>
-	</div>
-
-    <div class="card-footer action-buttons">
-    <button class="btn btn-sm btn-outline-primary" onclick="addFn(); return false;">
-    	make an appointment - add Input
-    </button>
-	</div>
+    <div class="card-body">
+    	<sup class="float-start">time schedule</sup>
+	    <input
+			id="output"
+			class="form-control my-3"
+			type="text"
+			name="vec_list"
+	    />
+	    <sup class="float-start">add time</sup>
+	    <input id="input" type="datetime-local" class="w-auto form-control mt-4" />
+    </div>
 
 	<div class="card-footer action-buttons">
 	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
@@ -49,19 +51,13 @@
 </form>
 
 <script>
-    function addFn() {
-        const divEle = document.getElementById("addinput");
-        const wrapper = document.createElement("div");
-        const iFeild = document.createElement("input");
-        iFeild.setAttribute("type", "datetime-local");
-        iFeild.setAttribute("name", "list");
-        iFeild.setAttribute("placeholder", "Enter value");
-        iFeild.classList.add("w-auto");
-        iFeild.classList.add("form-control");
-        iFeild.classList.add("mt-2");
-        wrapper.appendChild(iFeild);
-        divEle.appendChild(wrapper);
-    }
+document.getElementById("input").oninput = () => {
+  	var input = document.getElementById('input').value;
+  	var n = input.toString();
+  	var output = document.getElementById('output');
+  	output.value += n.replace('T', ' ') + ",";
+
+};
 </script>
 	  
 {% endblock content %}
