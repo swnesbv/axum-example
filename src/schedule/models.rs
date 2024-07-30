@@ -1,11 +1,13 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::util::date_config::date_format;
 use chrono::serde::ts_seconds_option;
 
+use crate::util::date_config::date_format;
+use crate::util::q_body::deserialize_list;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct Schedule {
     pub id:          i32,
     pub user_id:     i32,
@@ -29,6 +31,7 @@ pub struct FormSch {
     pub description: Option<String>,
     pub st_hour:     Option<String>,
     pub en_hour:     Option<String>,
+    #[serde(flatten, deserialize_with = "deserialize_list")]
     pub list:        Option<Vec<String>>,
 }
 

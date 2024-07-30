@@ -1,7 +1,9 @@
 use sqlx::postgres::PgPool;
 
-// use std::str;
-use axum_extra::extract::Form;
+use std::str;
+
+// use axum_extra::extract::Form;
+
 use axum::{
     extract::{
         // Form, 
@@ -26,8 +28,9 @@ use crate::{
     schedule::models::{
         FormSch
     },
-    // util::q_body::{InputBody}
+    util::q_body::{InputBody}
 };
+
 
 pub async fn get_creat(
     TypedHeader(cookie): TypedHeader<Cookie>,
@@ -46,8 +49,7 @@ pub async fn get_creat(
 }
 
 
-
-pub async fn post_creat(
+/*pub async fn post_creat(
     State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
@@ -108,17 +110,17 @@ pub async fn post_creat(
         }
     };
     Ok(Redirect::to("/schedule/all").into_response())
-}
+}*/
 
 
-/*pub async fn post_creat(
+pub async fn post_creat(
     State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
     InputBody(body): InputBody,
 ) -> impl IntoResponse {
 
-    let form: FormSch = serde_qs::from_str(str::from_utf8(&body).unwrap()).unwrap();
+    let form: FormSch = serde_urlencoded::from_str(str::from_utf8(&body).unwrap()).unwrap();
     println!("body..{:?}", body);
     println!("form..{:?}", form);
 
@@ -127,14 +129,14 @@ pub async fn post_creat(
     let s_val = form.st_hour.as_deref().unwrap_or("err..");
     let e_val = form.en_hour.as_deref().unwrap_or("err..");
 
-    let start: Option<NaiveDateTime> = if form.st_hour != None {
+    let start: Option<NaiveDateTime> = if !s_val.is_empty() {
         Some(
             NaiveDateTime::parse_from_str(s_val, "%Y-%m-%dT%H:%M").unwrap()
         )
     } else {
         None
     };
-    let end: Option<NaiveDateTime> = if form.en_hour != None {
+    let end: Option<NaiveDateTime> = if !e_val.is_empty() {
         Some(
             NaiveDateTime::parse_from_str(e_val, "%Y-%m-%dT%H:%M").unwrap()
         )
@@ -142,29 +144,17 @@ pub async fn post_creat(
         None
     };
 
-    let l_val = form.vec_list.as_deref().unwrap_or("err..");
-    let mut hours = Vec::new();
-    if form.vec_list != None {
-        for i in l_val.split(&[','][..]) {
-            hours.push(
-                match NaiveDateTime::parse_from_str(i, "%Y-%m-%d %H:%M") {
-                    Ok(convert) => convert,
-                    Err(err) => {
-                        let mut context = Context::new();
-                        context.insert("err_token", &err.to_string());
-                        return Err(
-                            Html(templates.render("creat", &context).unwrap())
-                        );
-                    }
-                }
-            )
-        };
-        Some(
-            ()
-        )
+    let mut hours = Some(Vec::new());
+    if form.list.as_ref().expect("REASON").len() > 0 {
+        let l_val = form.list.as_deref().unwrap();
+        for i in l_val {
+            if !i.is_empty() {
+                hours.as_mut().expect("REASON").push(NaiveDateTime::parse_from_str(i, "%Y-%m-%dT%H:%M").unwrap())
+            }
+        }
     } else {
-        None
-    };
+        hours = None
+    }
 
     let result = sqlx::query(
         "INSERT INTO schedule (user_id, title, description, st_hour, en_hour, hours, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)"
@@ -187,7 +177,7 @@ pub async fn post_creat(
         }
     };
     Ok(Redirect::to("/schedule/all").into_response())
-}*/
+}
 
 
 /*pub async fn post_creat(
