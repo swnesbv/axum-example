@@ -42,7 +42,7 @@
 {% if err_token %}
     <div class="container card">
     <p class="alert alert-danger" role="alert">
-        {% if err_token %} {{ err_token }} {% endif %}
+        {{ err_token }}
     </p>
     </div>
 {% endif %}
@@ -56,7 +56,14 @@
 {% if not_details %}
     <div class="container card">
     <p class="alert alert-danger" role="alert">
-        {% if not_details %} {{ not_details }} {% endif %}
+        {{ not_details }}
+    </p>
+    </div>
+{% endif %}
+{% if csv_details %}
+    <div class="container card">
+    <p class="alert alert-success" role="alert">
+        {{ csv_details }}
     </p>
     </div>
 {% endif %}

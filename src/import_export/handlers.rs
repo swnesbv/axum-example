@@ -117,6 +117,6 @@ pub async fn export_users(
         } // for
     } // while
 
-    context.insert("not_details", "Ok! Export csv..");
+    context.insert("csv_details", "Ok! Export csv..");
     Ok(Html(templates.render("export_csv", &context).unwrap()))
 }

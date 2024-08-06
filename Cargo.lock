@@ -195,7 +195,6 @@ dependencies = [
  "rand_chacha",
  "rand_core",
  "serde",
- "serde_html_form",
  "serde_urlencoded",
  "sqlx",
  "tera",

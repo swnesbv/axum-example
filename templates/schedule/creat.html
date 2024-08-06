@@ -48,18 +48,31 @@
 
 </form>
 
+
 <script>
     function addFn() {
         const divEle = document.getElementById("addinput");
         const wrapper = document.createElement("div");
-        const iFeild = document.createElement("input");
-        iFeild.setAttribute("type", "datetime-local");
-        iFeild.setAttribute("name", "list");
-        iFeild.setAttribute("placeholder", "Enter value");
-        iFeild.classList.add("w-auto");
-        iFeild.classList.add("form-control");
-        iFeild.classList.add("mt-2");
-        wrapper.appendChild(iFeild);
+        
+        const tFl = document.createElement("input");
+        tFl.setAttribute("type", "datetime-local");
+        tFl.setAttribute("name", "list");
+        tFl.setAttribute("placeholder", "Enter value");
+        tFl.classList.add("w-auto");
+        tFl.classList.add("form-control");
+        tFl.classList.add("mt-2");
+
+        const iFl = document.createElement("input");
+        iFl.setAttribute("type", "number");
+        iFl.setAttribute("name", "places");
+        iFl.setAttribute("min", "1");
+        iFl.setAttribute("max", "10");
+        iFl.classList.add("w-auto");
+        iFl.classList.add("form-control");
+        iFl.classList.add("mt-2");
+
+        wrapper.appendChild(tFl);
+        wrapper.appendChild(iFl);
         divEle.appendChild(wrapper);
     }
 </script>

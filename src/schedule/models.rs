@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use chrono::serde::ts_seconds_option;
 
 use crate::util::date_config::date_format;
-use crate::util::q_body::deserialize_list;
+use crate::util::r_body::{deserialize_list};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
@@ -17,6 +17,41 @@ pub struct Schedule {
     pub en_hour:     Option<NaiveDateTime>,
     pub hours:       Option<Vec<NaiveDateTime>>,
     pub occupied:    Option<Vec<NaiveDateTime>>,
+    pub places:      Option<Vec<i32>>,
+    pub non_places:  Option<Vec<i32>>,
+    pub completed:   bool,
+    #[serde(with = "date_format")]
+    pub created_at:  DateTime<Utc>,
+    #[serde(with = "ts_seconds_option")]
+    pub updated_at:  Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct Places {
+    pub id:          i32,
+    pub user_id:     i32,
+    pub title:       String,
+    pub description: Option<String>,
+    pub hours:       Option<Vec<NaiveDateTime>>,
+    pub places:      Option<Vec<i32>>,
+    pub non_places:  Option<Vec<i32>>,
+    pub completed:   bool,
+    #[serde(with = "date_format")]
+    pub created_at:  DateTime<Utc>,
+    #[serde(with = "ts_seconds_option")]
+    pub updated_at:  Option<DateTime<Utc>>,
+}
+
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct Recording {
+    pub id:          i32,
+    pub user_id:     i32,
+    pub to_schedule: i32,
+    pub record_d:    Option<NaiveDate>,
+    pub record_h:    Option<NaiveDateTime>,
+    pub places:      Option<Vec<i32>>,
+    pub tickets:     Option<String>,
     pub completed:   bool,
     #[serde(with = "date_format")]
     pub created_at:  DateTime<Utc>,
@@ -31,8 +66,26 @@ pub struct FormSch {
     pub description: Option<String>,
     pub st_hour:     Option<String>,
     pub en_hour:     Option<String>,
+    pub places:      Option<i32>,
     #[serde(flatten, deserialize_with = "deserialize_list")]
     pub list:        Option<Vec<String>>,
+}
+
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FormSelect {
+    pub to_schedule: i32,
+    pub record_d:    NaiveDate,
+    pub record_h:    NaiveDateTime,
+}
+
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FormPlaces {
+    pub to_schedule: i32,
+    pub record_h:    NaiveDateTime,
+    pub places:      Vec<i32>,
+    pub on_off:      Vec<String>,
 }
 
 
@@ -44,13 +97,3 @@ pub struct FormSch {
     pub en_hour:     Option<String>,
     pub vec_list:    Option<String>,
 }*/
-
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct FormSelect {
-    pub to_schedule: i32,
-    pub record_d:    NaiveDate,
-    pub record_h:    NaiveDateTime,
-    #[serde(with = "ts_seconds_option")]
-    pub updated_at: Option<DateTime<Utc>>,
-}

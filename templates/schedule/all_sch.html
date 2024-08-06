@@ -40,6 +40,16 @@
 		</ul>
 	{% endif %}
 	</li>
+	<li class="list-group-item">
+	<span class="badge text-bg-light">places</span>
+	{% if i.places %}
+		<ul class="list-group list-group-horizontal">
+		{% for p in i.places %}
+		<li class="list-group-item">{{ p }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+	</li>
 </ul>
 
 {% if i.occupied %}
@@ -49,6 +59,18 @@
 			<ul>
 			{% for o in i.occupied %}
 			<li>{{ o | date(format="%Y-%m-%d %H:%M") }}</li>
+			{% endfor %}
+			</ul>
+		</li>
+	</ul>
+{% endif %}
+{% if i.non_places %}
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<span class="badge text-bg-light">list non places</span>
+			<ul class="list-group list-group-horizontal">
+			{% for n in i.non_places %}
+			<li class="list-group-item">{{ n }}</li>
 			{% endfor %}
 			</ul>
 		</li>

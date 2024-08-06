@@ -12,7 +12,6 @@ use axum::{
 
 
 pub struct InputBody(pub Bytes);
-
 #[async_trait]
 impl<S> FromRequest<S> for InputBody
 where
@@ -31,7 +30,6 @@ where
 
 
 struct ListInput<V>(PhantomData<fn() -> V>);
-
 impl<'de, V: Deserialize<'de>> Visitor<'de> for ListInput<V> {
 
     type Value = Option<Vec<V>>;
@@ -60,4 +58,18 @@ where
     V: Deserialize<'de>,
 {
     deserializer.deserialize_map(ListInput(PhantomData))
+}
+
+
+pub fn deserialize_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: &str = Deserialize::deserialize(deserializer)?;
+
+    match s {
+        "on" => Ok(true),
+        "off" => Ok(false),
+        _ => Err(serde::de::Error::unknown_variant(s, &["on", "off"])),
+    }
 }

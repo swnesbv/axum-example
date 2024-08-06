@@ -2,14 +2,10 @@ use sqlx::postgres::PgPool;
 
 use axum::{
     extract::{
-        Form,
-        // Path,
-        State
+        Form, State
     },
     response::{
-        Html,
-        IntoResponse,
-        Redirect
+        Html, IntoResponse, Redirect
     },
     Extension,
 };
@@ -23,12 +19,12 @@ use headers::Cookie;
 use crate::{auth};
 use crate::{
     common::{Templates},
-    schedule::models::{FormSelect},
-    schedule::views::{all_sch, sch_select},
+    schedule::models::{FormSelect, FormPlaces},
+    schedule::views::{all_sch, all_rec, sch_select, places_select},
 };
 
 
-pub async fn get_all(
+pub async fn get_all_sch(
     State(pool): State<PgPool>,
     Extension(templates): Extension<Templates>,
 ) -> impl IntoResponse {
@@ -37,7 +33,19 @@ pub async fn get_all(
 
     let mut context = Context::new();
     context.insert("all", &all);
-    Html(templates.render("all", &context).unwrap())
+    Html(templates.render("all_sch", &context).unwrap())
+}
+
+pub async fn get_all_recording(
+    State(pool): State<PgPool>,
+    Extension(templates): Extension<Templates>,
+) -> impl IntoResponse {
+
+    let all = all_rec(pool).await.unwrap();
+
+    let mut context = Context::new();
+    context.insert("all", &all);
+    Html(templates.render("all_recording", &context).unwrap())
 }
 
 
@@ -95,5 +103,77 @@ pub async fn post_select(
         Ok(result) => Ok(result),
         Err(err) => Err(err.to_string()),
     };
-    Redirect::to("/recording/all").into_response()
+    Redirect::to("/schedule/all-sch").into_response()
+}
+
+
+pub async fn get_places(
+    State(pool): State<PgPool>,
+    TypedHeader(cookie): TypedHeader<Cookie>,
+    Extension(templates): Extension<Templates>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+    
+    let token = auth::views::request_user(TypedHeader(cookie)).await;
+    let _ = match token {
+        Ok(Some(expr)) => expr,
+        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(_) => return Err(Redirect::to("/account/login").into_response()),
+    };
+    let all = places_select(pool).await.unwrap();
+
+    let mut context = Context::new();
+    context.insert("all", &all);
+    Ok(Html(templates.render("places", &context).unwrap()))
+}
+
+
+pub async fn post_places(
+    State(pool): State<PgPool>,
+    TypedHeader(cookie): TypedHeader<Cookie>,
+    axum_extra::extract::Form(form): axum_extra::extract::Form<FormPlaces>,
+) -> impl IntoResponse {
+
+    let token = auth::views::request_token(TypedHeader(cookie)).await;
+    let owner = token.clone().unwrap().claims.id;
+    
+    let to_schedule = form.to_schedule;
+    let record_h = form.record_h;
+    let on_off = form.on_off;
+    let places = form.places;
+
+    let mut f: Vec<i32> = vec![];
+    let mut e = vec![];
+
+    for i in on_off {
+        let g = i.parse::<i32>().unwrap();
+        f.push(g);
+    }
+
+    for (c,d) in f.iter().zip(places.iter()) {
+        if *c == 1 {
+            e.push(*d);
+        }
+    }
+
+    let _ = sqlx::query(
+        "INSERT INTO recording (user_id, to_schedule, record_h, places, created_at) VALUES ($1,$2,$3,$4,$5)"
+        )
+        .bind(owner)
+        .bind(to_schedule)
+        .bind(record_h)
+        .bind(e.clone())
+        .bind(Utc::now())
+        .execute(&pool)
+        .await
+        .unwrap();
+    
+    let result = sqlx::query!(
+        "UPDATE schedule SET non_places=array_cat(non_places, $2), completed=$3, updated_at=$4 WHERE id=$1", to_schedule, &e, false, Some(Utc::now())
+        )
+        .fetch_one(&pool).await;
+    let _ = match result {
+        Ok(result) => Ok(result),
+        Err(err) => Err(err.to_string()),
+    };
+    Redirect::to("/schedule/all-recording").into_response()
 }

@@ -1,9 +1,5 @@
 use sqlx::postgres::PgPool;
 
-use std::str;
-
-// use axum_extra::extract::Form;
-
 use axum::{
     extract::{
         // Form, 
@@ -28,7 +24,7 @@ use crate::{
     schedule::models::{
         FormSch
     },
-    util::q_body::{InputBody}
+    util::r_body::{InputBody}
 };
 
 
@@ -53,7 +49,7 @@ pub async fn get_creat(
     State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
-    Form(form): Form<FormSch>,
+    axum_extra::extract::Form(form): axum_extra::extract::Form<FormSch>,
 ) -> impl IntoResponse {
 
     let token = auth::views::request_token(TypedHeader(cookie)).await;
@@ -120,7 +116,7 @@ pub async fn post_creat(
     InputBody(body): InputBody,
 ) -> impl IntoResponse {
 
-    let form: FormSch = serde_urlencoded::from_str(str::from_utf8(&body).unwrap()).unwrap();
+    let form: FormSch = serde_urlencoded::from_str(std::str::from_utf8(&body).unwrap()).unwrap();
     println!("body..{:?}", body);
     println!("form..{:?}", form);
 
@@ -145,7 +141,7 @@ pub async fn post_creat(
     };
 
     let mut hours = Some(Vec::new());
-    if form.list.as_ref().expect("REASON").len() > 0 {
+    if !form.list.as_ref().expect("REASON").is_empty() {
         let l_val = form.list.as_deref().unwrap();
         for i in l_val {
             if !i.is_empty() {
@@ -156,8 +152,17 @@ pub async fn post_creat(
         hours = None
     }
 
+    let mut places = Some(Vec::new());
+    if form.places.is_some() {
+        for i in 1..=form.places.expect("REASON") {
+            places.as_mut().expect("REASON").push(i)
+        }
+    } else {
+        places = None
+    }
+
     let result = sqlx::query(
-        "INSERT INTO schedule (user_id, title, description, st_hour, en_hour, hours, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)"
+        "INSERT INTO schedule (user_id, title, description, st_hour, en_hour, hours, places, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
         )
         .bind(token.clone().unwrap().claims.id)
         .bind(form.title.clone())
@@ -165,6 +170,7 @@ pub async fn post_creat(
         .bind(start)
         .bind(end)
         .bind(&hours)
+        .bind(&places)
         .bind(Utc::now())
         .execute(&pool)
         .await;
@@ -176,7 +182,7 @@ pub async fn post_creat(
             return Err(Html(templates.render("creat", &context).unwrap()));
         }
     };
-    Ok(Redirect::to("/schedule/all").into_response())
+    Ok(Redirect::to("/schedule/all-sch").into_response())
 }
 
 
