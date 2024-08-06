@@ -19,8 +19,8 @@ use headers::Cookie;
 use crate::{auth};
 use crate::{
     common::{Templates},
-    schedule::models::{FormSelect, FormPlaces},
-    schedule::views::{all_sch, all_rec, sch_select, places_select},
+    schedule::models::{FormSelect, FormPlaces, Tickets},
+    schedule::views::{all_sch, all_rec, sch_select, places_select, details},
 };
 
 
@@ -155,13 +155,23 @@ pub async fn post_places(
         }
     }
 
+    let title = details(pool.clone(), to_schedule).await.unwrap();
+    let tickets: Tickets = Tickets{
+        to_schedule: to_schedule,
+        title: title,
+        record_h: record_h,
+        places: places,
+    };
+    let h = serde_json::to_string(&tickets).unwrap();
+
     let _ = sqlx::query(
-        "INSERT INTO recording (user_id, to_schedule, record_h, places, created_at) VALUES ($1,$2,$3,$4,$5)"
+        "INSERT INTO recording (user_id, to_schedule, record_h, places, tickets, created_at) VALUES ($1,$2,$3,$4,$5,$6)"
         )
         .bind(owner)
         .bind(to_schedule)
         .bind(record_h)
         .bind(e.clone())
+        .bind(h)
         .bind(Utc::now())
         .execute(&pool)
         .await

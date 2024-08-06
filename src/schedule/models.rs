@@ -8,6 +8,10 @@ use crate::util::r_body::{deserialize_list};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct Title {
+    pub title: String,
+}
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct Schedule {
     pub id:          i32,
     pub user_id:     i32,
@@ -86,6 +90,13 @@ pub struct FormPlaces {
     pub record_h:    NaiveDateTime,
     pub places:      Vec<i32>,
     pub on_off:      Vec<String>,
+}
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Tickets {
+    pub to_schedule: i32,
+    pub title:       String,
+    pub record_h:    NaiveDateTime,
+    pub places:      Vec<i32>,
 }
 
 

@@ -22,6 +22,19 @@ pub async fn all_sch(
     Ok(result)
 }
 
+pub async fn details(
+    pool: PgPool, to_schedule: i32
+) -> Result<String, String> {
+
+    let result = sqlx::query!("SELECT title FROM schedule WHERE id=$1", to_schedule)
+        .fetch_one(&pool).await;
+    match result {
+        Ok(result) => Ok(result.title),
+        Err(err) => Err(err.to_string()),
+    }
+}
+
+
 pub async fn all_rec(
     pool: PgPool,
 ) -> Result<Vec<Recording>, String> {
