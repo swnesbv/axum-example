@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %} dialogue owner {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-2">dialogue owner</h1>
+
+{% if all %}
+
+<div class="card">
+<form class="card-body" method="POST">
+
+    <ul class="list-group list-group-flush">
+        {% for i in all %}
+        {% if i.joined %}
+        <li class="list-group-item">
+            <sup class="badge rounded-pill text-bg-success mx-2">
+                {{ i.joined }}
+            </sup>
+            <sup class="mx-2">room</sup>
+            <span>{{ i.room }}</span>
+            <time class="me-2">
+                <sub>{{ i.created_at }}</sub>
+            </time>
+        </li>
+        <li class="list-group-item">
+
+        <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+        <input type="hidden" name="to_del" value="{{ i.id }}" />
+
+        </li>
+        {% endif %}
+        {% if i.message %}
+        <li class="list-group-item">
+            <sup class="badge rounded-pill text-bg-primary mx-2">
+                {{ i.message }}
+            </sup>
+            <sup class="mx-2">room</sup>
+            <span>{{ i.room }}</span>
+            <time class="me-2">
+                <sub>{{ i.created_at }}</sub>
+            </time>
+        </li>
+        <li class="list-group-item">
+
+        <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+        <input type="hidden" name="to_del" value="{{ i.id }}" />
+
+        </li>
+        {% endif %}
+        {% if i.came_out %}
+        <li class="list-group-item">
+            <sup class="badge rounded-pill text-bg-warning mx-2">
+                {{ i.came_out }}
+            </sup>
+            <sup class="mx-2">room</sup>
+            <span>{{ i.room }}</span>
+            <time class="ms-2">
+                <sub>{{ i.created_at }}</sub>
+            </time>
+        </li>
+        <li class="list-group-item">
+
+        <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+        <input type="hidden" name="to_del" value="{{ i.id }}" />
+
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+
+    <div class="card-footer action-buttons">
+    <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+    </div>
+
+</form>
+</div>
+
+{% endif %}
+
+{% endblock content %}

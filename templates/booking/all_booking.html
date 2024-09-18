@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %} all all booking {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-2">all booking..</h1>
+
+{% if bkg %}
+{% for i in bkg %}
+<div class="card">
+
+<div class="card-body">
+<ul class="list-group list-group-flush">
+	<li class="list-group-item">
+		<span class="badge text-bg-primary">completed</span> {{ i.completed }}
+	</li>
+	<li class="list-group-item">
+	<span class="badge text-bg-light">id</span>{{ i.id }}
+	<span class="badge text-bg-light">owner</span>{{ i.user_id }}
+	</li>
+	<li class="list-group-item">
+	{% if i.provision_d_id %}
+	<small class="ms-2">provision_d_id</small>
+	<time>{{ i.provision_d_id }}</time>
+	{% endif %}
+	{% if i.provision_h_id %}
+	<small class="mx-2">provision_h_id</small>
+	<time>{{ i.provision_h_id }}</time>
+	{% endif %}
+	</li>
+	<li class="list-group-item">
+	<span class="badge text-bg-light">start date</span>
+	{% if i.st_date %}
+	{{ i.st_date }}
+	{% endif %}
+	<span class="badge text-bg-light">end date</span>
+	{% if i.en_date %}
+	{{ i.en_date }}
+	{% endif %}
+	</li>
+	<li class="list-group-item">
+	<span class="badge text-bg-light">start hour</span>
+	{% if i.st_hour %}
+	{{ i.st_hour }}
+	{% endif %}
+	<span class="badge text-bg-light">end hour</span>
+	{% if i.en_hour %}
+	{{ i.en_hour }}
+	{% endif %}
+	</li>
+</ul>
+
+<ul class="list-group list-group-flush">
+	<li class="list-group-item">
+		<sup>title</sup> {{ i.title }}
+	</li>
+
+	<li class="list-group-item">
+	<sup>created</sup>
+	<time>
+	{{ i.created_at }}
+	</time>
+	</li>
+	<li class="list-group-item">
+	{% if i.updated_at %}
+	<sup>updated</sup> 
+	<time>{{ i.updated_at }}</time>
+	{% endif %}
+	</li>
+</ul>
+
+</div>
+</div>
+
+<hr>
+
+{% endfor %}
+{% endif %}
+
+{% endblock content %}

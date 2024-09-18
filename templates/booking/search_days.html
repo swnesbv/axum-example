@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %} all days provision {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-2">all days provision..</h1>
+
+<p>
+{% if k.start %}
+<small class="ms-2">start</small>
+<time>{{ k.start }}</time>
+{% endif %}
+{% if k.end %}
+<small class="mx-2">end</small>
+<time>{{ k.end }}</time>
+{% endif %}
+</p>
+
+{% if pr_list %}
+{% for i in pr_list %}
+<div class="card">
+
+<div class="card-body">
+<ul class="list-group list-group-flush">
+	<li class="list-group-item">
+		<span class="badge text-bg-primary">completed</span> {{ i.completed }}
+	</li>
+	<li class="list-group-item">
+	<span class="badge text-bg-light">id</span>{{ i.id }}
+	<span class="badge text-bg-light">owner</span>{{ i.user_id }}
+	<span class="badge text-bg-light">start date</span>
+	{% if i.st_date %}
+	{{ i.st_date }}
+	{% endif %}
+	<span class="badge text-bg-light">end date</span>
+	{% if i.en_date %}
+	{{ i.en_date }}
+	{% endif %}
+	</li>
+</ul>
+
+
+<ul class="list-group list-group-flush">
+
+	{% if i.s_dates %}
+	<li class="list-group-item">
+		<span class="badge text-bg-light">list start date</span>
+		{{ i.s_dates }}
+	</li>
+	{% endif %}
+
+	{% if i.e_dates %}
+	<li class="list-group-item">
+		<span class="badge text-bg-light">list end date</span>
+		{{ i.e_dates }}
+	</li>
+	{% endif %}
+
+	{% if i.dates %}
+	<li class="list-group-item">
+		<span class="badge text-bg-light">list dates</span>
+		{{ i.dates }}
+	</li>
+	{% endif %}
+</ul>
+
+<ul class="list-group list-group-flush">
+
+	<li class="list-group-item">
+		<sup>title</sup> {{ i.title }}
+	</li>
+	
+	<li class="list-group-item">
+	<sup>created</sup>
+	<time>
+	{{ i.created_at }}
+	</time>
+	</li>
+	<li class="list-group-item">
+
+	{% if i.updated_at %}
+	<sup>updated</sup> 
+	<time>{{ i.updated_at }}</time>
+	{% endif %}
+
+	</li>
+</ul>
+
+</div>
+
+<div class="card-footer">
+<a class="btn btn-outline-primary btn-sm" href="/provision/detail-days/{{ i.id }}" role="button">
+	details
+</a>
+</div>
+
+</div>
+
+<hr>
+
+{% endfor %}
+{% endif %}
+
+{% endblock content %}

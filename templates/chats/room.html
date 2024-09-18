@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %} dialogue chat {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-2">dialogue chat</h1>
+
+<div class="card">
+<div class="row">
+
+    <div class="col-sm-4">
+    <div class="card-body">
+    {% if ssc %}
+    <sup>select signed dialogs</sup>
+    <ul class="list-group list-group-flush shadow mt-2">
+        {% for i in ssc %}
+        <li class="list-group-item">
+            <sup class="">{{ i.additionally.name }}</sup>
+            <p>{{ i.additionally.email }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    </div>
+    </div>
+
+    <div class="card col-sm-8">
+    <div class="card-body">
+    {% if all %}
+    <ul class="list-group list-group-flush">
+    {% for i in all %}
+        {% if i.user_id == id %}
+        {% if i.joined %}
+        <li class="list-group-item d-flex flex-column align-items-end mb-2">
+            <sup class="badge rounded-pill text-bg-success">
+                {{ i.joined }}
+            </sup>
+            <time><sub>{{ i.created_at }}</sub></time>
+        </li>
+        {% endif %}
+        {% if i.message %}
+        <li class="list-group-item d-flex flex-column align-items-end mb-2">
+            <span class="shadow rounded-pill">
+                <sup class="badge rounded-pill text-bg-primary">🗨️</sup>
+                <span class="mx-2">
+                    {{ i.message }}
+                </span>
+            </span>
+            <time><sub>{{ i.created_at }}</sub></time>
+        </li>
+        {% endif %}
+        {% if i.came_out %}
+        <li class="list-group-item d-flex flex-column align-items-end mb-2">
+            <sup class="badge rounded-pill text-bg-warning">
+                {{ i.came_out }}
+            </sup>
+            <time><sub>{{ i.created_at }}</sub></time>
+        </li>
+        {% endif %}
+
+
+        {% else %}
+        {% if i.joined %}
+        <li class="list-group-item d-flex flex-column align-items-start mb-2">
+            <sup class="badge rounded-pill text-bg-success">
+                {{ i.joined }}
+            </sup>
+            <time><sub>{{ i.created_at }}</sub></time>
+        </li>
+        {% endif %}
+        {% if i.message %}
+        <li class="list-group-item d-flex flex-column align-items-start mb-2">
+            <span class="shadow rounded-pill">
+                <sup class="badge rounded-pill text-bg-primary">🗨️</sup>
+                <span class="mx-2">
+                    {{ i.message }}
+                </span>
+            </span>
+            <time><sub>{{ i.created_at }}</sub></time>
+        </li>
+        {% endif %}
+        {% if i.came_out %}
+        <li class="list-group-item d-flex flex-column align-items-start mb-2">
+            <sup class="badge rounded-pill text-bg-warning">
+                {{ i.came_out }}
+            </sup>
+            <time><sub>{{ i.created_at }}</sub></time>
+        </li>
+        {% endif %}
+
+        {% endif %}
+    {% endfor %}
+    </ul>
+    {% endif %}
+    </div>
+
+    <div class="card-body mt-2">
+
+    <input id="username" type="hidden" value="{{ name }}" class="form-control my-2" />
+    <input id="channel" type="hidden" value="{{ c_int }}" class="form-control my-2" />
+    <button id="join-chat" type="button" class="btn btn-sm btn-outline-primary my-2">join chat</button>
+
+    <ul id="add" class="list-group list-group-flush"></ul>
+
+    <div class="input-group">
+        <input id="input" type="text" placeholder="chat" class="form-control my-2" />
+        <input id="btnmsg" type="button" value="send" class="btn btn-sm btn-outline-primary my-2" />
+    </div>
+
+    </div>
+    </div>
+
+    </div>
+</div>
+
+
+<script>
+
+    const username = document.querySelector("#username");
+    const channel = document.querySelector('#channel');
+    const join_btn = document.querySelector("#join-chat");
+
+    const add = document.querySelector("#add");
+    const input = document.querySelector("#input");
+    const btnMsg = document.querySelector("#btnmsg");
+
+
+    join_btn.addEventListener("click", function (e) {
+        this.disabled = true;
+        const ws = new WebSocket("ws://localhost:8000/chat-room/rm/{{ c_int }}");
+
+        ws.onopen = function () {
+            console.log("connection opened");
+            ws.send(JSON.stringify({ username: username.value, channel: channel.value }));
+        }
+        const btn = this;
+
+        ws.onclose = function () {
+            console.log("connection closed");
+            btn.disabled = false;
+        }
+        ws.onmessage = function (e) {
+            let m = JSON.parse(e.data);
+            let condition = (m.id == "{{ id }}");
+            console.log("id", m.id);
+            console.log("condition", condition);
+            if (condition) {
+                add.innerHTML +=
+                    '<li class="list-group-item d-flex flex-column align-items-end mb-2">' + '<span class="shadow rounded-pill p-2">' + m.txt + '</span>' + '</li>'
+            } else {
+                add.innerHTML +=
+                    '<li class="list-group-item d-flex flex-column align-items-start mb-2">' + '<span class="shadow rounded-pill p-2">' + m.txt + '</span>' + '</li>'
+            }
+        }
+        btnMsg.onclick = function(e) {
+            ws.send(input.value);
+            input.value = "";
+        }
+    });
+</script>
+
+{% endblock content %}

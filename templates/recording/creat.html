@@ -1,0 +1,61 @@
+{{ template "./tpl/base.html" }}
+{{ define "title" }} create recording {{ end }}
+
+{{ block "content" . }}
+
+<h1 class="container lead my-3">create recording</h1>
+	
+<form class="card" method="POST">
+	
+	<div class="card-body">
+	<sup>title</sup>
+	<input required type="text" name="title" class="form-control">
+	<sup>description</sup>
+	<input required type="text" name="description" class="form-control">
+	</div>
+
+    <div class="card-body row">
+	    <div class="col-sm">
+	        <sup class="float-start">start</sup>
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="start"
+	        />
+	    </div>
+	    <div class="col-sm">
+	        <sup class="float-start">end</sup>
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="end"
+	        />
+	    </div>
+	</div>
+
+    <div class="card-body">
+    	<sup class="float-start">list start</sup>
+        <input
+        	required
+            class="form-control my-2"
+            type="datetime-local"
+            name="list_1"
+        />
+        <input
+        	required
+            class="form-control my-2"
+            type="datetime-local"
+            name="list_2"
+        />
+    </div>
+
+	<div class="card-footer action-buttons">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+
+</form>
+
+	  
+{{ end }}

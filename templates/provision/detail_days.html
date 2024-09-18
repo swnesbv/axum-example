@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %} details days provision {% endblock title %}
+
+{% block content %}
+
+<h1 class="lead my-3"><small>detail days</small> {{ i.title }}</h1>
+
+<div class="card">
+	<ul class="card-body list-group list-group-flush">
+
+		<li class="list-group-item">
+			<span class="badge text-bg-primary">completed:</span> {{ i.completed }}
+		</li>
+		<li class="list-group-item">
+			<span class="badge text-bg-light">id:</span>{{ i.id }}
+			<span class="badge text-bg-light">owner:</span>{{ i.user_id }}
+		</li>
+		<li class="list-group-item">
+			<sup>title:</sup> {{ i.title }}
+		</li>
+		<li class="list-group-item">
+			<sup>description:</sup> {{ i.description }}
+		</li>
+
+		<li class="list-group-item">
+		<sup>created:</sup>
+		<time>
+		{{ i.created_at }}
+		</time>
+		</li>
+		<li class="list-group-item">
+
+		{% if i.updated_at %}
+		<sup>updated:</sup> 
+		<time>
+		{{ i.updated_at }}
+		</time>
+		{% endif %}
+		</li>
+	</ul>
+
+	<ul class="list-group list-group-flush">
+
+		<li class="list-group-item">
+			<sup>start:</sup> {{ i.st_date }}
+			<sup>end:</sup> {{ i.en_date }}
+		</li>
+
+		{% if i.s_dates %}
+		<li class="list-group-item">
+			<sup>dates:</sup> {{ i.s_dates }}
+		</li>
+		{% endif %}
+
+		{% if i.dates %}
+		<li class="list-group-item">
+			<sup>dates:</sup> {{ i.dates }}
+		</li>
+		{% endif %}
+		
+	</ul>
+
+	<div class="card-footer">
+		<a class="btn btn-outline-primary btn-sm me-2" href="/provision/update-days/{{ i.id }}" role="button">
+		    <i class="bi bi-pencil"></i> &raquo;
+		</a>
+		<a class="btn btn-outline-danger btn-sm" href="/provision/delete-prv/{{ i.id }}" role="button">
+		    <i class="bi bi-trash3"></i> &raquo;
+		</a>
+	</div>
+</div>
+
+<h2 class="lead m-3"><small>add booking</small></h2>
+
+<form class="card mb-5" method="POST">
+	<div class="card-body">
+	<sup>title</sup>
+	<input required type="text" name="title" class="form-control">
+	<sup>description</sup>
+	<input type="text" name="description" class="form-control">
+	</div>
+
+    <div class="card-body row">
+	    <div class="col-sm">
+	        <sup class="float-start">start</sup>
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="date"
+	            name="s_dates"
+	        />
+	    </div>
+	    <div class="col-sm">
+	        <sup class="float-start">end</sup>
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="date"
+	            name="e_dates"
+	        />
+	    </div>
+	</div>
+
+	<div class="card-footer">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+	</form>
+
+{% endblock content %}

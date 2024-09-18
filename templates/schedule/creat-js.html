@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %} create schedule {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">create schedule</h1>
+	
+<form class="card" method="POST">
+	<div class="card-body">
+	<sup>title</sup>
+	<input required type="text" name="title" class="form-control">
+	<sup>description</sup>
+	<input type="text" name="description" class="form-control">
+	</div>
+
+    <div class="card-body row">
+	    <div class="col-sm">
+	        <sup class="float-start">start</sup>
+	        <input
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="st_hour"
+	        />
+	    </div>
+	    <div class="col-sm">
+	        <sup class="float-start">end</sup>
+	        <input
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="en_hour"
+	        />
+	    </div>
+	</div>
+
+    <div class="card-body">
+    	<sup class="float-start">time schedule</sup>
+	    <input
+			id="output"
+			class="form-control my-3"
+			type="text"
+			name="vec_list"
+	    />
+	    <sup class="float-start">add time</sup>
+	    <input id="input" type="datetime-local" class="w-auto form-control mt-4" />
+    </div>
+
+	<div class="card-footer action-buttons">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+
+</form>
+
+<script>
+document.getElementById("input").oninput = () => {
+  	var input = document.getElementById('input').value;
+  	var n = input.toString();
+  	var output = document.getElementById('output');
+  	output.value += n.replace('T', ' ') + ",";
+
+};
+</script>
+	  
+{% endblock content %}

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %} all schedule {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">all schedule</h1>
+
+{% for i in all %}
+<div class="card">
+
+<div class="card-body">
+
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<span class="badge text-bg-primary">completed</span> {{ i.completed }}
+		</li>
+		<li class="list-group-item">
+		<span class="badge text-bg-light">id</span>{{ i.id }}
+		<span class="badge text-bg-light">owner</span>{{ i.user_id }}
+		</li>
+		<li class="list-group-item">
+			<sup>title</sup> {{ i.title }}
+		</li>
+		<li class="list-group-item">
+		<span class="badge text-bg-light">start hour</span>
+		{% if i.st_hour %}
+			{{ i.st_hour }}
+		{% endif %}
+		<span class="badge text-bg-light">end hour</span>
+		{% if i.en_hour %}
+			{{ i.en_hour }}
+		{% endif %}
+		</li>
+		<li class="list-group-item">
+		<span class="badge text-bg-light">hours</span>
+		{% if i.hours %}
+			<ul>
+			{% for h in i.hours %}
+			<li>{{ h | date(format="%Y-%m-%d %H:%M") }}</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+		</li>
+		<li class="list-group-item">
+		<span class="badge text-bg-light">places</span>
+		{% if i.places %}
+			<ul class="list-group list-group-horizontal">
+			{% for p in i.places %}
+			<li class="list-group-item">{{ p }}</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+		</li>
+	</ul>
+
+	{% if i.occupied %}
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<span class="badge text-bg-light">list occupied</span>
+			<ul>
+			{% for o in i.occupied %}
+			<li>{{ o | date(format="%Y-%m-%d %H:%M") }}</li>
+			{% endfor %}
+			</ul>
+		</li>
+	</ul>
+	{% endif %}
+	{% if i.non_places %}
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<span class="badge text-bg-light">list non places</span>
+			<ul class="list-group list-group-horizontal">
+			{% for n in i.non_places %}
+			<li class="list-group-item">{{ n }}</li>
+			{% endfor %}
+			</ul>
+		</li>
+	</ul>
+	{% endif %}
+
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+		<sup>created</sup>
+		<time>
+		{{ i.created_at }}
+		</time>
+		</li>
+		<li class="list-group-item">
+		{% if i.updated_at %}
+		<sup>updated</sup>
+		<time>{{ i.updated_at | date(format="%Y-%m-%d %H:%M:%S") }}</time>
+		{% endif %}
+		</li>
+	</ul>
+
+</div>
+
+<div class="card-footer">
+<a class="btn btn-outline-primary btn-sm" href="/schedule/detail/{{ i.id }}"  role="button">
+	details
+</a>
+</div>
+
+</div>
+
+<hr>
+
+{% endfor %}	  
+{% endblock content %}

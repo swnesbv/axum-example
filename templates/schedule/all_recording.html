@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %} all recording {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">all recording</h1>
+
+{% for i in all %}
+
+<div class="card">
+
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<span class="badge text-bg-primary">completed</span> {{ i.completed }}
+			<span class="badge text-bg-light">id</span>{{ i.id }}
+			<span class="badge text-bg-light">owner</span>{{ i.user_id }}
+			<span class="badge text-bg-light">to schedule</span>{{ i.to_schedule }}
+		</li>
+	</ul>
+
+	<ul class="list-group list-group-flush">
+		{% if i.record_d %}
+		<li class="list-group-item">record d {{ i.record_d }}</li>
+		{% endif %}
+		{% if i.record_h %}
+		<li class="list-group-item">record h {{ i.record_h }}</li>
+		{% endif %}
+	</ul>
+
+	{% if i.places %}
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item">
+				<span class="badge text-bg-light">list places</span>
+				<ul>
+				{% for p in i.places %}
+				<li>{{ p }}</li>
+				{% endfor %}
+				</ul>
+			</li>
+		</ul>
+	{% endif %}
+
+	<ul class="list-group list-group-flush">
+
+		<li class="list-group-item">
+		<span class="badge text-bg-light">created</span>
+		<time>
+		{{ i.created_at  }}
+		</time>
+		</li>
+		<li class="list-group-item">
+		{% if i.updated_at %}
+		<sup>updated</sup> 
+		<time>
+		{{ i.Updated_at | date(format="%Y-%m-%d %H:%M:%S") }}
+		</time>
+		{% else %}
+			there are no updates
+		{% endif %}
+		</li>
+	</ul>
+
+	</div>
+
+</div>
+<hr>
+
+{% endfor %}
+{% endblock content %}

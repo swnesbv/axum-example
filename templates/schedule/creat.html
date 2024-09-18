@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %} create schedule {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">create schedule</h1>
+	
+<form class="card" method="POST">
+	<div class="card-body">
+	<sup>title</sup>
+	<input required type="text" name="title" class="form-control">
+	<sup>description</sup>
+	<input type="text" name="description" class="form-control">
+	</div>
+
+    <div class="card-body row">
+	    <div class="col-sm">
+	        <sup class="float-start">start</sup>
+	        <input
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="st_hour"
+	        />
+	    </div>
+	    <div class="col-sm">
+	        <sup class="float-start">end</sup>
+	        <input
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="en_hour"
+	        />
+	    </div>
+	</div>
+
+    <div id="addinput" class="card-body">
+    	<sup class="float-start">the beginning of the reception</sup>
+	</div>
+
+    <div class="card-footer action-buttons">
+    <button class="btn btn-sm btn-outline-primary" onclick="addFn(); return false;">
+    	make an appointment - add Input
+    </button>
+	</div>
+
+	<div class="card-footer action-buttons">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+
+</form>
+
+
+<script>
+    function addFn() {
+        const divEle = document.getElementById("addinput");
+        const wrapper = document.createElement("div");
+        
+        const tFl = document.createElement("input");
+        tFl.setAttribute("type", "datetime-local");
+        tFl.setAttribute("name", "list");
+        tFl.setAttribute("placeholder", "Enter value");
+        tFl.classList.add("w-auto");
+        tFl.classList.add("form-control");
+        tFl.classList.add("mt-2");
+
+        const iFl = document.createElement("input");
+        iFl.setAttribute("type", "number");
+        iFl.setAttribute("name", "places");
+        iFl.setAttribute("min", "1");
+        iFl.setAttribute("max", "10");
+        iFl.classList.add("w-auto");
+        iFl.classList.add("form-control");
+        iFl.classList.add("mt-2");
+
+        wrapper.appendChild(tFl);
+        wrapper.appendChild(iFl);
+        divEle.appendChild(wrapper);
+    }
+</script>
+	  
+{% endblock content %}

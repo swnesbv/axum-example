@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %} categories {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">categories</h1>
+
+<form class="card" method="POST">
+
+    <div class="card-body">
+    	<sup>--choose categories--</sup>
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item">
+				<sup class="ms-2">1 categorie</sup>
+		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="categories" value="object_1" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">2 categorie</sup>
+		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="categories" value="object_2" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">3 categorie</sup>
+		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="categories" value="object_3" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">4 categorie</sup>
+		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="categories" value="object_4" />
+			</li>
+		</ul>
+	</div>
+
+	<div class="card-footer action-buttons">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+
+</form>
+
+{% endblock content %}

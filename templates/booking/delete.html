@@ -1,0 +1,18 @@
+
+{{ template "./tpl/base.html" }}
+{{ define "title"}} delete booking {{ end }}
+
+
+{{ block "content" . }}
+
+<h1 class="container lead my-3">delete art: </h1>
+<span>autor: {{ .Items }}</span>
+	
+<form class="card" method="POST">
+<div class="card-footer">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+</div>
+	
+</form>
+	  
+{{ end }}

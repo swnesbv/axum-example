@@ -1,0 +1,30 @@
+
+{% extends "base.html" %}
+{% block title %} photo {% endblock %}
+
+{% block content %}
+
+<h1 class="lead my-3">photo</h1>
+<form class="card" method="POST" enctype="multipart/form-data">
+
+        <div class="card-footer">
+            <div class="mb-2">
+                <input
+                    type="file"
+                    name="photo"
+                    class="form-control"
+                    accept="image/png, image/jpeg"
+                />
+                <div id="help" class="form-text"></div>
+            </div>
+            <div class="m-2 ">
+                <button type="submit" class="btn btn-outline-primary btn-sm">
+                    submit
+                </button>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+{% endblock %}

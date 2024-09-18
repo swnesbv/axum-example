@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %} create products {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">create products</h1>
+	
+<form class="card" method="POST">
+	<div class="card-body">
+	<sup>title</sup>
+	<input required type="text" name="title" class="form-control">
+	<sup>description</sup>
+	<input type="text" name="description" class="form-control">
+	</div>
+
+    <div class="card-body">
+    	<sup>--choose categories--</sup>
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item">
+				<sup class="ms-2">object_1</sup>
+		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="categories" value="object_1" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">object_2</sup>
+		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="categories" value="object_2" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">object_3</sup>
+		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="categories" value="object_3" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">object_4</sup>
+		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="categories" value="object_4" />
+			</li>
+		</ul>
+	</div>
+
+	<div class="card-body row">
+	<div class="col-sm">
+		<sup>amount</sup>
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item">
+				<sup class="ms-2">container</sup>
+			<input class="form-control mb-2" type="number" name="a_container" min="1" max="100" placeholder="container" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">boxes</sup>
+			<input class="form-control mb-2" type="number" name="a_boxes" min="1" max="100" placeholder="boxes" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">carton</sup>
+			<input class="form-control mb-2" type="number" name="a_carton" min="1" max="100" placeholder="carton" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">units</sup>
+			<input class="form-control" type="number" name="a_units" min="1" max="100" placeholder="units" />
+			</li>
+		</ul>
+	</div>
+	<div class="col-sm">
+		<sup>price</sup>
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item">
+				<sup class="ms-2">container</sup>
+			<input class="form-control mb-2" type="number" name="p_container" min="1" max="100" placeholder="container" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">boxes</sup>
+			<input class="form-control mb-2" type="number" name="p_boxes" min="1" max="100" placeholder="boxes" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">carton</sup>
+			<input class="form-control mb-2" type="number" name="p_carton" min="1" max="100" placeholder="carton" />
+			</li>
+			<li class="list-group-item">
+				<sup class="ms-2">units</sup>
+			<input class="form-control" type="number" name="p_units" min="1" max="100" placeholder="units" />
+			</li>
+		</ul>
+	</div>
+	</div>
+
+	<div class="card-footer action-buttons">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+
+</form>
+
+{% endblock content %}

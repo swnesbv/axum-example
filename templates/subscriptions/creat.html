@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %} create groups {% endblock title %}
+{% block content %}
+
+<h1 class="lead my-4">create groups</h1>
+
+<form class="card" method="POST">
+
+	<div class="card-body">
+	<sup>title</sup>
+	<input required type="text" name="title" class="form-control">
+	<sup>description</sup>
+	<input type="text" name="description" class="form-control">
+	</div>
+
+	<div class="card-footer">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+
+</form>
+
+{% endblock content %}

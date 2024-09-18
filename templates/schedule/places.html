@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %} select all places {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">select all places</h1>
+	
+{% for i in all %}
+
+<div class="card">
+
+<div class="card-body">
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<span class="badge text-bg-primary">completed</span> {{ i.completed }}
+			<span class="badge text-bg-light">id</span>{{ i.id }}
+			<span class="badge text-bg-light">owner</span>{{ i.user_id }}
+		</li>
+		<li class="list-group-item">{{ i.title }}</li>
+		{% if i.description %}
+			<li class="list-group-item">{{ i.description }}</li>
+		{% endif %}
+	<li class="list-group-item">
+	<span class="badge text-bg-light">hours</span>
+	{% if i.hours %}
+		<ul>
+		{% for h in i.hours %}
+		<li>{{ h | date(format="%Y-%m-%d %H:%M") }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+	</li>
+	</ul>
+
+	{% if i.non_places %}
+		<ul class="list-group list-group-horizontal">
+			<li class="list-group-item">
+				<span class="badge text-bg-light">list non_places</span>
+				<ul class="list-group list-group-horizontal">
+				{% for o in i.non_places %}
+				<li class="list-group-item">{{ o }}</li>
+				{% endfor %}
+				</ul>
+			</li>
+		</ul>
+	{% endif %}
+
+</div>
+
+{% if i.places %}
+<form class="card-body" method="POST">
+
+    <ul class="flex-wrap list-group list-group-horizontal">
+
+    {% for p in i.places %}
+	<li class="list-group-item">
+
+    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+    <input type="hidden" name="places" value="{{ p }}" />
+
+    <sup>append</sup>
+	<span class="badge text-bg-light">places</span>
+	{{ p }}
+
+	</li>
+    {% endfor %}
+
+    </ul>
+
+    <input
+        type="hidden"
+        name="to_schedule"
+        value="{{ i.id }}"
+    />
+	{% if i.hours %}
+	{% for h in i.hours %}
+    <input
+        type="hidden"
+        name="record_h"
+        value="{{ h }}"
+    />
+	{% endfor %}
+	{% endif %}
+
+	<div class="card-footer action-buttons">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+</form>
+{% endif %}
+
+<ul class="list-group list-group-flush">
+	
+	<li class="list-group-item">
+	<span class="badge text-bg-light">created</span>
+	<time>
+	{{ i.created_at  }}
+	</time>
+	</li>
+	<li class="list-group-item">
+	{% if i.updated_at %}
+	<sup>updated</sup> 
+	<time>
+	{{ i.updated_at | date(format="%Y-%m-%d %H:%M:%S") }}
+	</time>
+	{% else %}
+		there are no updates
+	{% endif %}
+	</li>
+</ul>
+
+</div>
+<hr>
+
+{% endfor %}	  
+{% endblock content %}

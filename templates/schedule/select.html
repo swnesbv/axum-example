@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %} select all schedule {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">select all schedule</h1>
+	
+{% for i in all %}
+
+<div class="card">
+
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<span class="badge text-bg-primary">completed</span> {{ i.completed }}
+			<span class="badge text-bg-light">id</span>{{ i.id }}
+			<span class="badge text-bg-light">owner</span>{{ i.user_id }}
+		</li>
+		<li class="list-group-item">{{ i.title }}</li>
+		{% if i.description %}
+			<li class="list-group-item">{{ i.description }}</li>
+		{% endif %}
+		<li class="list-group-item">
+		<span class="badge text-bg-light">start</span>
+		{{ i.st_hour | date(format="%Y-%m-%d %H:%M") }}
+		<span class="badge text-bg-light">end</span>
+		{{ i.en_hour | date(format="%Y-%m-%d %H:%M") }}
+		</li>
+	</ul>
+
+	{% if i.occupied %}
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item">
+				<span class="badge text-bg-light">list occupied</span>
+				<ul>
+				{% for o in i.occupied %}
+				<li>{{ o | date(format="%Y-%m-%d %H:%M") }}</li>
+				{% endfor %}
+				</ul>
+			</li>
+		</ul>
+	{% endif %}
+
+
+	{% if i.hours %}
+		<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+		<form class="card" method="POST">
+			<div class="card-body">
+		        <input
+		        	required
+		            class="form-control my-2"
+		            type="hidden"
+		            name="to_schedule"
+		            value="{{ i.id }}"
+		        />
+		        <input
+		        	required
+		            class="form-control my-2"
+		            type="hidden"
+		            name="record_d"
+		            value="{{ i.st_hour }}"
+		        />
+		        {% for h in i.hours %}
+					<span class="badge text-bg-light">the beginning of the reception</span>
+					{{ h }}
+			        <input
+			        	required
+			            class="form-control my-2"
+			            type="hidden"
+			            name="record_h"
+			            value="{{ h }}"
+			        />
+					<div class="card-footer action-buttons">
+					<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+					</div>
+		        {% endfor %}
+		    </div>
+		</form>
+		</li>
+		</ul>
+	{% endif %}
+
+	<ul class="list-group list-group-flush">
+		
+		<li class="list-group-item">
+		<span class="badge text-bg-light">created</span>
+		<time>
+		{{ i.created_at  }}
+		</time>
+		</li>
+		<li class="list-group-item">
+		{% if i.updated_at %}
+		<sup>updated</sup> 
+		<time>
+		{{ i.Updated_at | date(format="%Y-%m-%d %H:%M:%S") }}
+		</time>
+		{% else %}
+			there are no updates
+		{% endif %}
+		</li>
+	</ul>
+
+	</div>
+
+</div>
+<hr>
+
+{% endfor %}	  
+{% endblock content %}

@@ -1,0 +1,112 @@
+{{ template "./tpl/base.html" }}
+{{ define "title" }} details hours provision {{ end }}
+
+{{ block "content" . }}
+
+<h1 class="lead my-3"><small>detail hours</small> {{ .Title }}</h1>
+
+<div class="card">
+	<ul class="card-body list-group list-group-flush">
+
+		<li class="list-group-item">
+			<span class="badge text-bg-primary">completed:</span> {{ .Completed }}
+		</li>
+		<li class="list-group-item">
+			<span class="badge text-bg-light">id:</span>{{ .Id }}
+			<span class="badge text-bg-light">owner:</span>{{ .Owner }}
+		</li>
+		<li class="list-group-item">
+			<sup>title:</sup> {{ .Title }}
+		</li>
+		<li class="list-group-item">
+			<sup>description:</sup> {{ .Description }}
+		</li>
+
+		<li class="list-group-item">
+		<sup>created:</sup>
+		<time>
+		{{ .Created_at.Format "2006-01-02 15:04:05" }}
+		</time>
+		</li>
+		<li class="list-group-item">
+
+		{{ if ne .Updated_at nil }}
+		<sup>updated:</sup> 
+		<time>
+		{{ .Updated_at.Format "2006-01-02 15:04:05" }}
+		</time>
+		{{ else }}
+			there are no updates
+		{{ end }}
+		</li>
+	</ul>
+
+	<ul class="list-group list-group-flush">
+
+		<li class="list-group-item">
+			<sup>start:</sup> {{ .St_hour.Format "2006-01-02 15:04:05" }}
+			<sup>end:</sup> {{ .En_hour.Format "2006-01-02 15:04:05" }}
+		</li>
+
+		{{ if ne .S_hours nil }}
+		<li class="list-group-item">
+			<sup>hours:</sup> {{ .S_hours }}
+		</li>
+		{{ end }}
+
+		{{ if ne .Hours nil }}
+		<li class="list-group-item">
+			<sup>hours:</sup> {{ .Hours }}
+		</li>
+		{{ end }}
+		
+	</ul>
+
+	<div class="card-footer">
+		<a class="btn btn-outline-primary btn-sm me-2" href="/update-prv?id={{ .Id }}" role="button">
+		    <i class="bi bi-pencil"></i> &raquo;
+		</a>
+		<a class="btn btn-outline-danger btn-sm" href="/delete-prv?id={{ .Id }}" role="button">
+		    <i class="bi bi-trash3"></i> &raquo;
+		</a>
+	</div>
+</div>
+
+<h2 class="lead m-3"><small>add booking</small></h2>
+
+<form class="card mb-5" method="POST">
+	<div class="card-body">
+	<sup>title</sup>
+	<input required type="text" name="title" class="form-control">
+	<sup>description</sup>
+	<input required type="text" name="description" class="form-control">
+	</div>
+
+
+    <div class="card-body row">
+	    <div class="col-sm">
+	        <sup class="float-start">start</sup>
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="start"
+	        />
+	    </div>
+	    <div class="col-sm">
+	        <sup class="float-start">end</sup>
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="end"
+	        />
+	    </div>
+	</div>
+
+	<div class="card-footer">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+	</form>
+
+{{ end }}
