@@ -76,6 +76,21 @@
 </form>
 </div>
 
+{% if p %}
+<ul class="pagination">
+    <li class="page-item">
+        <a class="page-link" rel="prev" href="?page={{ p.p.previous_page }}">&lt;&nbsp;previous</a>
+    </li>
+    <li class="page-item">
+        <a class="page-link" rel="next" href="?page={{ p.p.next_page }}">next&nbsp;&gt;</a>
+    </li>
+</ul>
+
+<p>
+    offset {{ p.offset }}, current {{ p.p.current_page }}, previous_page {{ p.p.previous_page }}, next_page {{ p.p.next_page }}, total {{ p.p.total_pages }}, per {{ p.p.per_page }}, total_records {{ p.p.total_records }}
+</p>
+{% endif %}
+
 {% endif %}
 
 {% endblock content %}

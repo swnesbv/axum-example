@@ -9,6 +9,7 @@ pub mod routes_products;
 pub mod routes_subscriptions;
 pub mod routes_room_chats;
 pub mod routes_user_chats;
+pub mod pgnation;
 
 pub mod util {
     pub mod date_config;

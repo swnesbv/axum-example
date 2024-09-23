@@ -3,8 +3,6 @@ use sqlx::postgres::PgPool;
 use axum::{
     extract::State,
     response::{Html, IntoResponse, Redirect},
-    // http::{Request,Response,StatusCode},
-    // body::Body,
     Extension,
 };
 
@@ -12,10 +10,9 @@ use tera::Context;
 
 use axum_extra::TypedHeader;
 use headers::Cookie;
-// use chrono::NaiveDate;
+use chrono::NaiveDate;
 
 use crate::{
-    booking::models::Claims,
     booking::views::{all, slt},
     common::Templates,
 };
@@ -46,18 +43,18 @@ pub async fn search_days(
         ),
     };
     // let current_time = Utc::now().date_naive();
-    use base64::{engine::general_purpose::STANDARD, Engine as _};
 
-    let t_64 = match STANDARD.decode(token) {
-        Ok(claims) => claims,
-        Err(_) => todo!(),
-    };
-    let k: Claims = bincode::deserialize(&t_64[..]).unwrap();
-
-    let pr_list = slt(pool, k.start, k.end).await.unwrap();
+    let v: Vec<&str> = token.split(",").collect();
+    let mut vec: Vec<NaiveDate> = Vec::new();
+    for i in v {
+        vec.push(
+            NaiveDate::parse_from_str(i, "%Y-%m-%d").unwrap()
+        );
+    }
+    let pr_list = slt(pool, vec[0], vec[1]).await.unwrap();
 
     let mut context = Context::new();
-    context.insert("k", &k);
+    context.insert("k", &vec);
     context.insert("pr_list", &pr_list);
     Ok(Html(templates.render("search_days", &context).unwrap()))
 }

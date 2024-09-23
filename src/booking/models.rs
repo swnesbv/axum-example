@@ -12,14 +12,10 @@ pub struct FormNewBooking {
 }
 #[derive(Deserialize, Serialize)]
 pub struct FormSE {
-    pub start: NaiveDate,
-    pub end: NaiveDate,
+    pub start: String,
+    pub end: String,
 }
-#[derive(Deserialize, Serialize)]
-pub struct Claims {
-    pub start: NaiveDate,
-    pub end: NaiveDate,
-}
+
 
 #[derive(Serialize)]
 pub struct LtBkg {

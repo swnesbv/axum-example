@@ -89,3 +89,9 @@ pub struct FormDel {
 	pub to_del: Vec<i32>,
 	pub on_off: Vec<String>,
 }
+
+
+#[derive(Deserialize)]
+pub struct GetParam {
+  pub page: String
+}

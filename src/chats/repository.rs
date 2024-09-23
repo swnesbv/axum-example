@@ -67,14 +67,27 @@ pub async fn to_dialogue(
 }
 
 
+pub async fn total_dialogue(
+	conn: &mut PgConnection,
+	user_id: i32,
+) -> i64 {
+
+	let result = sqlx::query_scalar("SELECT COUNT(*) FROM chat_room WHERE user_id=$1")
+		.bind(user_id)
+		.fetch_one(&mut *conn)
+		.await
+		.unwrap();
+	result
+}
+
 pub async fn user_id_dialogue(
-	conn: &mut PgConnection, user_id: i32
+	conn: &mut PgConnection, user_id: i32, limit: i64, offset: i64
 ) -> Result<Vec<Room>, String> {
 
 	let result = sqlx::query_as!(
 		Room,
-		"SELECT * FROM chat_room WHERE user_id=$1",
-		user_id
+		"SELECT * FROM chat_room WHERE user_id=$1 ORDER BY id LIMIT $2 OFFSET $3",
+		user_id, limit, offset
 	)
 	.fetch_all(&mut *conn)
 	.await
