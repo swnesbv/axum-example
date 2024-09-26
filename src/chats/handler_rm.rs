@@ -46,9 +46,7 @@ pub async fn ws_handler(
 
     while let Some(Ok(message)) = receiver.next().await {
         if let Message::Text(name) = message {
-
-            #[allow(clippy::all)]
-            Connect {
+            let _ = Connect {
                 username: i.claims.username.to_string(),
                 channel: c_int.clone(),
             };

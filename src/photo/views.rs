@@ -30,10 +30,7 @@ pub async fn read_msg(
     cookie: Cookie
 ) -> Result<Option<Vec<String>>, Option<String>> {
 
-    let token = match cookie.get("to_msg") {
-        Some(expr) => expr,
-        None => ""
-    };
+    let token = cookie.get("to_msg").unwrap_or("");
 
     let v: Vec<&str> = token.split(",").collect();
     let mut vec = Vec::new();

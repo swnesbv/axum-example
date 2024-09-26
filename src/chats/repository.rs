@@ -72,12 +72,11 @@ pub async fn total_dialogue(
 	user_id: i32,
 ) -> i64 {
 
-	let result = sqlx::query_scalar("SELECT COUNT(*) FROM chat_room WHERE user_id=$1")
+	sqlx::query_scalar("SELECT COUNT(*) FROM chat_room WHERE user_id=$1")
 		.bind(user_id)
 		.fetch_one(&mut *conn)
 		.await
-		.unwrap();
-	result
+		.unwrap()
 }
 
 pub async fn user_id_dialogue(
