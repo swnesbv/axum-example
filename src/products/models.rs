@@ -13,7 +13,7 @@ pub struct Categories {
     pub object_4: Option<String>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct AmountPrice {
     pub container: Option<i32>,
     pub boxes:     Option<i32>,
@@ -21,7 +21,7 @@ pub struct AmountPrice {
     pub units:     Option<i32>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct Products {
     pub id: i32,
     pub user_id: i32,
@@ -62,6 +62,6 @@ pub struct FormProducts {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct FormSelect {
-    pub categories:  Vec<String>,
-    pub on_off:      Vec<String>,
+    pub categories: Vec<String>,
+    pub on_off:     Vec<String>,
 }

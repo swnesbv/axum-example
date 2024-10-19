@@ -11,7 +11,7 @@ use tera::Context;
 use crate::{
     common::Templates,
     products::models::{FormSelect},
-    products::views::{all_products, id_products, form_on_off, i_categories},
+    products::views::{all_products, form_on_off, i_categories},
 };
 
 
@@ -25,20 +25,6 @@ pub async fn get_all(
     let mut context = Context::new();
     context.insert("all", &all);
     Html(templates.render("all", &context).unwrap())
-}
-
-pub async fn get_detail(
-    Path(id): Path<String>,
-    State(pool): State<PgPool>,
-    Extension(templates): Extension<Templates>,
-) -> impl IntoResponse {
-
-    let number: i32 = id.parse().expect("Not a valid number");
-    let i = id_products(pool, number).await.unwrap();
-
-    let mut context = Context::new();
-    context.insert("i", &i);
-    Html(templates.render("detail", &context).unwrap())
 }
 
 

@@ -11,6 +11,21 @@ pub async fn all_products(pool: PgPool) -> Result<Vec<Products>, String> {
     Ok(result)
 }
 
+pub async fn id_products(
+    pool: PgPool, id: i32
+) -> Result<Products, String> {
+
+    let result = sqlx::query_as!(
+        Products,
+        "SELECT * FROM products WHERE id=$1",
+        id
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    Ok(result)
+}
+
 
 pub async fn form_on_off(
     form: FormSelect,
@@ -40,11 +55,11 @@ pub async fn i_categories(
 ) -> Result<Vec<Products>, String> {
 
     let result = sqlx::query_as!(
-            Products,
-            "SELECT * FROM products WHERE categories && ARRAY[$1,$2,$3,$4]::TEXT[]", a,b,c,d
-        )
-        .fetch_all(&pool)
-        .await
-        .unwrap();
+        Products,
+        "SELECT * FROM products WHERE categories && ARRAY[$1,$2,$3,$4]::TEXT[]", a,b,c,d
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap();
     Ok(result)
 }

@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %} purchases {{ i.title }} {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">purchases</h1>
+
+<div class="card">
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<span class="badge text-bg-primary">completed</span> {{ i.completed }}
+		</li>
+		<li class="list-group-item">
+		<span class="badge text-bg-light">id</span>{{ i.id }}
+		<span class="badge text-bg-light">owner</span>{{ i.user_id }}
+		</li>
+		<li class="list-group-item">
+			<sup>title</sup> {{ i.title }}
+		</li>
+		<li class="list-group-item">
+		<span class="badge text-bg-light">categories</span>
+		{% if i.categories %}
+			{% for c in i.categories %}
+			{{ c }}
+			{% endfor %}
+		{% endif %}
+		</li>
+		<li class="list-group-item">
+
+		{% if i.amount %}
+		<span class="badge bg-success">amount</span>
+		<ul class="list-group list-group-horizontal">
+			{% if i.amount.container %}
+			<li class="list-group-item">
+				<span class="badge text-bg-light">container</span> {{ i.amount.container }}
+			</li>
+			{% endif %}
+			{% if i.amount.boxes %}
+			<li class="list-group-item">
+				<span class="badge text-bg-light">boxes</span> {{ i.amount.boxes }}
+			</li>
+			{% endif %}
+			{% if i.amount.carton %}
+			<li class="list-group-item">
+				<span class="badge text-bg-light">carton</span> {{ i.amount.carton }}
+			</li>
+			{% endif %}
+			{% if i.amount.units %}
+			<li class="list-group-item">
+				<span class="badge text-bg-light">units</span> {{ i.amount.units }}
+			</li>
+			{% endif %}
+		</ul>
+		{% endif %}
+		</li>
+		<li class="list-group-item">
+
+		{% if i.price %}
+		<span class="badge bg-success">price</span>
+		<ul class="list-group list-group-horizontal">
+			{% if i.price.container %}
+			<li class="list-group-item">
+				<span class="badge text-bg-light">container</span> {{ i.price.container }}
+			</li>
+			{% endif %}
+			{% if i.price.container %}
+			<li class="list-group-item">
+				<span class="badge text-bg-light">boxes</span> {{ i.price.boxes }}
+			</li>
+			{% endif %}
+			{% if i.price.container %}
+			<li class="list-group-item">
+				<span class="badge text-bg-light">carton</span> {{ i.price.carton }}
+			</li>
+			{% endif %}
+			{% if i.price.container %}
+			<li class="list-group-item">
+				<span class="badge text-bg-light">units</span> {{ i.price.units }}
+			</li>
+			{% endif %}
+		</ul>
+		{% endif %}
+		</li>
+	</ul>
+
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+		<sup>created</sup>
+		<time>
+		{{ i.created_at }}
+		</time>
+		</li>
+		<li class="list-group-item">
+		{% if i.updated_at %}
+		<sup>updated</sup>
+		<time>{{ i.updated_at | date(format="%Y-%m-%d %H:%M:%S") }}</time>
+		{% endif %}
+		</li>
+	</ul>
+</div>
+
+
+<form class="card" method="POST">
+
+    <style type="text/css">
+	    input::-webkit-outer-spin-button,
+	    input::-webkit-inner-spin-button {
+	        -webkit-appearance: none;
+	        margin: 0;
+	    }
+	    input[type=number] {
+	        -moz-appearance:textfield;
+	    }
+    </style>
+
+	<div class="card-body">
+		<sup>amount</sup>
+		<ul class="list-group list-group-flush">
+			{% if i.amount.container %}
+			<li class="input-group">
+
+			<input required type="number" name="a_container" min="1" max="100" placeholder="container" class="count form-control" />
+
+			<input type="hidden" name="price" value="{{ i.price.container }}" class="price form-control" />
+
+			<sup class="mx-3">total</sup>
+			<input type="text" name="output" class="output form-control" />
+
+			</li>
+			{% endif %}
+			{% if i.amount.boxes %}
+			<li class="input-group">
+
+			<input required type="number" name="a_boxes" min="1" max="100" placeholder="boxes"  class="count form-control" />
+
+			<input type="hidden" name="price1" value="{{ i.price.boxes }}" class="price form-control" />
+
+			<sup class="mx-3">total</sup>
+			<input type="text" name="output" class="output form-control" />
+
+			</li>
+			{% endif %}
+			{% if i.amount.carton %}
+			<li class="input-group">
+
+			<input required type="number" name="a_carton" min="1" max="100" placeholder="carton"  class="count form-control" />
+
+			<input type="hidden" name="price2" value="{{ i.price.carton }}" class="price form-control" />
+
+			<sup class="mx-3">total</sup>
+			<input type="text" name="output" class="output form-control" />
+
+			</li>
+			{% endif %}
+			{% if i.amount.units %}
+			<li class="input-group">
+
+			<input required type="number" name="a_units" min="1" max="100" placeholder="units" class="count form-control" />
+
+			<input type="hidden" name="price3" value="{{ i.price.units }}" class="price form-control" />
+
+			<sup class="mx-3">total</sup>
+			<input type="text" name="output" class="output form-control" />
+
+			</li>
+			{% endif %}
+			<li id="grand" class="list-group-item">
+				<p><sup>grand total:</sup></p>
+				<input type="text" name="gran" id="gran" class="i1 form-control">
+			</li>
+
+		</ul>
+
+	</div>
+
+	<input type="hidden" name="product_id" value="{{ i.id }}" />
+
+	<div class="card-footer action-buttons">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+</form>
+
+{% endblock content %}
+
+
+{% block script %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+
+    $(document).ready(function() {
+        $(".count").keyup(function() {
+            var grandTotal = 0;
+            $(".price").each(function (index) {
+                var price = $(".price").eq(index).val();
+                var count = $(".count").eq(index).val();
+                var output = parseInt(price) * parseInt(count);
+                if (!isNaN(output)) {
+                $(".output").eq(index).val(output);
+                grandTotal = parseInt(grandTotal) + parseInt(output);
+                   $('#gran').val(grandTotal);
+                }
+            });
+        });
+    });
+
+</script>
+{% endblock %}

@@ -21,8 +21,8 @@ pub fn build_routes(pool: PgPool) -> Router {
             ("creat", include_str!("../templates/products/creat.html")),
             ("select", include_str!("../templates/products/select.html")),
             ("categories", include_str!("../templates/products/categories.html")),
-            // ("detail", include_str!("../templates/schedule/detail.html")),
-            // ("delete", include_str!("../templates/schedule/delete.html")),
+            ("detail", include_str!("../templates/products/detail.html")),
+            // ("delete", include_str!("../templates/products/delete.html")),
         ])
         .unwrap();
 
@@ -39,9 +39,9 @@ pub fn build_routes(pool: PgPool) -> Router {
                 get(products::handlers::get_select).post(products::handlers::post_select),
             )
             .route("/categories/:i", get(products::handlers::get_categories))
-            // .route(
-            //     "/detail", get(schedule::accreditation::get_password_change).post(schedule::accreditation::post_password_change)
-            // )
+            .route(
+                "/detail/:id", get(products::handlers::get_detail)
+            )
             .layer(Extension(Arc::new(products_tera))),
     );
     Router::new().nest("/", products_routes.with_state(pool))

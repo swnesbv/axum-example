@@ -1,15 +1,13 @@
 {% extends "base.html" %}
-{% block title %} all products {% endblock title %}
+{% block title %} products {{ i.title }} {% endblock title %}
 
 {% block content %}
 
-<h1 class="container lead my-3">all products</h1>
-	
-{% for i in all %}
+<h1 class="container lead my-3">products</h1>
+
 <div class="card">
 
 <div class="card-body">
-
 	<ul class="list-group list-group-flush">
 		<li class="list-group-item">
 			<span class="badge text-bg-primary">completed</span> {{ i.completed }}
@@ -101,13 +99,9 @@
 		{% endif %}
 		</li>
 	</ul>
-
 </div>
 
 <div class="card-footer">
-<a class="btn btn-outline-primary btn-sm me-2" href="/products/detail/{{ i.id }}">
-	details
-</a>
 <a class="btn btn-outline-primary btn-sm" href="/purchases/order/{{ i.id }}">
 	order
 </a>
@@ -115,7 +109,4 @@
 
 </div>
 
-<hr>
-
-{% endfor %}
 {% endblock content %}

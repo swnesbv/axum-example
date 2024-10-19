@@ -1,0 +1,71 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body>
+
+    <style type="text/css">
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        /* display: none; <- Crashes Chrome on hover */
+        -webkit-appearance: none;
+        margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+    }
+
+    input[type=number] {
+        -moz-appearance:textfield; /* Firefox */
+    }
+    </style>
+    <form method="POST">
+        <table style="border:1px solid purple">
+            <tr>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+            </tr>
+            <tr id="test">
+            <td><input class="count" type="number" name="count"></td>
+            <td><input class="price" type="hidden" name="price" value="2"></td>
+            <td><input class="output" type="text" name="output"></td>
+            </tr>
+            <tr id="test">
+            <td><input class="count" type="number" name="count"></td>
+            <td><input class="price" type="hidden" name="price" value="2"></td>
+            <td><input class="output" type="text" name="output"></td>
+            </tr>
+            <tr id="test">
+            <td><input class="count" type="number" name="count"></td>
+            <td><input class="price" type="hidden" name="price" value="2"></td>
+            <td><input class="output" type="text" name="output"></td>
+            </tr>
+        </table>
+    </form>
+
+    <div id="grand">
+        Grand Total:<input type="text" name="gran" id="gran">
+    </div>
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script type='text/javascript'>
+    $(document).ready(function() {
+        $(".count").keyup(function() {
+            var grandTotal = 0;
+            $(".price").each(function (index) {
+                var count = $(".count").eq(index).val();
+                var price = $(".price").eq(index).val();
+                var output = parseInt(price) * parseInt(count);
+                if (!isNaN(output)) {
+                $(".output").eq(index).val(output);
+                grandTotal = parseInt(grandTotal) + parseInt(output);
+                   $('#gran').val(grandTotal);
+                }
+            });
+        });
+    });
+</script>
+
+
+</body>
+</html>

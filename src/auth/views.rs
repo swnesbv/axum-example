@@ -52,6 +52,7 @@ pub async fn request_user(
 	}
 }
 
+
 pub async fn request_token(
 	cookie: Cookie,
 ) -> Result<TokenData<Claims>, Option<String>> {

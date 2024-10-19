@@ -15,6 +15,7 @@ use axum_example::routes_index;
 use axum_example::routes_provision;
 use axum_example::routes_schedule;
 use axum_example::routes_products;
+use axum_example::routes_purchases;
 use axum_example::routes_subscriptions;
 
 use axum_example::routes_room_chats;
@@ -42,6 +43,7 @@ async fn main() {
     let schedule_router = routes_schedule::build_routes(pool.clone());
     let provision_router = routes_provision::build_routes(pool.clone());
     let product_router = routes_products::build_routes(pool.clone());
+    let purchases_router = routes_purchases::build_routes(pool.clone());
     let subscription_router = routes_subscriptions::build_routes(pool.clone());
 
     let chat_rm_state = Arc::new(RoomChat {
@@ -64,6 +66,7 @@ async fn main() {
         .merge(provision_router)
         .merge(schedule_router)
         .merge(product_router)
+        .merge(purchases_router)
         .merge(subscription_router)
 
         .merge(chat_rm_router)
