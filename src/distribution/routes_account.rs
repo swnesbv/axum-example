@@ -13,19 +13,19 @@ pub fn build_routes(pool: PgPool) -> Router {
     let mut user_tera = Tera::default();
     user_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../templates/base.html")),
-            ("navbar.html", include_str!("../templates/navbar.html")),
-            ("users", include_str!("../templates/users.html")),
-            ("user", include_str!("../templates/user.html")),
-            ("signup", include_str!("../templates/signup.html")),
-            ("login", include_str!("../templates/login.html")),
-            ("update", include_str!("../templates/update.html")),
+            ("base.html", include_str!("../../templates/base.html")),
+            ("navbar.html", include_str!("../../templates/navbar.html")),
+            ("users", include_str!("../../templates/users.html")),
+            ("user", include_str!("../../templates/user.html")),
+            ("signup", include_str!("../../templates/signup.html")),
+            ("login", include_str!("../../templates/login.html")),
+            ("update", include_str!("../../templates/update.html")),
             (
                 "password_change",
-                include_str!("../templates/password_change.html"),
+                include_str!("../../templates/password_change.html"),
             ),
-            ("export_csv", include_str!("../templates/export_csv.html")),
-            ("photo", include_str!("../templates/photo.html")),
+            ("export_csv", include_str!("../../templates/export_csv.html")),
+            ("photo", include_str!("../../templates/photo.html")),
         ])
         .unwrap();
 

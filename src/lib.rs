@@ -1,16 +1,24 @@
 pub mod common;
-pub mod routes_assets;
-pub mod routes_index;
-pub mod routes_account;
-pub mod routes_booking;
-pub mod routes_schedule;
-pub mod routes_provision;
-pub mod routes_products;
-pub mod routes_purchases;
-pub mod routes_subscriptions;
-pub mod routes_room_chats;
-pub mod routes_user_chats;
 pub mod pgnation;
+
+pub mod distribution {
+    pub mod routes_assets;
+    pub mod routes_index;
+    pub mod routes_account;
+    pub mod routes_booking;
+    pub mod routes_schedule;
+    pub mod routes_provision;
+    pub mod routes_products;
+    pub mod routes_purchases;
+    pub mod routes_subscriptions;
+    pub mod routes_room_chats;
+    pub mod routes_user_chats;
+}
+
+pub mod sitemap {
+    pub mod handlers;
+    pub mod views;
+}
 
 pub mod util {
     pub mod date_config;

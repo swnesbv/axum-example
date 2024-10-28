@@ -12,27 +12,27 @@ pub fn build_routes(pool: PgPool) -> Router {
     let mut ssc_tera = Tera::default();
     ssc_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../templates/base.html")),
-            ("navbar.html", include_str!("../templates/navbar.html")),
+            ("base.html", include_str!("../../templates/base.html")),
+            ("navbar.html", include_str!("../../templates/navbar.html")),
             (
                 "creat",
-                include_str!("../templates/subscriptions/creat.html"),
+                include_str!("../../templates/subscriptions/creat.html"),
             ),
             (
                 "groups",
-                include_str!("../templates/subscriptions/groups.html"),
+                include_str!("../../templates/subscriptions/groups.html"),
             ),
             (
                 "ssc_owner",
-                include_str!("../templates/subscriptions/ssc_owner.html"),
+                include_str!("../../templates/subscriptions/ssc_owner.html"),
             ),
             (
                 "ssc_to_user",
-                include_str!("../templates/subscriptions/ssc_to_user.html"),
+                include_str!("../../templates/subscriptions/ssc_to_user.html"),
             ),
             (
                 "ssc_group",
-                include_str!("../templates/subscriptions/ssc_group.html"),
+                include_str!("../../templates/subscriptions/ssc_group.html"),
             ),
         ])
         .unwrap();

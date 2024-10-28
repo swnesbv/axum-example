@@ -15,11 +15,11 @@ pub fn build_routes(chat_state: Arc<RoomChat>) -> Router {
     let mut chat_tera = Tera::default();
     chat_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../templates/base.html")),
-            ("navbar.html", include_str!("../templates/navbar.html")),
+            ("base.html", include_str!("../../templates/base.html")),
+            ("navbar.html", include_str!("../../templates/navbar.html")),
             (
                 "room",
-                include_str!("../templates/chats/room.html"),
+                include_str!("../../templates/chats/room.html"),
             )
         ])
         .unwrap();

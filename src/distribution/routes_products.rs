@@ -12,17 +12,17 @@ pub fn build_routes(pool: PgPool) -> Router {
     let mut products_tera = Tera::default();
     products_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../templates/base.html")),
-            ("navbar.html", include_str!("../templates/navbar.html")),
+            ("base.html", include_str!("../../templates/base.html")),
+            ("navbar.html", include_str!("../../templates/navbar.html")),
             (
                 "all",
-                include_str!("../templates/products/all.html"),
+                include_str!("../../templates/products/all.html"),
             ),
-            ("creat", include_str!("../templates/products/creat.html")),
-            ("select", include_str!("../templates/products/select.html")),
-            ("categories", include_str!("../templates/products/categories.html")),
-            ("detail", include_str!("../templates/products/detail.html")),
-            // ("delete", include_str!("../templates/products/delete.html")),
+            ("creat", include_str!("../../templates/products/creat.html")),
+            ("select", include_str!("../../templates/products/select.html")),
+            ("categories", include_str!("../../templates/products/categories.html")),
+            ("detail", include_str!("../../templates/products/detail.html")),
+            // ("delete", include_str!("../../templates/products/delete.html")),
         ])
         .unwrap();
 

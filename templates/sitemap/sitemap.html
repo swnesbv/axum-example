@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %} sitemap {% endblock title %}
+
+{% block content %}
+
+{% if arg %}
+<div class="card">
+
+    <div class="card-body">
+    <ul class="list-group list-group-flush">
+    {% for i in arg %}
+        <li class="list-group-item">
+            <span>{{ i }}</span>
+        </li>
+    {% endfor %}
+    </ul>
+    </div>
+
+</div>
+{% endif %}
+
+{% endblock %}

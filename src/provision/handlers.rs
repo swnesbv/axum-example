@@ -101,7 +101,7 @@ pub async fn post_detail_days(
     let zero_date = NaiveDate::parse_from_str("0001-01-01", "%Y-%m-%d").expect("msg");
 
     if start.is_none() && end.is_none() {
-        Redirect::to("/booking/all-booking").into_response();
+        let _ = Redirect::to("/booking/all-booking").into_response();
     }
     if start.is_some() && end.is_some() {
         let s_vec = vec![s_val];

@@ -14,7 +14,7 @@
         <li class="list-group-item">
         <span>{{ i.id }}</span>
         <span class="mx-2">{{ i.username }}</span>
-        <a href="/account/user/{{ i.username }}">{{ i.email }}</a>
+        <a title="account" class="page-link account" href="/account/user/{{ i.username }}">{{ i.email }}</a>
 
         <form method="POST">
         <input type="hidden" name="to_user" value="{{ i.id }}" />
@@ -27,6 +27,6 @@
     </div>
 
 </div>
-
 {% endif %}
+
 {% endblock content %}

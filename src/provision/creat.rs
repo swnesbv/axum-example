@@ -40,6 +40,7 @@ pub async fn get_creat_days(
     ))
 }
 
+
 pub async fn post_creat_days(
     State(pool): State<PgPool>,
     TypedHeader(cookie): TypedHeader<Cookie>,

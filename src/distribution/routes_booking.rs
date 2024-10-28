@@ -11,22 +11,22 @@ pub fn build_routes(pool: PgPool) -> Router {
     let mut booking_tera = Tera::default();
     booking_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../templates/base.html")),
-            ("navbar.html", include_str!("../templates/navbar.html")),
+            ("base.html", include_str!("../../templates/base.html")),
+            ("navbar.html", include_str!("../../templates/navbar.html")),
             (
                 "all_booking",
-                include_str!("../templates/booking/all_booking.html"),
+                include_str!("../../templates/booking/all_booking.html"),
             ),
-            ("period", include_str!("../templates/booking/period.html")),
+            ("period", include_str!("../../templates/booking/period.html")),
             (
                 "search_days",
-                include_str!("../templates/booking/search_days.html"),
+                include_str!("../../templates/booking/search_days.html"),
             ),
-            // ("delete", include_str!("../templates/booking/delete.html")),
-            // ("detail", include_str!("../templates/booking/detail.html")),
+            // ("delete", include_str!("../../templates/booking/delete.html")),
+            // ("detail", include_str!("../../templates/booking/detail.html")),
 
-            // ("period_hours", include_str!("../templates/booking/period_hours.html")),
-            // ("update", include_str!("../templates/booking/update.html")),
+            // ("period_hours", include_str!("../../templates/booking/period_hours.html")),
+            // ("update", include_str!("../../templates/booking/update.html")),
         ])
         .unwrap();
 

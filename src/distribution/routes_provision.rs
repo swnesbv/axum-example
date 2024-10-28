@@ -11,34 +11,34 @@ pub fn build_routes(pool: PgPool) -> Router {
     let mut provision_tera = Tera::default();
     provision_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../templates/base.html")),
-            ("navbar.html", include_str!("../templates/navbar.html")),
+            ("base.html", include_str!("../../templates/base.html")),
+            ("navbar.html", include_str!("../../templates/navbar.html")),
             (
                 "all_days",
-                include_str!("../templates/provision/all_days.html"),
+                include_str!("../../templates/provision/all_days.html"),
             ),
             (
                 "all_hours",
-                include_str!("../templates/provision/all_hours.html"),
+                include_str!("../../templates/provision/all_hours.html"),
             ),
             (
                 "creat_days",
-                include_str!("../templates/provision/creat_days.html"),
+                include_str!("../../templates/provision/creat_days.html"),
             ),
-            // ("delete", include_str!("../templates/provision/period.html")),
+            // ("delete", include_str!("../../templates/provision/period.html")),
             (
                 "detail_days",
-                include_str!("../templates/provision/detail_days.html"),
+                include_str!("../../templates/provision/detail_days.html"),
             ),
             (
                 "update_dates",
-                include_str!("../templates/provision/update_dates.html"),
+                include_str!("../../templates/provision/update_dates.html"),
             ),
             (
                 "creat_hours",
-                include_str!("../templates/provision/creat_hours.html"),
+                include_str!("../../templates/provision/creat_hours.html"),
             ),
-            // ("detail_hours", include_str!("../templates/provision/export_csv.html")),
+            // ("detail_hours", include_str!("../../templates/provision/export_csv.html")),
         ])
         .unwrap();
 

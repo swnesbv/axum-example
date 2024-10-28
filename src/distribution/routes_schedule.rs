@@ -11,21 +11,21 @@ pub fn build_routes(pool: PgPool) -> Router {
     let mut schedule_tera = Tera::default();
     schedule_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../templates/base.html")),
-            ("navbar.html", include_str!("../templates/navbar.html")),
+            ("base.html", include_str!("../../templates/base.html")),
+            ("navbar.html", include_str!("../../templates/navbar.html")),
             (
                 "all_sch",
-                include_str!("../templates/schedule/all_sch.html"),
+                include_str!("../../templates/schedule/all_sch.html"),
             ),
             (
                 "all_recording",
-                include_str!("../templates/schedule/all_recording.html"),
+                include_str!("../../templates/schedule/all_recording.html"),
             ),
-            ("creat", include_str!("../templates/schedule/creat.html")),
-            ("select", include_str!("../templates/schedule/select.html")),
-            ("places", include_str!("../templates/schedule/places.html")),
-            // ("detail", include_str!("../templates/schedule/detail.html")),
-            // ("delete", include_str!("../templates/schedule/delete.html")),
+            ("creat", include_str!("../../templates/schedule/creat.html")),
+            ("select", include_str!("../../templates/schedule/select.html")),
+            ("places", include_str!("../../templates/schedule/places.html")),
+            // ("detail", include_str!("../../templates/schedule/detail.html")),
+            // ("delete", include_str!("../../templates/schedule/delete.html")),
         ])
         .unwrap();
 

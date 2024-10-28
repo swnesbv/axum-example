@@ -5,21 +5,22 @@ use tokio::net::TcpListener;
 use sqlx::PgPool;
 use axum::Router;
 
-use axum_example::routes_assets;
 
 use axum_example::chats::models::{RoomChat, UserChat};
 
-use axum_example::routes_account;
-use axum_example::routes_booking;
-use axum_example::routes_index;
-use axum_example::routes_provision;
-use axum_example::routes_schedule;
-use axum_example::routes_products;
-use axum_example::routes_purchases;
-use axum_example::routes_subscriptions;
+use axum_example::distribution::routes_assets;
 
-use axum_example::routes_room_chats;
-use axum_example::routes_user_chats;
+use axum_example::distribution::routes_account;
+use axum_example::distribution::routes_booking;
+use axum_example::distribution::routes_index;
+use axum_example::distribution::routes_provision;
+use axum_example::distribution::routes_schedule;
+use axum_example::distribution::routes_products;
+use axum_example::distribution::routes_purchases;
+use axum_example::distribution::routes_subscriptions;
+
+use axum_example::distribution::routes_room_chats;
+use axum_example::distribution::routes_user_chats;
 
 use std::{
     collections::{HashMap, HashSet},
@@ -74,6 +75,7 @@ async fn main() {
 
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, 8000));
     let listener = TcpListener::bind(&addr).await.unwrap();
+
     println!(" listening on.. {:?}", addr);
 
     axum::serve(listener, app.into_make_service())
