@@ -3,7 +3,7 @@
     {% for i in arg %}
     <url>
         <loc>http://localhost:8000{{ i.link }}</loc>
-        <lastmod>{[ 1984-01-01T00:00:00Z ]}</lastmod>
+        <lastmod>{[ i.time ]}</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.5</priority>
     </url>
