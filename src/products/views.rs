@@ -63,3 +63,17 @@ pub async fn i_categories(
     .unwrap();
     Ok(result)
 }
+
+pub async fn i_cts(
+    pool: PgPool, i: Option<Vec<String>>
+) -> Result<Vec<Products>, String> {
+
+    let result = sqlx::query_as!(
+        Products,
+        "SELECT * FROM products WHERE $1 @> cts", i.as_deref()
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap();
+    Ok(result)
+}

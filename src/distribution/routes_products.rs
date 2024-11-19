@@ -21,6 +21,7 @@ pub fn build_routes(pool: PgPool) -> Router {
             ("creat", include_str!("../../templates/products/creat.html")),
             ("select", include_str!("../../templates/products/select.html")),
             ("categories", include_str!("../../templates/products/categories.html")),
+            ("cts", include_str!("../../templates/products/cts.html")),
             ("detail", include_str!("../../templates/products/detail.html")),
             // ("delete", include_str!("../../templates/products/delete.html")),
         ])
@@ -39,6 +40,7 @@ pub fn build_routes(pool: PgPool) -> Router {
                 get(products::handlers::get_select).post(products::handlers::post_select),
             )
             .route("/categories/:i", get(products::handlers::get_categories))
+            .route("/cts/:i", get(products::handlers::get_cts))
             .route(
                 "/detail/:id", get(products::handlers::get_detail)
             )

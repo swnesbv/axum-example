@@ -59,6 +59,7 @@ pub async fn post_creat(
         }
     }
 
+
     let a_container = form.a_container;
     let a_boxes = form.a_boxes;
     let a_carton = form.a_carton;
@@ -88,12 +89,13 @@ pub async fn post_creat(
     let price: serde_json::Value = serde_json::from_str(&str_p).unwrap();
 
     let result = sqlx::query(
-        "INSERT INTO products (user_id, title, description, categories, amount, price, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)"
+        "INSERT INTO products (user_id, title, description, categories, cts, amount, price, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
         )
         .bind(token.claims.id)
         .bind(&form.title)
         .bind(&form.description)
         .bind(e)
+        .bind(form.cts.as_deref())
         .bind(amount)
         .bind(price)
         .bind(Utc::now())

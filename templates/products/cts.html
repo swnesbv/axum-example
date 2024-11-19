@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %} cts categories {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">cts categories</h1>
+
+{% for i in all %}
+<div class="card">
+
+<div class="card-body">
+<ul class="list-group list-group-flush">
+	<li class="list-group-item">
+		<span class="badge text-bg-primary">completed</span> {{ i.completed }}
+	</li>
+	<li class="list-group-item">
+	<span class="badge text-bg-light">id</span>{{ i.id }}
+	<span class="badge text-bg-light">owner</span>{{ i.user_id }}
+	</li>
+	<li class="list-group-item">
+		<sup>title</sup> {{ i.title }}
+	</li>
+	<li class="list-group-item">
+	<span class="badge text-bg-light">categories cts</span>
+	{% if i.cts %}
+		{% for c in i.cts %}
+		{{ c }}
+		{% endfor %}
+	{% endif %}
+	</li>
+	<li class="list-group-item">
+
+	{% if i.amount %}
+	<span class="badge bg-success">amount</span>
+	<ul class="list-group list-group-horizontal">
+		{% if i.amount.container %}
+		<li class="list-group-item">
+			<span class="badge text-bg-light">container</span> {{ i.amount.container }}
+		</li>
+		{% endif %}
+		{% if i.amount.boxes %}
+		<li class="list-group-item">
+			<span class="badge text-bg-light">boxes</span> {{ i.amount.boxes }}
+		</li>
+		{% endif %}
+		{% if i.amount.carton %}
+		<li class="list-group-item">
+			<span class="badge text-bg-light">carton</span> {{ i.amount.carton }}
+		</li>
+		{% endif %}
+		{% if i.amount.units %}
+		<li class="list-group-item">
+			<span class="badge text-bg-light">units</span> {{ i.amount.units }}
+		</li>
+		{% endif %}
+	</ul>
+	{% endif %}
+	</li>
+	<li class="list-group-item">
+
+	{% if i.price %}
+	<span class="badge bg-success">price</span>
+	<ul class="list-group list-group-horizontal">
+		{% if i.price.container %}
+		<li class="list-group-item">
+			<span class="badge text-bg-light">container</span> {{ i.price.container }}
+		</li>
+		{% endif %}
+		{% if i.price.container %}
+		<li class="list-group-item">
+			<span class="badge text-bg-light">boxes</span> {{ i.price.boxes }}
+		</li>
+		{% endif %}
+		{% if i.price.container %}
+		<li class="list-group-item">
+			<span class="badge text-bg-light">carton</span> {{ i.price.carton }}
+		</li>
+		{% endif %}
+		{% if i.price.container %}
+		<li class="list-group-item">
+			<span class="badge text-bg-light">units</span> {{ i.price.units }}
+		</li>
+		{% endif %}
+	</ul>
+	{% endif %}
+	</li>
+</ul>
+
+<ul class="list-group list-group-flush">
+	<li class="list-group-item">
+	<sup>created</sup>
+	<time>
+	{{ i.created_at }}
+	</time>
+	</li>
+	<li class="list-group-item">
+	{% if i.updated_at %}
+	<sup>updated</sup> 
+	<time>{{ i.updated_at | date(format="%Y-%m-%d %H:%M:%S") }}</time>
+	{% endif %}
+	</li>
+</ul>
+
+</div>
+
+<div class="card-footer">
+<a class="btn btn-outline-primary btn-sm" href="/products/detail/{{ i.id }}"  role="button">
+	details
+</a>
+</div>
+
+</div>
+
+<hr>
+
+{% endfor %}
+{% endblock content %}

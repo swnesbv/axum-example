@@ -100,7 +100,7 @@ pub async fn post_creat(
             return Err(Html(templates.render("creat", &context).unwrap()));
         }
     };
-    Ok(Redirect::to("/schedule/all").into_response())
+    Ok(Redirect::to("/schedule/all-sch").into_response())
 }
 
 

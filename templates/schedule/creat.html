@@ -4,7 +4,7 @@
 {% block content %}
 
 <h1 class="container lead my-3">create schedule</h1>
-	
+
 <form class="card" method="POST">
 	<div class="card-body">
 	<sup>title</sup>
@@ -35,7 +35,6 @@
     <div id="addinput" class="card-body">
     	<sup class="float-start">the beginning of the reception</sup>
 	</div>
-
     <div class="card-footer action-buttons">
     <button class="btn btn-sm btn-outline-primary" onclick="addFn(); return false;">
     	make an appointment - add Input
@@ -48,12 +47,11 @@
 
 </form>
 
-
 <script>
     function addFn() {
         const divEle = document.getElementById("addinput");
         const wrapper = document.createElement("div");
-        
+
         const tFl = document.createElement("input");
         tFl.setAttribute("type", "datetime-local");
         tFl.setAttribute("name", "list");
@@ -76,5 +74,5 @@
         divEle.appendChild(wrapper);
     }
 </script>
-	  
+
 {% endblock content %}

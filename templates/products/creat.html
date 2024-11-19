@@ -4,7 +4,7 @@
 {% block content %}
 
 <h1 class="container lead my-3">create products</h1>
-	
+
 <form class="card" method="POST">
 	<div class="card-body">
 	<sup>title</sup>
@@ -38,6 +38,16 @@
 		    <input type="hidden" name="categories" value="object_4" />
 			</li>
 		</ul>
+
+	    <div id="addinput" class="card-body">
+	    	<sup class="float-start">add cts</sup>
+		</div>
+	    <div class="card-footer action-buttons">
+	    <button class="btn btn-sm btn-outline-primary" onclick="addFn(); return false;">
+	    	add cts
+	    </button>
+		</div>
+
 	</div>
 	<div class="col">
 		<sup>amount</sup>
@@ -88,5 +98,22 @@
 	</div>
 
 </form>
+
+<script>
+    function addFn() {
+        const divEle = document.getElementById("addinput");
+        const wrapper = document.createElement("div");
+
+        const cFl = document.createElement("input");
+        cFl.setAttribute("type", "text");
+        cFl.setAttribute("name", "cts");
+        cFl.classList.add("w-auto");
+        cFl.classList.add("form-control");
+        cFl.classList.add("mt-2");
+
+        wrapper.appendChild(cFl);
+        divEle.appendChild(wrapper);
+    }
+</script>
 
 {% endblock content %}

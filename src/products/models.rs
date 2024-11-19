@@ -21,16 +21,17 @@ pub struct AmountPrice {
     pub units:     Option<i32>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Products {
     pub id: i32,
     pub user_id: i32,
     pub title: String,
     pub description: Option<String>,
-    pub categories: Option<Vec<String>>,
-    pub amount:    Option<sqlx::types::JsonValue>,
-    pub price:    Option<sqlx::types::JsonValue>,
-    pub img:     Option<String>,
+    pub categories:  Option<Vec<String>>,
+    pub cts:         Option<Vec<String>>,
+    pub amount:      Option<sqlx::types::JsonValue>,
+    pub price:       Option<sqlx::types::JsonValue>,
+    pub img:         Option<String>,
     pub completed: bool,
     #[serde(with = "date_format")]
     pub created_at: DateTime<Utc>,
@@ -57,6 +58,7 @@ pub struct FormProducts {
     pub p_units:     Option<i32>,
 
     pub categories:  Vec<String>,
+    pub cts:         Option<Vec<String>>,
     pub on_off:      Vec<String>,
 }
 

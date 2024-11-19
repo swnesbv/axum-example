@@ -1,7 +1,7 @@
 use axum::{
     extract::{Path, State},
     response::{Html, IntoResponse},
-    Extension,
+    Extension
 };
 use sqlx::postgres::PgPool;
 
@@ -22,10 +22,27 @@ pub async fn index(
     TypedHeader(cookie): TypedHeader<Cookie>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
+
+    let i = public_ip_address::perform_lookup(None).await.unwrap();
+    println!(" i.. {:#?}", i);
+
+    let i_city = i.city;
+    let i_region = i.region;
+    let i_country = i.country;
+    let i_latitude = i.latitude;
+    let i_longitude = i.longitude;
+
     let mut context = Context::new();
 
-    let token = request_user(cookie).await;
+    context.insert("i_city", &i_city);
+    context.insert("i_region", &i_region);
+    context.insert("i_country", &i_country);
+    context.insert("i_latitude", &i_latitude);
+    context.insert("i_longitude", &i_longitude);
 
+    let _ = Html(templates.render("index", &context).unwrap());
+
+    let token = request_user(cookie).await;
     match token {
         Ok(Some(token)) => {
             context.insert("token", &token);

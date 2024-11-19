@@ -34,7 +34,6 @@ pub mod profile {
     pub mod accreditation;
     pub mod handlers;
     pub mod models;
-    // pub mod repository;
     pub mod views;
 }
 pub mod comments {

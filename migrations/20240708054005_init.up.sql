@@ -45,6 +45,7 @@ CREATE TABLE products (
 	title       VARCHAR(255) NOT NULL,
 	description TEXT,
 	categories  TEXT[],
+	cts  		TEXT[],
 	amount  	JSON,
 	price  		JSON,
 	img         VARCHAR(255),

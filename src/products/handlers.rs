@@ -11,7 +11,7 @@ use tera::Context;
 use crate::{
     common::Templates,
     products::models::{FormSelect},
-    products::views::{all_products, id_products, form_on_off, i_categories},
+    products::views::{all_products, id_products, form_on_off, i_categories, i_cts},
 };
 
 
@@ -67,8 +67,6 @@ pub async fn get_categories(
 
     let a: serde_json::Value = serde_json::from_str(&i).unwrap();
 
-    println!(" a..{:?}", a[0]);
-
     let all = i_categories(
         pool, a[0].as_str(), a[1].as_str(), a[2].as_str(), a[3].as_str()
     ).await.unwrap();
@@ -76,4 +74,26 @@ pub async fn get_categories(
     let mut context = Context::new();
     context.insert("all", &all);
     Html(templates.render("categories", &context).unwrap())
+}
+
+
+pub async fn get_cts(
+    Path(i): Path<String>,
+    State(pool): State<PgPool>,
+    Extension(templates): Extension<Templates>,
+) -> impl IntoResponse {
+
+    let a: Vec<&str> = i.split(",").collect();
+    let mut b = Vec::<String>::new();
+    for i in &a {
+        b.push(i.to_string());
+    }
+    let all = i_cts(
+        pool, Some(b)
+        // pool, Some(vec!["c1".to_string(),"c2".to_string()])
+    ).await.unwrap();
+
+    let mut context = Context::new();
+    context.insert("all", &all);
+    Html(templates.render("cts", &context).unwrap())
 }

@@ -4,7 +4,7 @@
 {% block content %}
 
 <h1 class="container lead my-3">all products</h1>
-	
+
 {% for i in all %}
 <div class="card">
 
@@ -21,16 +21,28 @@
 		<li class="list-group-item">
 			<sup>title</sup> {{ i.title }}
 		</li>
+
+		{% if i.categories %}
 		<li class="list-group-item">
 		<span class="badge text-bg-light">categories</span>
-		{% if i.categories %}
-			{% for c in i.categories %}
-			{{ c }}
-			{% endfor %}
-		{% endif %}
+		{% for c in i.categories %}
+		{{ c }}
+		{% endfor %}
 		</li>
-		<li class="list-group-item">
+		{% endif %}
 
+		{% if i.cts %}
+		<li class="list-group-item">
+		<span class="badge text-bg-light">cts</span>
+		<a class="btn btn-outline-primary btn-sm me-2" href="/products/cts/{% for c in i.cts %}{{ c }},{% endfor %}">
+				{% for c in i.cts %}
+				<span class="me-2">{{ c }}</span>
+				{% endfor %}
+		</a>
+		</li>
+		{% endif %}
+
+		<li class="list-group-item">
 		{% if i.amount %}
 		<span class="badge bg-success">amount</span>
 		<ul class="list-group list-group-horizontal">
