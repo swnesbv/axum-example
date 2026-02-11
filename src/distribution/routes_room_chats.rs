@@ -24,13 +24,14 @@ pub fn build_routes(chat_state: Arc<RoomChat>) -> Router {
         ])
         .unwrap();
 
-    let chats_routes = Router::new().nest(
+    let chats_routes = Router::new().without_v07_checks().nest(
         "/chat-room",
         Router::new()
             // ws
+            .without_v07_checks()
             .route("/rm/:c_int", get(rm_router))
             .route("/room/:c_int", get(chat_room))
             .layer(Extension(Arc::new(chat_tera))),
     );
-    Router::new().nest("/", chats_routes.with_state(chat_state))
+    Router::new().without_v07_checks().merge(chats_routes.with_state(chat_state))
 }

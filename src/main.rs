@@ -5,7 +5,6 @@ use tokio::net::TcpListener;
 use sqlx::PgPool;
 use axum::Router;
 
-
 use axum_example::chats::models::{RoomChat, UserChat};
 
 use axum_example::distribution::routes_assets;
@@ -62,14 +61,18 @@ async fn main() {
     let app = Router::new()
         .merge(assets_router)
         .merge(index_router)
+        .without_v07_checks()
         .merge(account_router)
         .merge(booking_router)
+        .without_v07_checks()
         .merge(provision_router)
         .merge(schedule_router)
+        .without_v07_checks()
         .merge(product_router)
+        .without_v07_checks()
         .merge(purchases_router)
         .merge(subscription_router)
-
+        .without_v07_checks()
         .merge(chat_rm_router)
         .merge(chat_us_router);
 

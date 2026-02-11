@@ -51,5 +51,5 @@ pub fn build_routes(pool: PgPool) -> Router {
             // )
             .layer(Extension(Arc::new(schedule_tera))),
     );
-    Router::new().nest("/", schedule_routes.with_state(pool))
+    Router::new().merge(schedule_routes.with_state(pool))
 }

@@ -42,18 +42,20 @@ pub fn build_routes(pool: PgPool) -> Router {
         ])
         .unwrap();
 
-    let provision_routes = Router::new().nest(
+    let provision_routes = Router::new().without_v07_checks().nest(
         "/provision",
         Router::new()
             .route(
                 "/creat-days",
                 get(provision::creat::get_creat_days).post(provision::creat::post_creat_days),
             )
+            .without_v07_checks()
             .route(
                 "/update-days/:prv_id",
                 get(provision::creat::get_update_days).post(provision::creat::post_update_days),
             )
             .route("/all-days", get(provision::handlers::get_all_days))
+            .without_v07_checks()
             .route(
                 "/detail-days/:prv_id",
                 get(provision::handlers::get_detail_days)
@@ -69,5 +71,5 @@ pub fn build_routes(pool: PgPool) -> Router {
             // )
             .layer(Extension(Arc::new(provision_tera))),
     );
-    Router::new().nest("/", provision_routes.with_state(pool))
+    Router::new().without_v07_checks().merge(provision_routes.with_state(pool))
 }

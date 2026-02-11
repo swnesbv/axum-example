@@ -44,5 +44,5 @@ pub fn build_routes(chat_state: Arc<UserChat>) -> Router {
             )
             .layer(Extension(Arc::new(chat_tera))),
     );
-    Router::new().nest("/", chats_routes.with_state(chat_state))
+    Router::new().merge(chats_routes.with_state(chat_state))
 }

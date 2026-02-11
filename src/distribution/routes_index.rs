@@ -10,7 +10,6 @@ use crate::{
     sitemap
 };
 
-
 pub fn build_routes(pool: PgPool) -> Router {
     let mut base_tera = Tera::default();
     base_tera
@@ -22,12 +21,9 @@ pub fn build_routes(pool: PgPool) -> Router {
         ])
         .unwrap();
 
-    let index_routes = Router::new().nest(
-        "/",
-        Router::new()
-            .route("/", get(profile::handlers::index))
-            .route("/sitemap", get(sitemap::handlers::get_sitemap))
-            .layer(Extension(Arc::new(base_tera))),
-    );
-    Router::new().nest("/", index_routes.with_state(pool))
+    let index_routes = Router::new()
+        .route("/", get(profile::handlers::index))
+        .route("/sitemap", get(sitemap::handlers::get_sitemap))
+        .layer(Extension(Arc::new(base_tera)));
+    Router::new().merge(index_routes.with_state(pool))
 }

@@ -4,14 +4,12 @@ use core::marker::PhantomData;
 use serde::de::{Deserializer, MapAccess, Visitor};
 
 use axum::{
-    async_trait,
     body::Bytes,
     extract::{FromRequest, Request},
     response::{IntoResponse, Response},
 };
 
 pub struct InputBody(pub Bytes);
-#[async_trait]
 impl<S> FromRequest<S> for InputBody
 where
     Bytes: FromRequest<S>,

@@ -57,7 +57,7 @@ async fn ws_handler(
                 break;
             } else {
                 let _ = sender
-                    .send(Message::Text(String::from("Username already taken.")))
+                    .send(Message::Text(String::from("Username already taken.").into()))
                     .await;
                 return;
             }
@@ -78,7 +78,7 @@ async fn ws_handler(
 
     let mut send_task = tokio::spawn(async move {
         while let Ok(msg) = rx.recv().await {
-            if sender.send(Message::Text(msg)).await.is_err() {
+            if sender.send(Message::Text(msg.into())).await.is_err() {
                 break;
             }
         }

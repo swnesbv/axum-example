@@ -59,7 +59,6 @@ pub async fn post_creat(
         }
     }
 
-
     let a_container = form.a_container;
     let a_boxes = form.a_boxes;
     let a_carton = form.a_carton;

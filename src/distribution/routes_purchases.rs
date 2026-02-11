@@ -26,9 +26,10 @@ pub fn build_routes(pool: PgPool) -> Router {
         ])
         .unwrap();
 
-    let purchases_routes = Router::new().nest(
+    let purchases_routes = Router::new().without_v07_checks().nest(
         "/purchases",
         Router::new()
+            .without_v07_checks()
             .route(
                 "/order/:id", get(purchases::order::get_order)
                 .post(purchases::order::post_order),
@@ -40,5 +41,5 @@ pub fn build_routes(pool: PgPool) -> Router {
             // )
             .layer(Extension(Arc::new(purchases_tera))),
     );
-    Router::new().nest("/", purchases_routes.with_state(pool))
+    Router::new().without_v07_checks().merge(purchases_routes.with_state(pool))
 }

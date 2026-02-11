@@ -29,7 +29,7 @@ pub fn build_routes(pool: PgPool) -> Router {
         ])
         .unwrap();
 
-    let auth_routes = Router::new().nest(
+    let auth_routes = Router::new().without_v07_checks().nest(
         "/account",
         Router::new()
             .route(
@@ -37,6 +37,7 @@ pub fn build_routes(pool: PgPool) -> Router {
                 get(profile::handlers::users)
                 .post(subscriptions::creat::post_ssc_user)
             )
+            .without_v07_checks()
             .route("/user/:name", get(profile::handlers::user).post(comments::creat::post_creat))
             .route(
                 "/login",
@@ -68,5 +69,5 @@ pub fn build_routes(pool: PgPool) -> Router {
             )
             .layer(Extension(Arc::new(user_tera))),
     );
-    Router::new().nest("/", auth_routes.with_state(pool))
+    Router::new().without_v07_checks().merge(auth_routes.with_state(pool))
 }

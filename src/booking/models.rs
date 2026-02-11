@@ -44,7 +44,7 @@ pub struct AllPrD {
     pub en_date: Option<NaiveDate>,
     pub s_dates: Option<Vec<NaiveDate>>,
     pub e_dates: Option<Vec<NaiveDate>>,
-    pub dates: Option<Vec<NaiveDate>>,
+    pub dates:   Option<Vec<NaiveDate>>,
     pub completed: bool,
     #[serde(with = "date_format")]
     pub created_at: DateTime<Utc>,
@@ -62,7 +62,7 @@ pub struct SllPrD {
     pub en_date: Option<NaiveDate>,
     pub s_dates: Option<Vec<NaiveDate>>,
     pub e_dates: Option<Vec<NaiveDate>>,
-    pub dates: Option<Vec<NaiveDate>>,
+    pub dates:   Option<Vec<NaiveDate>>,
     pub completed: bool,
     #[serde(with = "date_format")]
     pub created_at: DateTime<Utc>,

@@ -20,7 +20,7 @@ pub struct Purchases {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PurchasesCls {
     pub user_id:    i32,
     pub product_id: i32,

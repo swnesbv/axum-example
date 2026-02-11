@@ -27,7 +27,7 @@ pub fn build_routes(pool: PgPool) -> Router {
         ])
         .unwrap();
 
-    let products_routes = Router::new().nest(
+    let products_routes = Router::new().without_v07_checks().nest(
         "/products",
         Router::new()
             .route(
@@ -39,6 +39,7 @@ pub fn build_routes(pool: PgPool) -> Router {
                 "/select",
                 get(products::handlers::get_select).post(products::handlers::post_select),
             )
+            .without_v07_checks()
             .route("/categories/:i", get(products::handlers::get_categories))
             .route("/cts/:i", get(products::handlers::get_cts))
             .route(
@@ -46,5 +47,5 @@ pub fn build_routes(pool: PgPool) -> Router {
             )
             .layer(Extension(Arc::new(products_tera))),
     );
-    Router::new().nest("/", products_routes.with_state(pool))
+    Router::new().without_v07_checks().merge(products_routes.with_state(pool))
 }

@@ -58,8 +58,8 @@ pub async fn sch_select(pool: PgPool) -> Result<Vec<Schedule>, String> {
     for i in &mut result {
         if i.occupied.is_some() {
             let free = selection(
-                i.hours.as_ref().expect("REASON").to_vec(),
-                i.occupied.as_ref().expect("REASON").to_vec(),
+                i.hours.as_ref().unwrap().to_vec(),
+                i.occupied.as_ref().unwrap().to_vec(),
             )
             .await;
             println!("{:?}", free);

@@ -11,7 +11,7 @@ use sqlx::postgres::PgPool;
 
 use tera::Context;
 
-use rand::distributions::{Alphanumeric, DistString};
+use rand::distr::{Alphanumeric, SampleString};
 
 use crate::{
     common::Templates,
@@ -75,10 +75,15 @@ pub async fn post_resolution_user(
     let _ = auth::views::request_token(cookie).await.unwrap();
 
     let id = form.id;
-    let dialogue = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
-    let _ = resolution_user(pool, id, dialogue.clone()).await;
 
-    Redirect::to(&("/chat-room/room/".to_owned() + &dialogue)).into_response()
+    let dialogue = Alphanumeric.sample_string(
+        &mut rand::rng(), 16
+    );
+
+    let _ = resolution_user(pool, id, dialogue.clone()).await;
+    Redirect::to(
+        &("/chat-room/room/".to_owned() + &dialogue)
+    ).into_response()
 }
 
 

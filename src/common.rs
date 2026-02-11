@@ -1,12 +1,9 @@
 use std::sync::Arc;
 use tera::Tera;
 
-
 pub type Templates = Arc<Tera>;
 
-
 use axum::{
-    async_trait,
     extract::{FromRef, FromRequestParts},
     http::{request::Parts, StatusCode},
 };
@@ -23,7 +20,6 @@ where
 #[derive(Debug)]
 pub struct DatabaseConn(pub sqlx::pool::PoolConnection<sqlx::Postgres>);
 
-#[async_trait]
 impl<S> FromRequestParts<S> for DatabaseConn
 where
     PgPool: FromRef<S>,
