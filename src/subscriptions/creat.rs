@@ -1,84 +1,91 @@
-use sqlx::postgres::PgPool;
-
+use std::sync::Arc;
 use axum::{
     extract::{State, Form},
     response::{Html, IntoResponse, Redirect},
+    http::{header::{HeaderMap}},
     Extension,
 };
-
-use chrono::{Utc};
-
-use headers::Cookie;
-use axum_extra::TypedHeader;
-
 use tera::Context;
 
 use crate::{
     common::{Templates},
-    auth,
+    auth::models::{AuthRedis},
     subscriptions::models::{FormGroup, FormSsc},
     subscriptions::views::{insert_ssc_user, insert_ssc_group, },
 };
 
-
 pub async fn post_ssc_user(
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Form(form): Form<FormSsc>
 ) -> impl IntoResponse {
 
-    let token = auth::views::request_token(cookie).await.unwrap();
-
-    let title = "ssc user";
-    let description = "expr";
-    let to_user = form.to_user;
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Ok(None) | Err(Some(_)) => return Err(Redirect::to("/account/login").into_response()),
+        Err(None) => return Err(Redirect::to("/account/login").into_response()),
+    };
+    let title = "title ssc user";
+    let description = "description  ssc user";
+    let to_user: i32 = form.to_user.unwrap();
 
     let _ = insert_ssc_user(
-        pool, token.claims.id, title, description, to_user.expect("REASON"), token
+        i.pool.clone(), t.id, title, description, to_user, t
     ).await;
-
-    Redirect::to("/subscriptions/ssc-owner").into_response()
+    Ok(Redirect::to("/subscriptions/ssc-owner").into_response())
 }
 
 
 pub async fn get_creat_group(
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>
 ) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let token = auth::views::request_user(cookie).await;
-    match token {
+    let mut context = Context::new();
+
+    let t = match i.ctx(headers).await {
         Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
+        Ok(None) | Err(Some(_)) => return Err(Redirect::to("/account/login").into_response()),
+        Err(None) => return Err(Redirect::to("/account/login").into_response()),
     };
 
-    Ok(Html(templates.render("creat", &Context::new()).unwrap()))
+    context.insert("t", &t);
+    Ok(Html(templates.render("creat", &context).unwrap()))
 }
 
 pub async fn post_creat_group(
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
     Form(form): Form<FormGroup>
 ) -> impl IntoResponse {
 
-    let token = auth::views::request_token(cookie).await.unwrap();
+    let mut context = Context::new();
 
-    let result = sqlx::query(
-        "INSERT INTO provision_d (user_id, title, description, created_at) VALUES ($1,$2,$3,$4)"
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Ok(None) | Err(Some(_)) => return Ok(Redirect::to("/account/login").into_response()),
+        Err(None) => return Ok(Redirect::to("/account/login").into_response()),
+    };
+
+    let pg = match i.pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => {
+            context.insert("err", &err.to_string());
+            return Err(Html(templates.render("signup", &context).unwrap()))
+        }
+    };
+    let result = pg.execute(
+        "INSERT INTO provision_d (user_id, title, description, created_at) VALUES ($1,$2,$3,now())",
+        &[&t.id, &form.title, &form.description]
         )
-        .bind(token.claims.id)
-        .bind(&form.title)
-        .bind(&form.description)
-        .bind(Utc::now())
-        .execute(&pool)
         .await;
     match result {
         Ok(result) => result,
         Err(err) => {
             let mut context = Context::new();
-            context.insert("err_token", &err.to_string());
+            context.insert("err", &err.to_string());
             return Err(Html(templates.render("creat", &context).unwrap()));
         }
     };
@@ -87,20 +94,24 @@ pub async fn post_creat_group(
 }
 
 pub async fn post_ssc_group(
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Form(form): Form<FormSsc>
 ) -> impl IntoResponse {
 
-    let token = auth::views::request_token(cookie).await.unwrap();
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Ok(None) | Err(Some(_)) => return Err(Redirect::to("/account/login").into_response()),
+        Err(None) => return Err(Redirect::to("/account/login").into_response()),
+    };
 
     let title = "ssc group";
     let description = "expr";
-    let to_group = form.to_group;
+    let to_group = form.to_group.unwrap();
 
     let _ = insert_ssc_group(
-        pool, token.claims.id, title, description, to_group.expect("REASON"), token
+        i.pool.clone(), t.id, title, description, to_group, t
     ).await;
 
-    Redirect::to("/subscriptions/groups").into_response()
+    Ok(Redirect::to("/subscriptions/groups").into_response())
 }

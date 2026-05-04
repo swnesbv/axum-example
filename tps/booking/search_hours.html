@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %} all hours provision {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-2">all hours provision..</h1>
+
+{% if v %}
+<p class="alert alert-primary">
+	{% if v[0] %}
+		<sup class="badge text-bg-light">start..</sup>
+			<time>
+				<sub>{{ v[0] | date(format="%Y-%m-%d %H:%M") }}</sub>
+			</time>
+	{% endif %}
+	{% if v[1] %}
+		<sup class="badge text-bg-light">end</sup>
+			<time>
+				<sub>{{ v[1] | date(format="%Y-%m-%d %H:%M") }}</sub>
+			</time>
+	{% endif %}
+</p>
+{% endif %}
+{% if pr_list %}
+{% for i in pr_list %}
+<div class="card mb-2">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		{% include "completed.html" %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id..</sup>
+				<sub>{{ i.id }}</sub>
+			<sup class="badge text-bg-light">owner..</sup>
+				<sub>{{ i.user_id }}</sub>
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title..</sup>
+				{{ i.title }}
+		</li>
+	</ul>
+	</div>
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+	{% include "st_en_hour.html" %}
+	</ul>
+	</div>
+	{% include "created_updated.html" %}
+</div>
+
+<h2 class="lead mb-2">add booking..</h2>
+<div class="card">
+	<form class="mb-2" method="POST">
+		<div class="card-header">
+			<sup>title..</sup>
+			<input required type="text" name="title" class="form-control">
+			<sup>description..</sup>
+			<input type="text" name="description" class="form-control">
+		</div>
+	    <div class="card-body row">
+		    <div class="col-sm">
+		        <sup class="float-start">start..</sup>
+		        <input
+		        	required
+		            class="form-control my-2"
+		            type="datetime-local"
+		            name="s_hours"
+		        />
+		    </div>
+		    <div class="col-sm">
+		        <sup class="float-start">end..</sup>
+		        <input
+		        	required
+		            class="form-control my-2"
+		            type="datetime-local"
+		            name="e_hours"
+		        />
+		    </div>
+	        <input
+	        	required
+	            type="hidden"
+	            name="prv_id"
+	            value="{{ i.id }}"
+	        />
+		</div>
+		<div class="card-footer">
+			<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+		</div>
+	</form>
+	<div class="card-footer">
+		<a class="btn btn-outline-primary btn-sm" href="/provision/detail-hours/{{ i.id }}" role="button">
+			details
+		</a>
+	</div>
+</div>
+
+{% endfor %}
+{% endif %}
+
+{% endblock content %}

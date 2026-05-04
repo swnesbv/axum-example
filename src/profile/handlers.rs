@@ -1,98 +1,162 @@
+use std::sync::Arc;
 use axum::{
     extract::{Path, State},
     response::{Html, IntoResponse},
+    http::{header::{HeaderMap}},
     Extension
 };
-use sqlx::postgres::PgPool;
-
+// use redis::{AsyncCommands, RedisError};
 use tera::Context;
 
-use axum_extra::TypedHeader;
-use headers::Cookie;
-
 use crate::{
-    auth::views::request_user,
-    common::{DatabaseConn, Templates},
+    auth::models::{AuthRedis},
+    auth::check::{in_check},
+    common::{Templates},
     profile::views::{all, details},
     comments::views::{i_comments},
+    subscriptions::repository::{check_ssc},
 };
 
 
+// #[axum::debug_handler()]
 pub async fn index(
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let i = public_ip_address::perform_lookup(None).await.unwrap();
-    println!(" i.. {:#?}", i);
-
-    let i_city = i.city;
-    let i_region = i.region;
-    let i_country = i.country;
-    let i_latitude = i.latitude;
-    let i_longitude = i.longitude;
-
     let mut context = Context::new();
 
-    context.insert("i_city", &i_city);
-    context.insert("i_region", &i_region);
-    context.insert("i_country", &i_country);
-    context.insert("i_latitude", &i_latitude);
-    context.insert("i_longitude", &i_longitude);
+    // let json_key: Result<Option<String>, RedisError> = rs.get("session").await;
+    // let key: Result<Option<String>, RedisError> = rs.get("key").await;
+    // let email: Result<Option<String>, RedisError> = rs.get("email").await;
+    // match key {
+    //     Ok(_) => match email {
+    //         Ok(ref expr) => expr,
+    //         Err(err) => {
+    //             context.insert("err", &err.to_string());
+    //             return Err(
+    //                 Html(templates.render("index", &context).unwrap())
+    //             )
+    //         }
+    //     },
+    //     Err(err) => {
+    //         context.insert("err", &err.to_string());
+    //         return Err(Html(templates.render("index", &context).unwrap()))
+    //     }
+    // };
 
-    let _ = Html(templates.render("index", &context).unwrap());
+    let _ = all(i.pool.clone()).await.unwrap();
+    //..
 
-    let token = request_user(cookie).await;
-    match token {
-        Ok(Some(token)) => {
-            context.insert("token", &token);
+    let a = i.ctx(headers).await;
+
+    match a {
+        Ok(expr) => {
+            context.insert("t", &expr);
             Ok(Html(templates.render("index", &context).unwrap()))
-        }
-        Ok(None) => {
-            context.insert("not_user", "unauthorized");
+        },
+        Err(Some(err)) => {
+            context.insert("err", &err.to_string());
             Err(Html(templates.render("index", &context).unwrap()))
         }
-        Err(err) => {
-            context.insert("not_user", &err.expect("REASON").to_string());
+        Err(None) => {
+            context.insert("is_no", "index Err Caramba bullfighting and damn it..!");
             Err(Html(templates.render("index", &context).unwrap()))
         }
     }
+
 }
 
 pub async fn users(
-    State(pool): State<PgPool>,
-    Extension(templates): Extension<Templates>,
-) -> impl IntoResponse {
-
-    let users = all(pool).await.unwrap();
-
-    let mut context = Context::new();
-    context.insert("users", &users);
-    Html(templates.render("users", &context).unwrap())
-}
-
-
-pub async fn user(
-    Path(name): Path<String>,
-    DatabaseConn(mut conn): DatabaseConn,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let user = details(&mut conn, name).await;
+    let mut context = Context::new();
 
-    let i = &("users-".to_owned() + &user.to_owned().unwrap().username);
-    let comments = i_comments(&mut conn, i).await.unwrap();
+    let _ = match in_check(i.conn.clone(), headers.clone()).await {
+        Ok(expr) => {
+            let _ = match check_ssc(i.pool.clone()).await {
+                Ok(ssc) => {
+                    context.insert("ssc", &ssc);
+                    Ok(Html(templates.render("users", &context).unwrap()))
+                }
+                Err(Some(err)) => {
+                    context.insert("err", &err);
+                    return Err(Html(templates.render("users", &context).unwrap()))
+                }
+                Err(None) => {
+                    context.insert("is_no", "is not subscription..!");
+                    Err(Html(templates.render("users", &context).unwrap()))
+                }
+            };
+            context.insert("visit", &expr);
+            Ok(Html(templates.render("users", &context).unwrap()))
+        }
+        Err(Some(err)) => {
+            context.insert("err", &err);
+            Err(Html(templates.render("users", &context).unwrap()))
+        }
+        Err(None) => {
+            context.insert("is_no", "Err-None Caramba bullfighting and damn it");
+            Err(Html(templates.render("users", &context).unwrap()))
+        }
+    };
+    match all(i.pool.clone()).await {
+        Ok(expr) => {
+            context.insert("all_users", &expr);
+            Ok(Html(templates.render("users", &context).unwrap()))
+        }
+        Err(Some(err)) => {
+            context.insert("err", &err.to_string());
+            Err(Html(templates.render("users", &context).unwrap()))
+        }
+        Err(None) => {
+            context.insert("is_no", "Err-None Caramba bullfighting and damn it");
+            Err(Html(templates.render("users", &context).unwrap()))
+        }
+    }
+}
+
+pub async fn user(
+    Path(name): Path<String>,
+    State(i): State<Arc<AuthRedis>>,
+    Extension(templates): Extension<Templates>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
 
     let mut context = Context::new();
-    match user {
-        Ok(user) => {
-            context.insert("user", &user);
-            context.insert("comments", &comments);
+
+    let user = details(i.pool.clone(), name.clone()).await;
+    let _ = match user {
+        Ok(expr) => {
+            context.insert("i", &expr);
             Ok(Html(templates.render("user", &context).unwrap()))
         }
-        Err(err) => {
-            context.insert("not_details", &err);
+        Err(Some(err)) => {
+            context.insert("err", &err.to_string());
+            Err(Html(templates.render("user", &context).unwrap()))
+        }
+        Err(None) => {
+            context.insert("is_no", "Caramba bullfighting and damn it");
+            Err(Html(templates.render("user", &context).unwrap()))
+        }
+    };
+    let cmt = i_comments(i.pool.clone(), &name).await;
+    match cmt {
+        Ok(expr) => {
+            context.insert("cmt", &expr);
+            Ok(Html(templates.render("user", &context).unwrap()))
+        }
+        Err(Some(err)) => {
+            context.insert("err", &err.to_string());
+            Err(Html(templates.render("user", &context).unwrap()))
+        }
+        Err(None) => {
+            context.insert("is_no", "Caramba bullfighting and damn it");
             Err(Html(templates.render("user", &context).unwrap()))
         }
     }
+
 }

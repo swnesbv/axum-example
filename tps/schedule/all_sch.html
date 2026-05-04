@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %} all schedule {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-3">all schedule</h1>
+
+{% for i in all %}
+<div class="card mb-2">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		{% include "completed.html" %}
+		<li class="list-group-item">
+		<sup class="badge text-bg-light">id..</sup>
+			<sup>{{ i.id }}</sup>
+		<sup class="badge text-bg-light">owner..</sup>
+			<sup>{{ i.user_id }}</sup>
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title</sup>
+				{{ i.title }}
+		</li>
+		</ul>
+		</div>
+		<div class="card-body">
+		<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+		<sup class="badge text-bg-light">start hour..</sup>
+			{% if i.st_hour %}
+				<time>{{ i.st_hour | date(format="%Y-%m-%d %H:%M") }}</time>
+			{% endif %}
+		<sup class="badge text-bg-light">end hour..</sup>
+			{% if i.en_hour %}
+				<time>{{ i.en_hour | date(format="%Y-%m-%d %H:%M") }}</time>
+			{% endif %}
+		</li>
+		<li class="list-group-item">
+		<sup class="badge text-bg-light">list hours..</sup>
+			{% if i.hours %}
+				<ul>
+				{% for h in i.hours %}
+				<li><time>{{ h | date(format="%Y-%m-%d %H:%M") }}</time></li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		</li>
+		<li class="list-group-item">
+		<sup class="badge text-bg-light">places..</sup>
+			{% if i.places %}
+				<ul class="list-group list-group-horizontal">
+				{% for p in i.places %}
+				<li class="list-group-item">{{ p }}</li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		</li>
+	</ul>
+	</div>
+	{% if i.occupied %}
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">list occupied..</sup>
+			<ul>
+			{% for o in i.occupied %}
+				<li>
+					<time>{{ o | date(format="%Y-%m-%d %H:%M") }}</time>
+				</li>
+			{% endfor %}
+			</ul>
+		</li>
+	</ul>
+	</div>
+	{% endif %}
+	{% if i.non_places %}
+	<div class="card-body">
+	<sup class="badge text-bg-light">list non places..</sup>
+	<ul class="list-group list-group-flush">
+		{% for n in i.non_places %}
+			<li class="list-group-item">{{ n }}</li>
+		{% endfor %}
+	</ul>
+	</div>
+	{% endif %}
+
+	{% include "created_updated.html" %}
+
+	<div class="card-footer">
+	<a class="btn btn-outline-primary btn-sm" href="/schedule/detail/{{ i.id }}"  role="button">
+		details
+	</a>
+	</div>
+
+</div>
+
+{% endfor %}
+{% endblock content %}

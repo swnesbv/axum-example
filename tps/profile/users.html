@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %} users list {% endblock title %}
+
+{% block content %}
+<h1 class="lead my-3">all users</h1>
+{% if visit.email %}
+<p class="alert alert-primary">
+    <sup>visit.. </sup>
+    <sup>id..</sup>
+        <sub>{{ visit.id }}</sub>
+    <sup>email..</sup>
+        <sub>{{ visit.email }}</sub>
+    <sup>name..</sup>
+        <sub>{{ visit.username }}</sub>
+    <sup>status..</sup>
+        <sub>{{ visit.status }}</sub>
+</p>
+{% endif %}
+
+{% if all_users %}
+{% for i in all_users %}
+<div class="card mb-2">
+    <div class="card-header">
+        <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <sup class="badge text-bg-light">id..</sup>
+                <sub>{{ i.id }}</sub>
+            <sup class="badge text-bg-light">name..</sup>
+                <sub>{{ i.username }}</sub>
+            <sup class="badge text-bg-light">status..</sup>
+                <sub>{{ i.status }}</sub>
+        </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+        {% if i.img %}
+        <li class="list-group-item">
+            <figure>
+            <img height="64" src="{{ i.img }}">
+            <figcaption>
+            <sup class="badge text-bg-light mt-2">email..</sup>
+                <sub>{{ i.email }}</sub>
+            </figcaption>
+            </figure>
+        </li>
+        {% else %}
+        <li class="list-group-item">
+            <sup class="badge text-bg-light">email..</sup>
+                <sub>{{ i.email }}</sub>
+        </li>
+        {% endif %}
+        </ul>
+    </div>
+    <div class="card-footer">
+        <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex">
+        <a class="page-link p-1 border" href="/account/user/{{ i.username }}">
+            <sub class="badge text-bg-light">{{ i.username }}..</sub>
+        </a>
+        </li>
+        {% if ssc %}
+        <li class="list-group-item">
+        {% for s in ssc %}
+            {% if s.user_id == i.id or s.to_user == i.id %}
+            <sup class="badge text-bg-success mt-2">subscription..</sup>
+            {% else %}
+            <form method="POST">
+            <input type="hidden" name="to_user" value="{{ i.id }}" />
+            <input type="submit" value="subscribe" class="btn btn-sm btn-outline-primary mt-3">
+            </form>
+            {% endif %}
+        {% endfor %}
+        </li>
+        {% endif %}
+        </ul>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock content %}

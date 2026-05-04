@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %} provision all hours {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-2">provision all hours..</h1>
+
+{% for i in all %}
+<div class="card mb-2">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+	    {% include "completed.html" %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id..</sup>
+				<sub>{{ i.id }}</sub>
+			<sup class="badge text-bg-light">owner..</sup>
+				<sub>{{ i.user_id }}</sub>
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title..</sup>
+			{{ i.title }}
+		</li>
+	</ul>
+	</div>
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+	{% include "st_en_hour.html" %}
+	</ul>
+	</div>
+
+	{% include "created_updated.html" %}
+
+	<div class="card-footer">
+	<a class="btn btn-outline-primary btn-sm m-2" href="/provision/detail-hours/{{ i.id }}" role="button">
+		details
+	</a>
+	</div>
+</div>
+{% endfor %}
+{% endblock content %}

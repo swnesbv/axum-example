@@ -42,3 +42,7 @@ pub mod date_format {
         Ok(DateTime::<Utc>::from_naive_utc_and_offset(dt, Utc))
     }
 }
+    // let into_utc = |timestamp: NaiveDateTime| DateTime::<Utc>::from_naive_utc_and_offset(timestamp, Utc);
+    // let i = &rows[0];
+    // let timestamp: NaiveDateTime = i.get(5);
+    // let t = into_utc(timestamp);

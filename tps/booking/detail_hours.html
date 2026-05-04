@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %} details hours booking {% endblock title %}
+{% block content %}
+
+<h1 class="lead my-3">details hours booking {{ i.title }}..</h1>
+
+<div class="card">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		{% include "completed.html" %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id..</sup>
+				<sub>{{ i.id }}</sub>
+			<sup class="badge text-bg-light">owner..</sup>
+				<sub>{{ i.user_id }}</sub>
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title..</sup>
+				{{ i.title }}
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">description..</sup>
+				{{ i.description }}
+		</li>
+	</ul>
+	</div>
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+	{% include "st_en_hour.html" %}
+	</ul>
+	</div>
+	{% include "created_updated.html" %}
+	<div class="card-footer">
+		<a class="btn btn-outline-primary btn-sm me-2" href="/provision/update-hours/{i.id}" role="button">
+		    <i class="bi bi-pencil"></i> &raquo;
+		</a>
+		<a class="btn btn-outline-danger btn-sm" href="/provision/delete-hours/{i.id}" role="button">
+		    <i class="bi bi-trash3"></i> &raquo;
+		</a>
+	</div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %} details hours provision {% endblock title %}
+{% block content %}
+
+<h1 class="lead my-3">detail hours..{{ i.title }}</h1>
+
+<div class="card">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		{% include "completed.html" %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id..</sup>
+				<sub>{{ i.id }}</sub>
+			<sup class="badge text-bg-light">owner..</sup>
+				<sub>{{ i.owner }}</sub>
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title..</sup>
+				{{ i.title }}
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">description..</sup>
+				{{ i.description }}
+		</li>
+	</ul>
+	</div>
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		{% include "st_en_hour.html" %}
+	</ul>
+	</div>
+
+	{% include "created_updated.html" %}
+
+	<div class="card-footer">
+		<a class="btn btn-outline-primary btn-sm me-2" href="/update-prv?id={{ .Id }}" role="button">
+		    <i class="bi bi-pencil"></i> &raquo;
+		</a>
+		<a class="btn btn-outline-danger btn-sm" href="/delete-prv?id={{ .Id }}" role="button">
+		    <i class="bi bi-trash3"></i> &raquo;
+		</a>
+	</div>
+</div>
+
+<h2 class="lead m-3">add booking</h2>
+
+<form class="card mb-5" method="POST">
+	<div class="card-body">
+	<sup>title</sup>
+	<input required type="text" name="title" class="form-control">
+	<sup>description</sup>
+	<input required type="text" name="description" class="form-control">
+	</div>
+
+
+    <div class="card-body row">
+	    <div class="col-sm">
+	        <sup class="float-start">start</sup>
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="start"
+	        />
+	    </div>
+	    <div class="col-sm">
+	        <sup class="float-start">end</sup>
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="datetime-local"
+	            name="end"
+	        />
+	    </div>
+	</div>
+
+	<div class="card-footer">
+	<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+	</form>
+
+{{ end }}

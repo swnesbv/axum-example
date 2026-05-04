@@ -1,0 +1,44 @@
+    <li class="list-group-item list-group-item-primary">
+        {% if i.st_hour %}
+        <sup class="badge text-bg-light">start hour..</sup>
+            <time>
+                <sub>{{ i.st_hour | date(format="%Y-%m-%d %H:%M") }}</sub>
+            </time>
+        {% endif %}
+        {% if i.en_hour %}
+        <sup class="badge text-bg-light">end hour..</sup>
+            <time>
+                <sub>{{ i.en_hour | date(format="%Y-%m-%d %H:%M") }}</sub>
+            </time>
+        {% endif %}
+    </li>
+    {% if i.s_hours %}
+    <li class="list-group-item list-group-item-primary">
+        <sup class="badge text-bg-light">list start hours..</sup>
+            {% for s in i.s_hours %}
+                <time>
+                    <sub>{{ s | date(format="%Y-%m-%d %H:%M") }}</sub>
+                </time>,
+            {% endfor %}
+    </li>
+    {% endif %}
+    {% if i.e_hours %}
+    <li class="list-group-item list-group-item-primary">
+        <sup class="badge text-bg-light">list end hours..</sup>
+            {% for e in i.e_hours %}
+                <time>
+                    <sub>{{ e | date(format="%Y-%m-%d %H:%M") }}</sub>
+                </time>,
+            {% endfor %}
+    </li>
+    {% endif %}
+    {% if i.hours %}
+    <li class="list-group-item list-group-item-primary">
+        <sup class="badge text-bg-light">list hours..</sup>
+            {% for h in i.hours %}
+                <time>
+                    <sub>{{ h | date(format="%Y-%m-%d %H:%M") }}</sub>
+                </time>,
+            {% endfor %}
+    </li>
+    {% endif %}

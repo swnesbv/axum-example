@@ -1,0 +1,10 @@
+    <li class="list-group-item">
+        {% if i.completed == true %}
+        <sup class="badge text-bg-success">completed</sup>
+            <i class="bi bi-bookmark-check"></i>
+        {% else %}
+        <sup class="badge text-bg-warning">completed</sup>
+            <i class="bi bi-bookmark"></i>
+        {% endif %}
+    </li>
+

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %} all products {% endblock title %}
+
+{% block content %}
+
+<h1 class="container lead my-3">all products</h1>
+
+{% for i in all %}
+<div class="card">
+
+<div class="card-body">
+
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<sup class="badge text-bg-primary">completed</sup>
+				{{ i.completed }}
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id</sup>
+				{{ i.id }}
+		<sup class="badge text-bg-light">owner</sup>
+			{{ i.user_id }}
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title</sup>
+				{{ i.title }}
+		</li>
+
+		{% if i.categories %}
+		<li class="list-group-item">
+		<sup class="badge text-bg-light">categories</sup>
+		{% for c in i.categories %}
+			{{ c }}
+		{% endfor %}
+		</li>
+		{% endif %}
+
+		{% if i.cts %}
+		<li class="list-group-item">
+		<sup class="badge text-bg-light">cts</sup>
+		<a class="btn btn-outline-primary btn-sm me-2" href="/products/cts/{% for c in i.cts %}{{ c }},{% endfor %}">
+				{% for c in i.cts %}
+				<sup class="me-2">{{ c }}</sup>
+				{% endfor %}
+		</a>
+		</li>
+		{% endif %}
+	</ul>
+
+	{% if i.amount %}
+	<sup>amount</sup>
+	<ul class="list-group list-group-horizontal my-2">
+		{% if i.amount.container %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">container</sup> {{ i.amount.container }}
+		</li>
+		{% endif %}
+		{% if i.amount.boxes %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">boxes</sup> {{ i.amount.boxes }}
+		</li>
+		{% endif %}
+		{% if i.amount.carton %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">carton</sup> {{ i.amount.carton }}
+		</li>
+		{% endif %}
+		{% if i.amount.units %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">units</sup> {{ i.amount.units }}
+		</li>
+		{% endif %}
+	</ul>
+	{% endif %}
+
+	{% if i.price %}
+	<sup>price</sup>
+	<ul class="list-group list-group-horizontal my-2">
+		{% if i.price.container %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">container</sup> {{ i.price.container }}
+		</li>
+		{% endif %}
+		{% if i.price.container %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">boxes</sup> {{ i.price.boxes }}
+		</li>
+		{% endif %}
+		{% if i.price.container %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">carton</sup> {{ i.price.carton }}
+		</li>
+		{% endif %}
+		{% if i.price.container %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">units</sup> {{ i.price.units }}
+		</li>
+		{% endif %}
+	</ul>
+	{% endif %}
+
+	</ul>
+
+	{% include "created_updated.html" %}
+
+</div>
+
+<div class="card-footer">
+<a class="btn btn-outline-primary btn-sm me-2" href="/products/detail/{{ i.id }}">
+	details
+</a>
+<a class="btn btn-outline-primary btn-sm" href="/purchases/order/{{ i.id }}">
+	order
+</a>
+</div>
+
+</div>
+
+<hr>
+
+{% endfor %}
+{% endblock content %}

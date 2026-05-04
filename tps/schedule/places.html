@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %} select all places {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-3">select all places</h1>
+
+{% for i in all %}
+<div class="card">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		{% include "completed.html" %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id..</sup>
+				{{ i.id }}
+			<sup class="badge text-bg-light">owner..</sup>
+				{{ i.user_id }}
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title..</sup>
+			{{ i.title }}
+		</li>
+		{% if i.description %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">description..</sup>
+			{{ i.description }}
+		</li>
+		{% endif %}
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+		<sup class="badge text-bg-light">hours..</sup>
+		{% if i.hours %}
+			{% for h in i.hours %}
+			<time>{{ h | date(format="%Y-%m-%d %H:%M") }}</time>
+			{% endfor %}
+		{% endif %}
+		</li>
+		{% if i.non_places %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">list non_places</sup>
+			<ul class="list-group list-group-horizontal">
+			{% for o in i.non_places %}
+			<li class="list-group-item">{{ o }}</li>
+			{% endfor %}
+			</ul>
+		</li>
+		{% endif %}
+	</ul>
+	</div>
+</div>
+{% if i.places %}
+<div class="card">
+	<form class="mt-2" method="POST">
+		<div class="card-header">
+	    <ul class="flex-wrap list-group list-group-horizontal">
+		    {% for p in i.places %}
+			<li class="list-group-item">
+		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="places" value="{{ p }}" />
+		    <sup>append</sup>
+			<sup class="badge text-bg-light">places..</sup>
+			{{ p }}
+			</li>
+		    {% endfor %}
+	    </ul>
+	    <div class="card-body">
+		    <input
+		        type="hidden"
+		        name="to_schedule"
+		        value="{{ i.id }}"
+		    />
+			{% if i.hours %}
+			{% for h in i.hours %}
+		    <input
+		        type="hidden"
+		        name="record_h"
+		        value="{{ h }}"
+		    />
+			{% endfor %}
+			{% endif %}
+		</div>
+		<div class="card-footer action-buttons">
+			<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+		</div>
+	</form>
+{% endif %}
+
+{% include "created_updated.html" %}
+
+</div>
+
+{% endfor %}
+{% endblock content %}

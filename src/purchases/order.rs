@@ -77,8 +77,8 @@ pub async fn post_order(
         carton: a_carton,
         units: a_units
     };
-    let str_a = serde_json::to_string(&a).unwrap();
-    let amount: serde_json::Value = serde_json::from_str(&str_a).unwrap();
+    let str_a = serde_json::to_string(&a);
+    let amount: serde_json::Value = serde_json::from_str(&str_a);
 
     let str_i = serde_json::to_string(&i.price).unwrap();
     let kv: AmountPrice = serde_json::from_str(&str_i).unwrap();
@@ -95,7 +95,7 @@ pub async fn post_order(
         units:     p_units
     };
 
-    let str_p = serde_json::to_string(&p).unwrap();
+    let str_p = serde_json::to_string(&p);
     let price: serde_json::Value = serde_json::from_str(&str_p).unwrap();
 
     let entity = PurchasesCls {

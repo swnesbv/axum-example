@@ -1,45 +1,38 @@
+use std::sync::{Arc};
 use axum::{
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
     extract::{State, Path},
     response::{Html, IntoResponse, Redirect},
+    http::{header::{HeaderMap}},
     Extension,
 };
-use axum_extra::TypedHeader;
-use headers::Cookie;
-
 use futures::{SinkExt, StreamExt};
-
-use std::sync::{Arc};
-
 use tokio::sync::broadcast;
-
 use tera::Context;
 
 use crate::{
-    auth,
     common::Templates,
     chats::models::{RoomChat, DialogueChat, RoomState, Connect, Msg, InOut},
     chats::repository::{to_room, to_dialogue, ssc_dialogue},
     chats::views::{
-        dialogue_joined, dialogue_message, dialogue_came_out,
+        dialogue_joined, insert_msg_room, dialogue_came_out,
     },
 };
 
-
 pub async fn ws_handler(
     c_int: String,
-    cookie: Cookie,
+    headers: HeaderMap,
     stream: WebSocket,
     state: Arc<RoomChat>,
 ) {
 
-    let i = auth::views::request_token(cookie)
-        .await
-        .unwrap();
-    let c = i.claims.id;
+    let i = match state.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Ok(None) | Err(Some(_)) => return,
+        Err(None) => return,
+    };
 
     let (mut sender, mut receiver) = stream.split();
-
     let mut tx = None::<broadcast::Sender<String>>;
     let mut username = String::new();
     let mut channel = String::new();
@@ -47,7 +40,7 @@ pub async fn ws_handler(
     while let Some(Ok(message)) = receiver.next().await {
         if let Message::Text(name) = message {
             let _ = Connect {
-                username: i.claims.username.to_string(),
+                username: i.username.to_string(),
                 channel: c_int.clone(),
             };
 
@@ -88,16 +81,15 @@ pub async fn ws_handler(
 
     let tx = tx.unwrap();
     let mut rx = tx.subscribe();
-    let mut conn = state.pool.acquire().await.unwrap();
 
     // joined..
     let t: Msg = Msg {
-        id: c.to_string(),
+        id: i.id.to_string(),
         txt: format!("{username} joined.."),
     };
     let s: String = serde_json::to_string(&t).unwrap();
     let _ = tx.send(s);
-    let _ = dialogue_joined(&mut conn, c, Some(t.txt), c_int.clone()).await;
+    let _ = dialogue_joined(state.pool.clone(), i.id, Some(t.txt), c_int.clone()).await;
 
     let mut send_task = tokio::spawn(async move {
         while let Ok(msg) = rx.recv().await {
@@ -108,24 +100,24 @@ pub async fn ws_handler(
     });
 
     // text..
+
+    let duplicate = state.clone();
     let mut recv_task = {
         let tx = tx.clone();
         let name = username.clone();
         let clone_c_int = c_int.to_owned();
-        let mut msg_conn = state.pool.acquire().await.unwrap();
 
         tokio::spawn(async move {
 
             while let Some(Ok(Message::Text(text))) = receiver.next().await {
-
                 let t: Msg = Msg {
-                    id: c.to_string(),
+                    id: i.id.to_string(),
                     txt: format!("{name}: {text}"),
                 };
                 let s: String = serde_json::to_string(&t).unwrap();
                 let _ = tx.send(s);
-                let _ = dialogue_message(
-                    &mut msg_conn, c, Some(t.txt), clone_c_int.to_owned()
+                let _ = insert_msg_room(
+                    duplicate.pool.clone(), i.id, Some(t.txt), clone_c_int.to_owned()
                 ).await;
             }
         })
@@ -140,7 +132,7 @@ pub async fn ws_handler(
     let t: InOut = InOut {txt: format!("{} left.", username)};
     let s: String = serde_json::to_string(&t).unwrap();
     let _ = tx.send(s);
-    let _ = dialogue_came_out(&mut conn, c, Some(t.txt), c_int).await;
+    let _ = dialogue_came_out(state.pool.clone(), i.id, Some(t.txt), c_int).await;
 
     let mut rooms = state.rooms.lock().unwrap();
 
@@ -151,47 +143,48 @@ pub async fn ws_handler(
 pub async fn rm_router(
     ws: WebSocketUpgrade,
     Path(c_int): Path<String>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
     State(state): State<Arc<RoomChat>>
 ) -> impl IntoResponse {
 
-    ws.on_upgrade(|socket| ws_handler(c_int, cookie, socket, state))
+    ws.on_upgrade(|socket| ws_handler(c_int, headers, socket, state))
 }
 
 pub async fn chat_room(
     Path(c_int): Path<String>,
     State(state): State<Arc<RoomChat>>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let token = auth::views::request_user(cookie).await;
-    let i = match token {
+    let i = match state.ctx(headers).await {
         Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
+        Ok(None) | Err(Some(_)) => return Err(Redirect::to("/account/login").into_response()),
+        Err(None) => return Err(Redirect::to("/account/login").into_response()),
     };
-    let c = i.id;
+    let room = ":".to_owned() + &c_int.clone();
 
-    let mut conn = state.pool.acquire().await.unwrap();
-
-    let dialogue: DialogueChat = to_dialogue(&mut conn, c_int.clone()).await;
-    let pat: Option<i32> = dialogue.to_user;
-    let m = match pat {
-        Some(pat) => pat,
-        None => pat.expect("REASON"),
+    let who: DialogueChat = to_dialogue(state.pool.clone(), c_int.clone()).await;
+    let who_who: Option<i32> = who.to_user;
+    let find_out = match who_who {
+        Some(expr) => expr,
+        None => return Err(Redirect::to("/account/login").into_response())
     };
-    if c == dialogue.user_id || c == m {
-        let all = to_room(&mut conn, c_int.clone()).await.unwrap();
-        let ssc = ssc_dialogue(&mut conn, c).await.unwrap();
+
+    if i.id == who.user_id || i.id == find_out {
+        let all = to_room(
+            state.pool.clone(), room.clone()
+        ).await.unwrap();
+        let ssc = ssc_dialogue(state.pool.clone(), i.id).await.unwrap();
 
         let mut context = Context::new();
-        context.insert("c_int", &c_int);
-        context.insert("id", &c);
+        context.insert("c_int", &room);
+        context.insert("id", &i.id);
         context.insert("name", &i.username);
         context.insert("all", &all);
         context.insert("ssc", &ssc);
-        return Ok(Html(templates.render("room", &context).unwrap()));
-    };
-    Ok(Html(templates.render("index", &Context::new()).unwrap()))
+        Ok(Html(templates.render("room", &context).unwrap()))
+    } else {
+        Err(Redirect::to("/account/login").into_response())
+    }
 }

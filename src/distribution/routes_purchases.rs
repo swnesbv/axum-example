@@ -12,17 +12,18 @@ pub fn build_routes(pool: PgPool) -> Router {
     let mut purchases_tera = Tera::default();
     purchases_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../../templates/base.html")),
-            ("navbar.html", include_str!("../../templates/navbar.html")),
+            ("base.html", include_str!("../../tps/base.html")),
+            ("navbar.html", include_str!("../../tps/navbar.html")),
+            ("rq_user.html", include_str!("../../tps/rq_user.html")),
             (
                 "all",
-                include_str!("../../templates/purchases/all.html"),
+                include_str!("../../tps/purchases/all.html"),
             ),
-            ("order", include_str!("../../templates/purchases/order.html")),
-            // ("select", include_str!("../../templates/purchases/select.html")),
-            // ("categories", include_str!("../../templates/purchases/categories.html")),
-            // ("detail", include_str!("../../templates/purchases/detail.html")),
-            // ("delete", include_str!("../../templates/schedule/delete.html")),
+            ("order", include_str!("../../tps/purchases/order.html")),
+            // ("select", include_str!("../../tps/purchases/select.html")),
+            // ("categories", include_str!("../../tps/purchases/categories.html")),
+            // ("detail", include_str!("../../tps/purchases/detail.html")),
+            // ("delete", include_str!("../../tps/schedule/delete.html")),
         ])
         .unwrap();
 

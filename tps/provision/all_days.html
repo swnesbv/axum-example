@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %} provision all days {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-2">provision all days..</h1>
+
+{% for i in all %}
+<div class="card mb-2">
+	<div class="card-header">
+		<ul class="list-group list-group-flush">
+	    {% include "completed.html" %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id..</sup>
+				<sub>{{ i.id }}</sub>
+			<sup class="badge text-bg-light">owner..</sup>
+				<sub>{{ i.user_id }}</sub>
+		</li>
+	    <li class="list-group-item">
+	        {% if i.comments %}
+	        <i class="bi bi-chat-dots"></i>
+	        {% endif %}
+	    </li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title..</sup>
+				{{ i.title }}
+		</li>
+		</ul>
+	</div>
+	<div class="card-body">
+		{% include "st_en_date.html" %}
+	</div>
+	{% include "created_updated.html" %}
+	<div class="card-footer">
+	<a class="btn btn-outline-primary btn-sm m-2" href="/provision/detail-days/{{ i.id }}" role="button">
+		details
+	</a>
+	</div>
+</div>
+
+{% endfor %}
+{% endblock content %}

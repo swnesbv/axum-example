@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %} select all schedule {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-3">select all schedule</h1>
+
+{% for i in all %}
+<div class="card">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		{% include "completed.html" %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id..</sup>
+				{{ i.id }}
+			<sup class="badge text-bg-light">user id..</sup>
+				{{ i.user_id }}
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title..</sup>
+				{{ i.title }}
+		</li>
+		{% if i.description %}
+			<li class="list-group-item">
+				<sup class="badge text-bg-light">description..</sup>
+				{{ i.description }}
+			</li>
+		{% endif %}
+	</ul>
+	</div>
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item list-group-item-primary">
+			<sup class="badge text-bg-light">start..</sup>
+				<time>{{ i.st_hour | date(format="%Y-%m-%d %H:%M") }}</time>
+			<sup class="badge text-bg-light">end..</sup>
+				<time>{{ i.en_hour | date(format="%Y-%m-%d %H:%M") }}</time>
+		</li>
+		{% if i.occupied %}
+		<li class="list-group-item list-group-item-primary">
+			<sup class="badge text-bg-light">list occupied..</sup>
+			{% for o in i.occupied %}
+				<time>{{ o | date(format="%Y-%m-%d %H:%M") }}</time>
+			{% endfor %}
+		</li>
+		{% endif %}
+	</ul>
+	</div>
+	{% include "created_updated.html" %}
+</div>
+
+{% if i.hours %}
+<div class="card">
+	<form class="mt-2" method="POST">
+		<div class="card-header">
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="hidden"
+	            name="to_schedule"
+	            value="{{ i.id }}"
+	        />
+	        <input
+	        	required
+	            class="form-control my-2"
+	            type="hidden"
+	            name="record_d"
+	            value="{{ i.st_hour }}"
+	        />
+	    </div>
+	    <div class="card-body">
+	        {% for h in i.hours %}
+				<sup class="badge text-bg-light">the beginning of the reception</sup>
+				{{ h }}
+		        <input
+		        	required
+		            class="form-control my-2"
+		            type="hidden"
+		            name="record_h"
+		            value="{{ h }}"
+		        />
+				<div class="card-footer action-buttons">
+				<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+				</div>
+	        {% endfor %}
+	    </div>
+	</form>
+</div>
+{% endif %}
+
+{% endfor %}
+{% endblock content %}

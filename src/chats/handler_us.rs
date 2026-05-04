@@ -1,33 +1,29 @@
+use std::sync::{Arc};
 use axum::{
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
     extract::{State},
     response::{Html, IntoResponse, Redirect},
+    http::{header::{HeaderMap}},
     Extension,
 };
-use axum_extra::TypedHeader;
-use headers::Cookie;
-
 use futures::{SinkExt, StreamExt};
-
-use std::sync::{Arc};
-
 use tera::Context;
 
 use crate::{
-    auth,
     common::Templates,
     chats::models::{UserChat, Msg, InOut},
     chats::repository::{all_public},
     chats::views::{
-        insert_joined, insert_message, insert_came_out,
+        insert_joined, insert_msg_pch, insert_came_out,
     },
 };
 
 
 fn check_username(
-    state: &UserChat, string: &mut String, name: &str
+    state: &UserChat,
+    string: &mut String,
+    name: &str
 ) {
-
     let mut user_set = state.user_set.lock().unwrap();
     if !user_set.contains(name) {
         user_set.insert(name.to_owned());
@@ -38,13 +34,8 @@ fn check_username(
 async fn ws_handler(
     stream: WebSocket,
     state: Arc<UserChat>,
-    cookie: Cookie,
+    headers: HeaderMap,
 ) {
-
-    let token = auth::views::request_token(cookie)
-        .await
-        .unwrap();
-    let i = token.claims.id;
 
     let (mut sender, mut receiver) = stream.split();
     let mut username = String::new();
@@ -64,17 +55,22 @@ async fn ws_handler(
         }
     }
 
+    let i = match state.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Ok(None) | Err(Some(_)) => return,
+        Err(None) => return,
+    };
+
     let mut rx = state.tx.subscribe();
-    let mut conn = state.pool.acquire().await.unwrap();
 
     // joined..
     let t: Msg = Msg {
-        id: i.to_string(),
+        id: i.id.to_string(),
         txt: format!("{username} joined.."),
     };
     let s: String = serde_json::to_string(&t).unwrap();
     let _ = state.tx.send(s);
-    let _ = insert_joined(&mut conn, token.claims.id, Some(t.txt)).await;
+    let _ = insert_joined(state.pool.clone(), i.id, Some(t.txt)).await;
 
     let mut send_task = tokio::spawn(async move {
         while let Ok(msg) = rx.recv().await {
@@ -87,19 +83,19 @@ async fn ws_handler(
     // text..
     let tx = state.tx.clone();
     let name = username.clone();
-    let mut msg_conn = state.pool.acquire().await.unwrap();
 
+    let duplicate = state.clone();
     let mut recv_task = tokio::spawn(async move {
 
         while let Some(Ok(Message::Text(text))) = receiver.next().await {
 
             let t: Msg = Msg {
-                id: i.to_string(),
+                id: i.id.to_string(),
                 txt: format!("{name}: {text}"),
             };
             let s: String = serde_json::to_string(&t).unwrap();
             let _ = tx.send(s);
-            let _ = insert_message(&mut msg_conn, token.claims.id, Some(t.txt)).await;
+            let _ = insert_msg_pch(duplicate.pool.clone(), i.id, Some(t.txt)).await;
         }
     });
 
@@ -112,7 +108,7 @@ async fn ws_handler(
     let t: InOut = InOut {txt: format!("{} left.", username)};
     let s: String = serde_json::to_string(&t).unwrap();
     let _ = state.tx.send(s);
-    let _ = insert_came_out(&mut conn, token.claims.id, Some(t.txt)).await;
+    let _ = insert_came_out(state.pool.clone(), i.id, Some(t.txt)).await;
 
     state.user_set.lock().unwrap().remove(&username);
 }
@@ -120,33 +116,31 @@ async fn ws_handler(
 
 pub async fn us_router(
     ws: WebSocketUpgrade,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
     State(state): State<Arc<UserChat>>
 ) -> impl IntoResponse {
 
-    ws.on_upgrade(|socket| ws_handler(socket, state, cookie))
+    ws.on_upgrade(|socket| ws_handler(socket, state, headers))
 }
 
 
 pub async fn chat_user(
     State(state): State<Arc<UserChat>>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let token = auth::views::request_user(cookie).await;
-    let cls = match token {
+    let i = match state.ctx(headers).await {
         Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
+        Ok(None) | Err(Some(_)) => return Err(Redirect::to("/account/login").into_response()),
+        Err(None) => return Err(Redirect::to("/account/login").into_response()),
     };
 
-    let mut conn = state.pool.acquire().await.unwrap();
-    let all = all_public(&mut conn).await.unwrap();
+    let all = all_public(state.pool.clone()).await.unwrap();
 
     let mut context = Context::new();
-    context.insert("id", &cls.id);
-    context.insert("name", &cls.username);
+    context.insert("id", &i.id);
+    context.insert("name", &i.username);
     context.insert("all", &all);
     Ok(Html(templates.render("user", &context).unwrap()))
 }

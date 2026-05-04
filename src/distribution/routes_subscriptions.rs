@@ -1,38 +1,49 @@
-use sqlx::postgres::PgPool;
 use std::sync::Arc;
-
 use axum::{routing::get, Extension, Router};
-
 use tera::Tera;
 
-use crate::subscriptions;
+use crate::{
+    subscriptions,
+    auth::models::{AuthRedis},
+};
 
-
-pub fn build_routes(pool: PgPool) -> Router {
+pub fn rt(state: Arc<AuthRedis>) -> Router {
     let mut ssc_tera = Tera::default();
     ssc_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../../templates/base.html")),
-            ("navbar.html", include_str!("../../templates/navbar.html")),
+            ("base.html", include_str!("../../tps/base.html")),
+            ("navbar.html", include_str!("../../tps/navbar.html")),
+            (
+                "rq_user.html",
+                include_str!("../../tps/element/rq_user.html")
+            ),
+            (
+                "created_updated.html",
+                include_str!("../../tps/element/created_updated.html")
+            ),
+            (
+                "completed.html",
+                include_str!("../../tps/element/completed.html")
+            ),
             (
                 "creat",
-                include_str!("../../templates/subscriptions/creat.html"),
+                include_str!("../../tps/subscriptions/creat.html"),
             ),
             (
                 "groups",
-                include_str!("../../templates/subscriptions/groups.html"),
+                include_str!("../../tps/subscriptions/groups.html"),
             ),
             (
                 "ssc_owner",
-                include_str!("../../templates/subscriptions/ssc_owner.html"),
+                include_str!("../../tps/subscriptions/ssc_owner.html"),
             ),
             (
                 "ssc_to_user",
-                include_str!("../../templates/subscriptions/ssc_to_user.html"),
+                include_str!("../../tps/subscriptions/ssc_to_user.html"),
             ),
             (
                 "ssc_group",
-                include_str!("../../templates/subscriptions/ssc_group.html"),
+                include_str!("../../tps/subscriptions/ssc_group.html"),
             ),
         ])
         .unwrap();
@@ -60,5 +71,5 @@ pub fn build_routes(pool: PgPool) -> Router {
             )
             .layer(Extension(Arc::new(ssc_tera))),
     );
-    Router::new().merge(subscriptions_routes.with_state(pool))
+    Router::new().merge(subscriptions_routes.with_state(state))
 }

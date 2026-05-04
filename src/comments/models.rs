@@ -1,34 +1,33 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-
 use chrono::serde::ts_seconds_option;
 use crate::util::date_config::date_format;
 
 
-#[derive(Serialize)]
-pub struct Comments {
-    pub id:         i32,
-    pub user_id:    i32,
-    pub comment_on: Option<sqlx::types::JsonValue>,
-    pub completed:  bool,
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct FormComment {
+    pub to_id:   Option<i32>,
+    pub comment: Option<String>
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Ord, Eq)]
+pub struct Cmt {
+    pub user_id:   i32,
+    pub tab_id:    i32,
+    pub email:     String,
+    pub name:      String,
+    pub msg:       String,
+    pub completed: bool,
     #[serde(with = "date_format")]
     pub created_at: DateTime<Utc>,
     #[serde(with = "ts_seconds_option")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>
 }
-
-
-#[derive(Deserialize, Serialize)]
-pub struct FormComment {
-    pub whose: String,
-    pub comment: String,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Comment {
+    pub comments: Option<Vec<serde_json::Value>>
 }
-
-#[derive(Deserialize, Serialize)]
-pub struct CommentOn {
-    pub user_id: i32,
-    pub email:   String,
-    pub name:    String,
-    pub whose:   String,
-    pub msg:     String,
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub struct VecCmt {
+    pub comments: Vec<Vec<Cmt>>
 }

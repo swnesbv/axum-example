@@ -1,54 +1,96 @@
+use std::sync::Arc;
 use axum::{
-    extract::{Form, OriginalUri},
-    response::{IntoResponse, Redirect}
+    extract::{Form, State, OriginalUri},
+    response::{IntoResponse, Redirect},
+    http::header::{HeaderMap}
 };
-
-use chrono::{Utc};
-
-use axum_extra::TypedHeader;
-use headers::Cookie;
 
 use crate::{
-    auth,
-    common::DatabaseConn,
-    comments::models::{FormComment, CommentOn}
+    auth::models::AuthRedis,
+    comments::models::{FormComment},
+    comments::views::{insert_comment},
+    photo::views::{add_msg}
 };
 
-
-pub async fn post_creat(
-    DatabaseConn(mut conn): DatabaseConn,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+pub async fn post_creat_cmt_user(
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     OriginalUri(original_uri): OriginalUri,
-    Form(form): Form<FormComment>,
+    Form(f): Form<FormComment>,
 ) -> impl IntoResponse {
 
-    let token = auth::views::request_token(cookie).await.unwrap();
-
-    let m: CommentOn = CommentOn {
-        user_id: token.claims.id,
-        email: token.claims.email,
-        name: token.claims.username,
-        whose: form.whose,
-        msg: form.comment,
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Ok(None) | Err(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(Some(err)) => {
+            return Err(
+                    add_msg(
+                        err.to_string(),
+                        "danger".to_string(),
+                        "/account/login".to_string(),
+                ).await
+            )
+        }
     };
 
-    let str_msg = serde_json::to_string(&m).unwrap();
-    let comment_on: serde_json::Value = serde_json::from_str(&str_msg).unwrap();
-
-    let result = sqlx::query(
-        "INSERT INTO comments (user_id, comment_on, created_at) VALUES ($1,$2,$3)"
-        )
-        .bind(token.claims.id)
-        .bind(comment_on)
-        .bind(Utc::now())
-        .execute(&mut *conn)
-        .await;
+    let result = insert_comment(
+        i.pool.clone(), t.id, t.email, t.username, f, "users"
+    ).await;
     match result {
-        Ok(result) => result,
-        Err(_) => {
-            return Err(Redirect::to("/account/login").into_response());
+        Ok(expr) => expr,
+        Err(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(Some(err)) => {
+            return Err(
+                    add_msg(
+                        "insert comment..! ".to_string() + &err.to_string(),
+                        "danger".to_string(),
+                        "/account/login".to_string(),
+                ).await
+            )
         }
     };
 
     Ok(Redirect::to(original_uri.path()).into_response())
 }
+
+
+/*pub async fn post_creat_cmt_provision(
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
+    OriginalUri(original_uri): OriginalUri,
+    Form(f): Form<FormComment>,
+) -> impl IntoResponse {
+
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Ok(None) | Err(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(Some(err)) => {
+            return Err(
+                    add_msg(
+                        err.to_string(),
+                        "danger".to_string(),
+                        "/account/login".to_string(),
+                ).await
+            )
+        }
+    };
+
+    let result = insert_cmt(
+        f, i.pool.clone(), t.id, t.email, t.username, "provision_d"
+    ).await;
+    match result {
+        Ok(expr) => expr,
+        Err(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(Some(err)) => {
+            return Err(
+                    add_msg(
+                        "insert comment..! ".to_string() + &err.to_string(),
+                        "danger".to_string(),
+                        "/account/login".to_string(),
+                ).await
+            )
+        }
+    };
+
+    Ok(Redirect::to(original_uri.path()).into_response())
+}*/

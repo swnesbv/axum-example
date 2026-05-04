@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %} user {% if i %} {{ i.username }} {% endif %} {% endblock title %}
+{% block content %}
+
+<h1 class="lead my-3">
+	{% if i %} user name  {{ i.username }} {% endif %}
+</h1>
+
+{% if i %}
+<div class="card p-3">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id..</sup>
+				<sub class="badge text-bg-light">{{ i.id }}</sub>
+			<sup class="badge text-bg-light">name..</sup>
+				<sub class="badge text-bg-light">{{ i.username }}</sub>
+			<sup class="badge text-bg-light">status..</sup>
+				{% for s in i.status %}
+					<sub class="badge text-bg-light">{{ s }}</sub>
+				{% endfor %}
+		</li>
+	</ul>
+	</div>
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+		{% if i.img %}
+		<li class="list-group-item">
+			<figure>
+			<img height="256" src="{{ i.img }}">
+			<figcaption>
+			<sup class="badge text-bg-light mt-3">email..</sup>
+				<sub class="badge text-bg-light">{{ i.email }}</sub>
+			</figcaption>
+			</figure>
+		</li>
+		{% else %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">email..</sup>
+				<sub class="badge text-bg-light">{{ i.email }}</sub>
+		</li>
+		{% endif %}
+	</ul>
+	</div>
+
+	{% include "created_updated.html" %}
+
+	<div class="card-footer mt-2">
+    <a class="btn btn-outline-primary btn-sm me-2" href="/account/update" role="button">
+        <i class="bi bi-pencil"></i> &raquo;
+    </a>
+    <a class="btn btn-outline-danger btn-sm" href="/account/delete-user/{ i.id }" role="button">
+        <i class="bi bi-trash3"></i> &raquo;
+    </a>
+	</div>
+
+	{% include "comments.html" %}
+
+</div>
+
+{% endif %}
+{% endblock content %}

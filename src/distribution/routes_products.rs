@@ -12,18 +12,19 @@ pub fn build_routes(pool: PgPool) -> Router {
     let mut products_tera = Tera::default();
     products_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../../templates/base.html")),
-            ("navbar.html", include_str!("../../templates/navbar.html")),
+            ("base.html", include_str!("../../tps/base.html")),
+            ("navbar.html", include_str!("../../tps/navbar.html")),
+            ("rq_user.html", include_str!("../../tps/rq_user.html")),
             (
                 "all",
-                include_str!("../../templates/products/all.html"),
+                include_str!("../../tps/products/all.html"),
             ),
-            ("creat", include_str!("../../templates/products/creat.html")),
-            ("select", include_str!("../../templates/products/select.html")),
-            ("categories", include_str!("../../templates/products/categories.html")),
-            ("cts", include_str!("../../templates/products/cts.html")),
-            ("detail", include_str!("../../templates/products/detail.html")),
-            // ("delete", include_str!("../../templates/products/delete.html")),
+            ("creat", include_str!("../../tps/products/creat.html")),
+            ("select", include_str!("../../tps/products/select.html")),
+            ("categories", include_str!("../../tps/products/categories.html")),
+            ("cts", include_str!("../../tps/products/cts.html")),
+            ("detail", include_str!("../../tps/products/detail.html")),
+            // ("delete", include_str!("../../tps/products/delete.html")),
         ])
         .unwrap();
 

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %} all recording {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-3">all recording</h1>
+
+{% for i in all %}
+<div class="card mb-2">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		{% include "completed.html" %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id</sup>{{ i.id }}
+			<sup class="badge text-bg-light">owner</sup>{{ i.user_id }}
+			<sup class="badge text-bg-light">to schedule</sup>{{ i.to_schedule }}
+		</li>
+	</ul>
+	</div>
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+		{% if i.record_d %}
+		<li class="list-group-item">record d {{ i.record_d }}</li>
+		{% endif %}
+		{% if i.record_h %}
+		<li class="list-group-item">record h {{ i.record_h }}</li>
+		{% endif %}
+	</ul>
+	{% if i.places %}
+	<ul class="list-group list-group-flush">
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">list places</sup>
+			<ul>
+			{% for p in i.places %}
+			<li>{{ p }}</li>
+			{% endfor %}
+			</ul>
+		</li>
+	</ul>
+	{% endif %}
+	</div>
+
+	{% include "created_updated.html" %}
+
+</div>
+{% endfor %}
+{% endblock content %}

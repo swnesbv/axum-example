@@ -1,24 +1,39 @@
-use serde::{Deserialize, Serialize};
-
 use std::{collections::{HashMap, HashSet}, sync::Mutex};
-
+use serde::{Deserialize, Serialize};
+use axum::{
+    http::header::{HeaderMap},
+};
 use tokio::sync::broadcast;
-
-use sqlx::postgres::PgPool;
-
 use chrono::{DateTime, Utc};
 
-use crate::util::date_config::date_format;
+use crate::{
+    util::date_config::date_format,
+    common::{PgPool, RedisPool},
+    auth::models::{AuToken},
+    auth::check::in_check
+};
 
-
+#[derive(Debug)]
 pub struct RoomChat {
     pub rooms: Mutex<HashMap<String, RoomState>>,
-    pub pool: PgPool,
+    pub pool:  PgPool,
+    pub conn:  RedisPool
 }
-
+impl RoomChat {
+    pub async fn ctx(
+        &self, headers: HeaderMap
+    ) -> Result<Option<AuToken>, Option<String>> {
+        let conn = &self.conn;
+        match in_check(conn.clone(), headers).await {
+            Ok(expr) => Ok(expr),
+            Err(_) => Ok(None),
+        }
+    }
+}
+#[derive(Debug)]
 pub struct RoomState {
     pub user_set: HashSet<String>,
-    pub tx: broadcast::Sender<String>,
+    pub tx:       broadcast::Sender<String>,
 }
 
 #[allow(clippy::all)]
@@ -26,20 +41,38 @@ impl RoomState {
     pub fn new() -> Self {
         Self {
             user_set: HashSet::new(),
-            tx: broadcast::channel(100).0,
+            tx:       broadcast::channel(100).0,
         }
     }
 }
 
-#[derive(Deserialize)]
+pub struct UserChat {
+    pub user_set: Mutex<HashSet<String>>,
+    pub tx:       broadcast::Sender<String>,
+    pub pool:     PgPool,
+    pub conn:     RedisPool
+}
+impl UserChat {
+    pub async fn ctx(
+        &self, headers: HeaderMap
+    ) -> Result<Option<AuToken>, Option<String>> {
+        let conn = &self.conn;
+        match in_check(conn.clone(), headers).await {
+            Ok(expr) => Ok(expr),
+            Err(_) => Ok(None),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct Connect {
     pub username: String,
-    pub channel: String,
+    pub channel:  String,
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct Msg {
-    pub id: String,
+    pub id:  String,
     pub txt: String,
 }
 #[derive(Deserialize, Serialize)]
@@ -47,14 +80,7 @@ pub struct InOut {
     pub txt: String,
 }
 
-pub struct UserChat {
-    pub user_set: Mutex<HashSet<String>>,
-    pub tx: broadcast::Sender<String>,
-    pub pool: PgPool,
-}
-
-
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct PublicChat {
 	pub id:         i32,
 	pub user_id:    i32,
@@ -65,7 +91,7 @@ pub struct PublicChat {
 	pub created_at: DateTime<Utc>,
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Room {
     pub id:         i32,
     pub user_id:    i32,
@@ -91,7 +117,7 @@ pub struct FormDel {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct GetParam {
-  pub page: String
+  pub page: Option<String>
 }

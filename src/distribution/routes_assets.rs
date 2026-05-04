@@ -1,10 +1,9 @@
-use axum::Router;
-
+use axum::{Router};
+use tower_http::services::{ServeDir};
 use std::{path::PathBuf};
-use tower_http::services::ServeDir;
 
 
-pub fn build_routes() -> Router {
+pub fn build_rt() -> Router {
 
     let assets_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("static");
     Router::new()

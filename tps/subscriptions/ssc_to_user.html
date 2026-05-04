@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %} subscriptions to user list {% endblock title %}
+{% block content %}
+
+<h1 class="lead my-3">to subscriptions user..</h1>
+
+{% if all %}
+<div class="card">
+    {% for i in all %}
+        <div class="card-header">
+        <ul class="list-group list-group-flush">
+        {% if i.completed == true %}
+        <li class="list-group-item">
+        <a class="btn btn-sm btn-outline-success float-end" href="/chat-room/room/{{ i.dialogue }}">to chat</a>
+        </li>
+        {% endif %}
+        {% include "completed.html" %}
+            <li class="list-group-item">
+                <sup class="badge text-bg-light">id..</sup>
+                    <sub>{{ i.id }}</sub>
+                <sup class="badge text-bg-light">owner..</sup>
+                    <sub>{{ i.user_id }}</sub>
+            </li>
+            <li class="list-group-item">
+                {% if i.to_user %}
+                <sup class="badge text-bg-light me-2">to user..</sup>
+                    <sub>{{ i.to_user }}</sub>
+                {% endif %}
+                <sup class="badge text-bg-light me-2">dialogue..</sup>
+                    <sub>{{ i.dialogue }}</sub>
+            </li>
+            <li class="list-group-item">
+                <sup class="badge text-bg-light me-2">owner name..</sup>
+                    <sup>{{ i.additionally.name }}</sub>
+                <sup class="badge text-bg-light">owner email..</sup>
+                    <sub>{{ i.additionally.email }}</sub>
+            </li>
+        </ul>
+        </div>
+        <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <sup class="badge text-bg-light">title</sup>
+                {{ i.title }}
+            </li>
+            <li class="list-group-item">
+                <sup class="badge text-bg-light">description</sup>
+                {{ i.description }}
+            </li>
+        </ul>
+        </div>
+
+        {% include "created_updated.html" %}
+
+        {% if i.completed == false %}
+        <div class="card-footer">
+            <form method="POST">
+            <input type="hidden" name="id" value="{{ i.id }}" />
+            <div class="card-footer action-buttons">
+            <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+            </div>
+            </form>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+{% endif %}
+{% endblock content %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %} all all booking {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-2">all booking..</h1>
+
+{% if bkg %}
+	{% for i in bkg %}
+	<div class="card mb-2">
+	<div class="card-header">
+	<ul class="list-group list-group-flush">
+		{% include "completed.html" %}
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">id..</sup>
+				<sub>{{ i.id }}</sub>
+			<sup class="badge text-bg-light">owner..</sup>
+				<sub>{{ i.user_id }}</sub>
+			{% if i.provision_d_id %}
+				<sup class="badge text-bg-light">provision date id..</sup>
+					<sub>{{ i.provision_d_id }}</sub>
+			{% endif %}
+			{% if i.provision_h_id %}
+				<sup class="badge text-bg-light">provision hour id..</sup>
+					<sub>{{ i.provision_h_id }}</sub>
+			{% endif %}
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title</sup>
+				{{ i.title }}
+		</li>
+	</ul>
+	</div>
+	<div class="card-body">
+	<ul class="list-group list-group-flush">
+		{% if i.st_date or i.en_date %}
+		<li class="list-group-item list-group-item-primary">
+			{% if i.st_date %}
+				<sup class="badge text-bg-light">start date..</sup>
+				<time>
+					<sub>{{ i.st_date | date(format="%Y-%m-%d %H:%M") }}</sub>
+				</time>
+			{% endif %}
+			{% if i.en_date %}
+				<sup class="badge text-bg-light">end date..</sup>
+				<time>
+					<sub>{{ i.en_date | date(format="%Y-%m-%d %H:%M") }}</sub>
+				</time>
+			{% endif %}
+		</li>
+		{% endif %}
+		{% if i.st_hour or i.en_hour %}
+		<li class="list-group-item list-group-item-primary">
+			{% if i.st_hour %}
+				<sup class="badge text-bg-light">start hour..</sup>
+				<time>
+					<sub>{{ i.st_hour | date(format="%Y-%m-%d %H:%M") }}</sub>
+				</time>
+			{% endif %}
+			{% if i.en_hour %}
+				<sup class="badge text-bg-light">end hour..</sup>
+				<time>
+					<sub>{{ i.en_hour | date(format="%Y-%m-%d %H:%M") }}</sub>
+				</time>
+			{% endif %}
+		</li>
+		{% endif %}
+	</ul>
+	</div>
+    {% include "created_updated.html" %}
+    </div>
+	{% endfor %}
+{% endif %}
+
+{% endblock content %}

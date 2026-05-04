@@ -1,0 +1,17 @@
+<div class="card-footer">
+    <ul class="list-group list-group-horizontal ">
+        <li class="list-group-item list-group-item-success">
+            <sup class="badge text-bg-light">created..</sup>
+                <time><sub>{{ i.created_at }}</sub></time>
+        </li>
+        {% if i.updated_at %}
+        <li class="list-group-item list-group-item-info">
+            <sup class="badge text-bg-light">updated..</sup>
+            <time>
+                <sub>{{ i.updated_at | date(format="%Y-%m-%d %H:%M:%S") }}</sub>
+            </time>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+

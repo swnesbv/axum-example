@@ -1,71 +1,74 @@
-use chrono::Utc;
-use sqlx::PgConnection;
-
+use crate::{
+    common::{PgPool},
+};
 
 pub async fn dialogue_joined(
-    conn: &mut PgConnection,
+    pool: PgPool,
     user_id: i32, joined: Option<String>, room: String
 ) -> bool {
 
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(_) => return false
+    };
     let result =
-        sqlx::query("INSERT INTO chat_room (user_id, joined, room, created_at) VALUES ($1,$2,$3,$4)")
-            .bind(user_id)
-            .bind(joined)
-            .bind(room)
-            .bind(Utc::now())
-            .execute(&mut *conn)
-            .await;
-
+        pg.execute(
+            "INSERT INTO chat_room (user_id, joined, room, created_at) VALUES ($1,$2,$3,now())",
+            &[&user_id, &joined, &room]
+        )
+        .await;
     match result {
         Err(e) => {
-            println!("Err..! INSERT joined");
-            println!("err joined: [{}].\n", e);
+            println!(" Err..! INSERT joined..!");
+            println!(" err joined: [{}].\n", e);
             return false;
         }
-        Ok(o) => o,
+        Ok(expr) => expr,
     };
     true
 }
 
-pub async fn dialogue_message(
-    conn: &mut PgConnection,
+pub async fn insert_msg_room(
+    pool: PgPool,
     user_id: i32, message: Option<String>, room: String
 ) -> bool {
 
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(_) => return false
+    };
     let result =
-        sqlx::query("INSERT INTO chat_room (user_id, message, room, created_at) VALUES ($1,$2,$3,$4)")
-            .bind(user_id)
-            .bind(message)
-            .bind(room)
-            .bind(Utc::now())
-            .execute(&mut *conn)
-            .await;
-
+        pg.execute(
+            "INSERT INTO chat_room (user_id, message, room, created_at) VALUES ($1,$2,$3,now())",
+            &[&user_id, &message, &room]
+        )
+        .await;
     match result {
-        Err(e) => {
-            println!("Err..! INSERT message");
-            println!("err msg: [{}].\n", e);
+        Err(err) => {
+            println!(" Err..! INSERT message");
+            println!(" err msg: [{}].\n", err);
             return false;
         }
-        Ok(o) => o,
+        Ok(expr) => expr,
     };
     true
 }
 
 pub async fn dialogue_came_out(
-    conn: &mut PgConnection,
+    pool: PgPool,
     user_id: i32, came_out: Option<String>, room: String
 ) -> bool {
 
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(_) => return false
+    };
     let result =
-        sqlx::query("INSERT INTO chat_room (user_id, came_out, room, created_at) VALUES ($1,$2,$3,$4)")
-            .bind(user_id)
-            .bind(came_out)
-            .bind(room)
-            .bind(Utc::now())
-            .execute(&mut *conn)
-            .await;
-
+        pg.execute(
+            "INSERT INTO chat_room (user_id, came_out, room, created_at) VALUES ($1,$2,$3,now())",
+            &[&user_id, &came_out, &room]
+        )
+        .await;
     match result {
         Err(e) => {
             println!("Err..! came out INSERT");
@@ -79,19 +82,20 @@ pub async fn dialogue_came_out(
 
 
 pub async fn insert_joined(
-    conn: &mut PgConnection, user_id: i32, joined: Option<String>
+    pool: PgPool,
+    user_id: i32, joined: Option<String>
 ) -> bool {
 
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(_) => return false
+    };
     let result =
-        sqlx::query(
-            "INSERT INTO chat_public (user_id, joined, created_at) VALUES ($1,$2,$3)"
+        pg.execute(
+            "INSERT INTO chat_public (user_id, joined, created_at) VALUES ($1,$2,now())",
+            &[&user_id, &joined]
         )
-        .bind(user_id)
-        .bind(joined)
-        .bind(Utc::now())
-        .execute(&mut *conn)
         .await;
-
     match result {
         Err(e) => {
             println!("Err..! INSERT joined");
@@ -103,18 +107,21 @@ pub async fn insert_joined(
     true
 }
 
-pub async fn insert_message(
-    conn: &mut PgConnection, user_id: i32, message: Option<String>
+pub async fn insert_msg_pch(
+     pool: PgPool,
+    user_id: i32, message: Option<String>
 ) -> bool {
 
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(_) => return false
+    };
     let result =
-        sqlx::query("INSERT INTO chat_public (user_id, message, created_at) VALUES ($1,$2,$3)")
-            .bind(user_id)
-            .bind(message)
-            .bind(Utc::now())
-            .execute(&mut *conn)
-            .await;
-
+        pg.execute(
+            "INSERT INTO chat_public (user_id, message, created_at) VALUES ($1,$2,now())",
+            &[&user_id, &message]
+        )
+        .await;
     match result {
         Err(e) => {
             println!("Err..! INSERT message");
@@ -127,17 +134,20 @@ pub async fn insert_message(
 }
 
 pub async fn insert_came_out(
-    conn: &mut PgConnection, user_id: i32, came_out: Option<String>
+    pool: PgPool,
+    user_id: i32, came_out: Option<String>
 ) -> bool {
 
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(_) => return false
+    };
     let result =
-        sqlx::query("INSERT INTO chat_public (user_id, came_out, created_at) VALUES ($1,$2,$3)")
-            .bind(user_id)
-            .bind(came_out)
-            .bind(Utc::now())
-            .execute(&mut *conn)
-            .await;
-
+        pg.execute(
+            "INSERT INTO chat_public (user_id, came_out, created_at) VALUES ($1,$2,now())",
+            &[&user_id, &came_out]
+        )
+        .await;
     match result {
         Err(e) => {
             println!("Err..! came out INSERT");

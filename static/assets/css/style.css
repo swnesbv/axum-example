@@ -1,4 +1,16 @@
 
+.fira_code {
+  font-family: "Fira Code", monospace;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+.badge {
+    font-family: "Fira Code";
+    font-weight: 300 !important;
+    font-style: normal !important;
+}
+
 .num{
     width: 20%;
     overflow: hidden;

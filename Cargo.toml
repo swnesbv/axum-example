@@ -4,33 +4,23 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 
-
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-axum = { version = "0.8", features = ["multipart", "ws", "original-uri"] }
-axum-extra = { version = "0.12", features = ["typed-header", "form"] }
-futures = "0.3"
-sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "macros", "chrono", "any"] }
-tower = "0.5"
-tower-http = { version = "0.6", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-dotenv = "0.15"
-chrono = { version = "0.4", features = ["serde", "alloc"] }
-bcrypt = "0.18"
-jsonwebtoken = "10.3"
-headers = "0.4"
-pbkdf2 = { version = "0.12", features = ["simple"] }
-rand_core = { version = "0.1.0", features = ["std"] }
-rand_chacha = "0.10"
+tokio-postgres = { version = "0.7", features = ["with-serde_json-1", "with-chrono-0_4"] }
+bb8 = "0.9"
+bb8-postgres = "0.9"
+redis = { version = "1", default-features = false, features = ["tokio-comp", "bb8"] }
+axum = { version = "0.8", features = ["json", "multipart", "ws", "macros"] }
+axum-extra = { version = "0.12", features = ["form"] }
 tera = "1.2"
-csv = "1.4"
-axum-macros = "0.5"
-futures-util = "0.3"
-serde_urlencoded = "0.7"
+serde = { version = "1.0", features = ["derive"] }
+tower-http = { version = "0.6", features = ["fs", "trace"] }
+tower = { version = "0.5", features = ["filter"] }
+jwt-simple = { version = "0.12", default-features = false, features = ["pure-rust", "jwe"] }
+futures = "0.3"
 serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde", "alloc"] }
+pbkdf2 = { version = "0.12", features = ["simple"] }
+dotenv = "0.15"
 rand = "0.10"
-wincode = "0.4.1"
-base64 = "0.22"
-scraper = "0.25"
-reqwest = { version = "0.13", features = ["json"] }
-public-ip-address = { version = "0.4" }
+csv = "1.4"

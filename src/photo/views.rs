@@ -3,15 +3,11 @@ use axum::{
     http::{Response, StatusCode},
 };
 
-use headers::Cookie;
-
-
 pub async fn add_msg(
-    messege: String, m_alert: String, url: String
+    err: String, alert: String, url: String
 ) -> Response<Body> {
 
-    let token = messege + "," + &m_alert;
-
+    let token = err + "," + &alert;
     Response::builder()
         .status(StatusCode::FOUND)
         .header("Location", &url)
@@ -26,16 +22,4 @@ pub async fn add_msg(
         .unwrap()
 }
 
-pub async fn read_msg(
-    cookie: Cookie
-) -> Result<Option<Vec<String>>, Option<String>> {
 
-    let token = cookie.get("to_msg").unwrap_or("");
-
-    let v: Vec<&str> = token.split(",").collect();
-    let mut vec = Vec::new();
-    for i in v {
-        vec.push(i.to_string());
-    }
-    Ok(Some(vec))
-}

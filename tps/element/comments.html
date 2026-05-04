@@ -1,0 +1,47 @@
+    <h2 class="lead my-2">comments..</h2>
+    <div class="card">
+        <div class="card-header">
+        <form class="mb-2" method="POST">
+            <div class="card-header">
+                <input type="hidden" name="to_id" value="{{ i.id }}" />
+                <sup class="m-2">msg..</sup>
+            </div>
+            <div class="card-body">
+                <input
+                    class="form-control my-2"
+                    type="text"
+                    name="comment"
+                />
+            </div>
+            <div class="card-footer action-buttons">
+            <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+            </div>
+        </form>
+        </div>
+        {% if cmt %}
+        {% for c in cmt.comments %}
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <sup class="badge text-bg-light">name..</sup>
+                    <sup class="badge text-bg-light">{{ c[0].name }}</sup>
+                    <p class="m-0">{{ c[0].msg }}</p>
+                </li>
+            </ul>
+        </div>
+        <div class="card-footer">
+            <ul class="list-group list-group-horizontal ">
+                <li class="list-group-item">
+                    <sup class="badge text-bg-light">created..</sup>
+                    <time>
+                    <sub>
+                    {{ c[0].created_at | date(format="%Y-%m-%d %H:%M:%S") }}
+                    </sub>
+                    </time>
+                </li>
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+

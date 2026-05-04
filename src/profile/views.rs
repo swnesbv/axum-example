@@ -1,57 +1,123 @@
-use sqlx::postgres::PgPool;
-
-// use chrono::NaiveDate;
-
 use crate::{
-    profile::models::{
-    // EnumError,
-    ListUser,
-    UpdateUser,
-}
+    common::{PgPool},
+    profile::models::{ListUser, UpdateUser},
 };
 
+pub async fn all(
+    pool: PgPool,
+) -> Result<Vec<ListUser>, Option<String>> {
 
-pub async fn all(pool: PgPool) -> Result<Vec<ListUser>, String> {
-    let result = sqlx::query_as!(
-        ListUser,
-        "SELECT id, email, username, img, created_at, updated_at FROM users"
-    )
-    .fetch_all(&pool)
-    .await
-    .unwrap();
-    Ok(result)
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+
+    let result = pg.query(
+        "SELECT id,email,username,img,status,created_at,updated_at FROM users;", &[]
+    ).await;
+    let rows = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let mut r: Vec<ListUser> = vec![];
+    for i in rows {
+        r.push(ListUser {
+            id:         i.get("id"),
+            email:      i.get("email"),
+            username:   i.get("username"),
+            img:        i.get("img"),
+            status:     i.get("status"),
+            created_at: i.get("created_at"),
+            updated_at: i.get("updated_at")
+        })
+    }
+    Ok(r)
 }
 
+pub async fn update_details(
+    pool: PgPool, id: i32
+) -> Result<UpdateUser, Option<String>> {
+
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result = pg.query_one("SELECT email,username,updated_at FROM users WHERE id=$1;", &[&id])
+    .await;
+    let i = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let r = UpdateUser {email: i.get(0), username: i.get(1), updated_at: Some(i.get(2))};
+    Ok(r)
+}
 
 pub async fn details(
-    conn: &mut sqlx::PgConnection,
+    pool: PgPool,
     name: String
-) -> Result<ListUser, String> {
+) -> Result<ListUser, Option<String>> {
 
-    let result = sqlx::query_as!(
-        ListUser,
-        "SELECT id, email, username, img, created_at, updated_at FROM users WHERE username=$1",
-        name
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result = pg.query_one(
+        "SELECT id,email,username,img,status,created_at,updated_at FROM users WHERE username=$1",
+        &[&name]
     )
-    .fetch_one(&mut *conn)
+    .await;
+    let i = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let r = ListUser {
+        id:         i.get("id"),
+        email:      i.get("email"),
+        username:   i.get("username"),
+        img:        i.get("img"),
+        status:     i.get("status"),
+        created_at: i.get("created_at"),
+        updated_at: i.get("updated_at")
+    };
+    Ok(r)
+}
+
+pub async fn del_user(
+    pool: PgPool,
+    id: i32, email: String
+) -> Result<u64, Option<String>> {
+
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result = pg.execute(
+        "DELETE FROM users WHERE id=$1 AND email=$2",
+        &[&id, &email]
+    )
     .await;
     match result {
-        Ok(result) => Ok(result),
-        Err(err) => Err(err.to_string()),
+        Ok(expr) => Ok(expr),
+        Err(err) => Err(Some(err.to_string()))
     }
 }
 
+pub async fn del_admin(
+    pool: PgPool,
+    id: i32
+) -> Result<u64, Option<String>> {
 
-pub async fn update_details(pool: PgPool, id: i32) -> Result<UpdateUser, String> {
-    let result = sqlx::query_as!(
-        UpdateUser,
-        "SELECT email, username, updated_at FROM users WHERE id=$1",
-        id
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result = pg.execute(
+        "DELETE FROM users WHERE id=$1",
+        &[&id]
     )
-    .fetch_one(&pool)
     .await;
     match result {
-        Ok(result) => Ok(result),
-        Err(err) => Err(err.to_string()),
+        Ok(expr) => Ok(expr),
+        Err(err) => Err(Some(err.to_string()))
     }
 }

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %} all groups {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-3">all groups..</h1>
+
+{% if all %}
+<div class="card">
+    <div class="card-header">
+	<sup>choose groups..</sup>
+	<ul class="list-group list-group-flush">
+	{% for i in all %}
+		{% include "completed.html" %}
+		<li class="list-group-item">
+		<sup class="badge text-bg-light">id..</sup>
+			<sub>{{ i.id }}</sub>
+		<sup class="badge text-bg-light">owner..</sup>
+			<sub>{{ i.user_id }}</sub>
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">title..</sup>
+				{{ i.title }}
+		</li>
+		<li class="list-group-item">
+			<sup class="badge text-bg-light">description..</sup>
+				{{ i.description }}
+		</li>
+		</ul>
+		</div>
+		{% include "created_updated.html" %}
+		<div class="card-header">
+	        <form method="POST">
+	        <input type="hidden" name="to_group" value="{{ i.id }}" />
+	        <input type="submit" value="subscribe" class="btn btn-sm btn-outline-primary mt-2">
+	        </form>
+    	</div>
+	{% endfor %}
+</div>
+
+{% endif %}
+{% endblock content %}

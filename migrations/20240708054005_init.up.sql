@@ -8,6 +8,7 @@ CREATE TABLE users (
 	password   TEXT         NOT NULL,
 	img        VARCHAR(255),
 	status	   TEXT[] 		NOT NULL,
+	comments   JSON[],
 	created_at TIMESTAMPTZ  NOT NULL,
 	updated_at TIMESTAMPTZ
 );
@@ -26,18 +27,10 @@ CREATE TABLE article (
 	description TEXT,
 	img         VARCHAR(255),
 	completed   BOOLEAN      NOT NULL DEFAULT false,
+	comments    JSON,
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-CREATE TABLE comments (
-	id          SERIAL       PRIMARY KEY,
-	user_id     INTEGER      NOT NULL,
-	comment_on  JSON,
-	completed   BOOLEAN      NOT NULL DEFAULT false,
-	created_at  TIMESTAMPTZ  NOT NULL,
-	updated_at  TIMESTAMPTZ,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE TABLE products (
 	id          SERIAL       PRIMARY KEY,
@@ -50,9 +43,10 @@ CREATE TABLE products (
 	price  		JSON,
 	img         VARCHAR(255),
 	completed   BOOLEAN      NOT NULL DEFAULT false,
+	comments   JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE TABLE purchases (
 	id          SERIAL       PRIMARY KEY,
@@ -62,9 +56,10 @@ CREATE TABLE purchases (
 	amount  	JSON,
 	price  		JSON,
 	completed   BOOLEAN      NOT NULL DEFAULT false,
+	comments   JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
-	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (user_id) 	 REFERENCES users(id),
 	FOREIGN KEY (product_id) REFERENCES products(id)
 );
 CREATE TABLE provision_d (
@@ -78,9 +73,10 @@ CREATE TABLE provision_d (
 	e_dates     Date[],
 	dates       Date[],
 	completed   BOOLEAN      NOT NULL DEFAULT false,
+	comments   TEXT[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE TABLE provision_h (
 	id          SERIAL       PRIMARY KEY,
@@ -93,9 +89,10 @@ CREATE TABLE provision_h (
 	e_hours     TIMESTAMP[],
 	hours       TIMESTAMP[],
 	completed   BOOLEAN      NOT NULL DEFAULT false,
+	comments    JSON,
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE TABLE booking (
 	id             SERIAL       PRIMARY KEY,
@@ -109,9 +106,10 @@ CREATE TABLE booking (
 	st_hour        TIMESTAMP,
 	en_hour        TIMESTAMP,
 	completed      BOOLEAN      NOT NULL DEFAULT false,
+	comments       JSON,
 	created_at     TIMESTAMPTZ  NOT NULL,
 	updated_at     TIMESTAMPTZ,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) 		 REFERENCES users(id) ON DELETE CASCADE,
 	FOREIGN KEY (provision_d_id) REFERENCES provision_d(id) ON DELETE CASCADE,
 	FOREIGN KEY (provision_h_id) REFERENCES provision_h(id) ON DELETE CASCADE
 );
@@ -127,22 +125,24 @@ CREATE TABLE schedule (
 	places      INTEGER[],
 	non_places  INTEGER[],
 	completed   BOOLEAN      NOT NULL DEFAULT false,
+	comments    JSON,
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE TABLE recording (
-	id          SERIAL      PRIMARY KEY,
-	user_id     INTEGER     NOT NULL,
-	to_schedule INTEGER     NOT NULL,
+	id          SERIAL       PRIMARY KEY,
+	user_id     INTEGER      NOT NULL,
+	to_schedule INTEGER      NOT NULL,
 	record_d    Date,
 	record_h    TIMESTAMP,
 	places      INTEGER[],
 	tickets     JSON,
-	completed   BOOLEAN     NOT NULL DEFAULT false,
-	created_at  TIMESTAMPTZ NOT NULL,
+	completed   BOOLEAN      NOT NULL DEFAULT false,
+	comments    JSON,
+	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE,
 	FOREIGN KEY (to_schedule) REFERENCES schedule(id) ON DELETE CASCADE
 );
 CREATE TABLE groups (
@@ -152,9 +152,10 @@ CREATE TABLE groups (
     description TEXT,
     img         TEXT,
     completed   BOOLEAN      NOT NULL DEFAULT false,
+    comments    JSON,
 	created_at  TIMESTAMPTZ  NOT NULL,
     updated_at  TIMESTAMPTZ,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE TABLE subscriptions (
     id           SERIAL 	  PRIMARY KEY,
@@ -166,11 +167,12 @@ CREATE TABLE subscriptions (
     dialogue     TEXT 		  UNIQUE,
     additionally JSON      	  NOT NULL,
     completed    BOOLEAN      NOT NULL DEFAULT false,
+    comments     JSON,
 	created_at   TIMESTAMPTZ  NOT NULL,
     updated_at   TIMESTAMPTZ,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (to_user) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (to_group) REFERENCES groups(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) 	  REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (to_user) 	  REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (to_group) 	  REFERENCES groups(id) ON DELETE CASCADE
 );
 CREATE TABLE chat_public (
 	id          SERIAL      PRIMARY KEY,
@@ -179,7 +181,7 @@ CREATE TABLE chat_public (
 	came_out    TEXT,
 	message     TEXT,
 	created_at  TIMESTAMPTZ NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users(id)
+	FOREIGN KEY (user_id) 	REFERENCES users(id)
 );
 CREATE TABLE chat_room (
 	id          SERIAL      PRIMARY KEY,
@@ -189,7 +191,7 @@ CREATE TABLE chat_room (
 	message     TEXT,
 	room		TEXT     	NOT NULL,
 	created_at  TIMESTAMPTZ NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users(id)
+	FOREIGN KEY (user_id) 	REFERENCES users(id)
 );
 CREATE TABLE chat_groups (
 	id          SERIAL      PRIMARY KEY,
@@ -199,9 +201,5 @@ CREATE TABLE chat_groups (
 	dialogue    INTEGER[],
 	message     TEXT,
 	created_at  TIMESTAMPTZ NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users(id)
-);
-CREATE TABLE sessions (
-	session_token BYTEA             PRIMARY KEY,
-	id integer REFERENCES users(id) ON DELETE CASCADE
+	FOREIGN KEY (user_id) 	REFERENCES users(id)
 );

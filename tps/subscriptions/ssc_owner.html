@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %} subscriptions owner list {% endblock title %}
+{% block content %}
+
+<h1 class="lead my-3">all subscriptions owner..</h1>
+
+{% if all %}
+<div class="card">
+{% for i in all %}
+    <div class="card-header">
+    <ul class="list-group list-group-flush">
+        {% if i.completed == true %}
+        <li class="list-group-item">
+        <a class="btn btn-sm btn-outline-success float-end" href="/chat-room/room/{{ i.dialogue }}">to chat</a>
+        </li>
+        {% endif %}
+        {% include "completed.html" %}
+        <li class="list-group-item">
+            <sup class="badge text-bg-light">id..</sup>
+                <sub>{{ i.id }}</sub>
+            <sup class="badge text-bg-light">owner</sup>
+                <sub>{{ i.user_id }}</sub>
+        </li>
+        <li class="list-group-item">
+            {% if i.to_user %}
+            <sup class="badge text-bg-light me-2">to user..</sup>
+                <sub>{{ i.to_user }}</sub>
+            {% endif %}
+            {% if i.to_group %}
+            <sup class="badge text-bg-light">to group..</sup>
+                <sub>{{ i.to_group }}</sub>
+            {% endif %}
+            <sup class="badge text-bg-light me-2">dialogue..</sup>
+                <sub>{{ i.dialogue }}</sub>
+        </li>
+        <li class="list-group-item">
+            <sup class="badge text-bg-light me-2">owner name..</sup>
+                <sub>{{ i.additionally.name }}</sub>
+            <sup class="badge text-bg-light">owner email..</sup>
+                <sub>{{ i.additionally.email }}</sub>
+        </li>
+    </ul>
+    </div>
+    <div class="card-body">
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <sup class="badge text-bg-light">title</sup>
+                <p>{{ i.title }}</p>
+        </li>
+        <li class="list-group-item">
+            <sup class="badge text-bg-light">description</sup>
+                <p>{{ i.description }}</p>
+        </li>
+    </ul>
+    </div>
+    {% include "created_updated.html" %}
+{% endfor %}
+</div>
+{% endif %}
+
+{% endblock content %}

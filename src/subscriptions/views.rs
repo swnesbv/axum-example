@@ -1,13 +1,8 @@
-use sqlx::postgres::PgPool;
-
-use chrono::Utc;
-use jsonwebtoken::{TokenData};
-
 use crate::{
-    auth::models::{Claims},
-    subscriptions::models::{AdditionallyJson}
+    common::{PgPool},
+    auth::models::{AuToken},
+    subscriptions::models::{Key}
 };
-
 
 pub async fn insert_ssc_user(
     pool: PgPool,
@@ -15,68 +10,30 @@ pub async fn insert_ssc_user(
     title: &str,
     description: &str,
     to_user: i32,
-    token: TokenData<Claims>,
-) -> bool {
+    user: AuToken,
+) -> Result<u64, Option<String>> {
 
-    let s: AdditionallyJson = AdditionallyJson {
-        email: token.claims.email,
-        name: token.claims.username,
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
     };
-    let str_msg = serde_json::to_string(&s).unwrap();
-    let additionally: serde_json::Value = serde_json::from_str(&str_msg).unwrap();
 
-    let result =
-        sqlx::query(
-            "INSERT INTO subscriptions (user_id, title, description, to_user, additionally, created_at) VALUES ($1,$2,$3,$4,$5,$6)"
-        )
-        .bind(user_id)
-        .bind(title)
-        .bind(description)
-        .bind(to_user)
-        .bind(additionally)
-        .bind(Utc::now())
-        .execute(&pool)
-        .await;
-
-    match result {
-        Err(e) => {
-            println!("Err..! INSERT ssc user");
-            println!("Error message: [{}].\n", e);
-            return false;
-        }
-        Ok(o) => o,
+    let key: Key = Key {
+        email: user.email,
+        name: user.username,
     };
-    true
+    let s = serde_json::to_string(&key).unwrap();
+    let v: serde_json::Value = serde_json::from_str(&s).unwrap();
+    let result = pg.execute(
+        "INSERT INTO subscriptions (user_id, title, description, to_user, additionally, created_at) VALUES ($1,$2,$3,$4,$5,now())",
+        &[&user_id, &title, &description, &to_user, &v]
+    ).await;
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    Ok(r)
 }
-
-pub async fn resolution_user(
-    pool: PgPool,
-    id: i32,
-    dialogue: String,
-) -> bool {
-
-    let result =
-        sqlx::query(
-            "UPDATE subscriptions SET dialogue=$2, completed=$3, updated_at=$4 WHERE id=$1"
-        )
-        .bind(id)
-        .bind(dialogue)
-        .bind(true)
-        .bind(Some(Utc::now()))
-        .execute(&pool)
-        .await;
-
-    match result {
-        Err(e) => {
-            println!("Err..! INSERT resolution user");
-            println!("Error message: [{}].\n", e);
-            return false;
-        }
-        Ok(o) => o,
-    };
-    true
-}
-
 
 pub async fn insert_ssc_group(
     pool: PgPool,
@@ -84,67 +41,76 @@ pub async fn insert_ssc_group(
     title: &str,
     description: &str,
     to_group: i32,
-    token: TokenData<Claims>,
-) -> bool {
+    user: AuToken
+) -> Result<u64 , Option<String>> {
 
-    let s: AdditionallyJson = AdditionallyJson {
-        email: token.claims.email,
-        name: token.claims.username,
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
     };
-    let str_msg = serde_json::to_string(&s).unwrap();
-    let additionally: serde_json::Value = serde_json::from_str(&str_msg).unwrap();
+
+    let key = Key {
+        email: user.clone().email,
+        name: user.clone().username,
+    };
+    let s = serde_json::to_string(&key).unwrap();
+    println!("insert_ssc_group s.. {:#?}", s);
 
     let dialogue = vec![user_id];
     let result =
-        sqlx::query(
-            "INSERT INTO subscriptions (user_id, title, description, to_group, dialogue, additionally, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)"
+        pg.execute(
+            "INSERT INTO subscriptions (user_id, title, description, to_group, dialogue, additionally, created_at) VALUES ($1,$2,$3,$4,$5,$6,now())",
+            &[&user_id, &title, &description, &to_group, &dialogue, &s.to_string()]
         )
-        .bind(user_id)
-        .bind(title)
-        .bind(description)
-        .bind(to_group)
-        .bind(dialogue)
-        .bind(additionally)
-        .bind(Utc::now())
-        .execute(&pool)
         .await;
-
-    match result {
-        Err(e) => {
-            println!("Err..! INSERT ssc group");
-            println!("Error message: [{}].\n", e);
-            return false;
-        }
-        Ok(o) => o,
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
     };
-    true
+    Ok(r)
+}
+
+pub async fn resolution_user(
+    pool: PgPool,
+    id: i32,
+    dialogue: String,
+) -> Result<u64 , Option<String>> {
+
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result =
+        pg.execute(
+            "UPDATE subscriptions SET dialogue=$2, completed=$3, updated_at=now() WHERE id=$1",
+            &[&id, &dialogue, &true]
+        )
+        .await;
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    Ok(r)
 }
 
 pub async fn resolution_group(
     pool: PgPool,
     id: i32,
     to_group: i32,
-) -> bool {
+) -> Result<u64 , Option<String>> {
 
-    let result =
-        sqlx::query(
-            "UPDATE subscriptions SET dialogue=ARRAY_APPEND(dialogue, $2), completed=$3, updated_at=$4 WHERE id=$1"
-        )
-        .bind(id)
-        .bind(to_group)
-        .bind(true)
-        .bind(Some(Utc::now()))
-        .execute(&pool)
-        .await;
-
-    match result {
-        Err(e) => {
-            println!("Err..! INSERT resolution group");
-            println!("Error message: [{}].\n", e);
-            return false;
-        }
-        Ok(o) => o,
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
     };
-    true
+    let result = pg.execute(
+        "UPDATE subscriptions SET dialogue=ARRAY_APPEND(dialogue, $2), completed=$3, updated_at=now() WHERE id=$1",
+        &[&id, &to_group, &true]
+    )
+    .await;
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    Ok(r)
 }
-

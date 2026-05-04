@@ -1,0 +1,48 @@
+<ul class="list-group list-group-horizontal ">
+    <li class="list-group-item list-group-item-primary">
+        {% if i.st_date %}
+        <sup class="badge text-bg-light">start date..</sup>
+            <time>
+                <sub>{{ i.st_date | date(format="%Y-%m-%d %H:%M") }}</sub>
+            </time>
+        {% endif %}
+        {% if i.en_date %}
+        <sup class="badge text-bg-light">end date..</sup>
+            <time>
+                <sub>{{ i.en_date | date(format="%Y-%m-%d %H:%M") }}</sub>
+            </time>
+        {% endif %}
+    </li>
+</ul>
+{% if i.s_dates %}
+<ul class="list-group list-group-flush">
+    <li class="list-group-item list-group-item-primary">
+        <sup class="badge text-bg-light">list start dates..</sup>
+            {% for s in i.s_dates %}
+                <time>
+                    <sub>{{ s | date(format="%Y-%m-%d %H:%M") }}</sub>
+                </time>,
+            {% endfor %}
+    </li>
+    {% endif %}
+    {% if i.e_dates %}
+    <li class="list-group-item list-group-item-primary">
+        <sup class="badge text-bg-light">list end dates..</sup>
+            {% for e in i.e_dates %}
+                <time>
+                    <sub>{{ e | date(format="%Y-%m-%d %H:%M") }}</sub>
+                </time>,
+            {% endfor %}
+    </li>
+    {% endif %}
+    {% if i.dates %}
+    <li class="list-group-item list-group-item-primary">
+        <sup class="badge text-bg-light">list dates..</sup>
+            {% for d in i.dates %}
+                <time>
+                    <sub>{{ d | date(format="%Y-%m-%d %H:%M") }}</sub>
+                </time>,
+            {% endfor %}
+    </li>
+</ul>
+{% endif %}

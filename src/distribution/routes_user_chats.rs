@@ -1,29 +1,26 @@
 use std::sync::Arc;
-
 use axum::{routing::get, Extension, Router};
-
 use tera::Tera;
-
 use crate::{
     chats,
     chats::models::{UserChat},
 };
 
-
-pub fn build_routes(chat_state: Arc<UserChat>) -> Router {
+pub fn rt(state: Arc<UserChat>) -> Router {
 
     let mut chat_tera = Tera::default();
     chat_tera
         .add_raw_templates(vec![
-            ("base.html", include_str!("../../templates/base.html")),
-            ("navbar.html", include_str!("../../templates/navbar.html")),
+            ("base.html", include_str!("../../tps/base.html")),
+            ("navbar.html", include_str!("../../tps/navbar.html")),
             (
-                "user",
-                include_str!("../../templates/chats/user.html"),
+                "rq_user.html",
+                include_str!("../../tps/element/rq_user.html")
             ),
+            ("user", include_str!("../../tps/chats/user.html")),
             (
                 "dialogue_owner",
-                include_str!("../../templates/chats/dialogue_owner.html"),
+                include_str!("../../tps/chats/dialogue_owner.html")
             ),
         ])
         .unwrap();
@@ -36,13 +33,14 @@ pub fn build_routes(chat_state: Arc<UserChat>) -> Router {
             .route("/user", get(chats::handler_us::chat_user))
             .route(
                 "/dialogue-owner",
-                get(chats::handlers::get_dialogue_owner).post(chats::handlers::post_del_dialogue)
+                get(chats::handlers::get_dialogue_owner)
+                .post(chats::handlers::post_del_dialogue)
             )
             .route(
                 "/del_dialogue",
-                get(chats::handlers::get_deletion_dialogue)
+                get(chats::handlers::get_del_dialogue)
             )
             .layer(Extension(Arc::new(chat_tera))),
     );
-    Router::new().merge(chats_routes.with_state(chat_state))
+    Router::new().merge(chats_routes.with_state(state))
 }

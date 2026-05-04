@@ -68,37 +68,3 @@ where
     }
 }
 
-pub fn to_bool(v: Vec<&str>) -> Vec<bool> {
-    let mut x: Vec<bool> = vec![];
-    for i in v {
-        match i {
-            "true" => x.push(true),
-            "t" => x.push(true),
-            "false" => x.push(false),
-            "f" => x.push(false),
-            "yes" => x.push(true),
-            "y" => x.push(true),
-            "no" => x.push(false),
-            "n" => x.push(false),
-            "1" => x.push(true),
-            "0" => x.push(false),
-            _ => panic!("err.. {:?}", i),
-        };
-    }
-    x
-}
-
-/*fn main() {
-    let a = vec!["1", "0", "1", "0"];
-    let b = vec![1, 2, 3, 4];
-    let c = to_bool(a);
-    println!("c = {:?}", c);
-
-    let mut f: Vec<i32> = vec![];
-    for (d,e) in c.iter().zip(b.iter()) {
-        if *d == true {
-            f.push(*e);
-        }
-    }
-    println!("f.. {:?}", f);
-}*/

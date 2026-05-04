@@ -1,10 +1,11 @@
 use chrono::{DateTime, Utc};
+use chrono::serde::ts_seconds_option;
 use serde::{Deserialize, Serialize};
-
 use axum::{body::Body, http::Response};
 
-use crate::util::date_config::date_format;
-use chrono::serde::ts_seconds_option;
+use crate::{
+    util::date_config::date_format
+};
 
 
 #[derive(Serialize)]
@@ -18,10 +19,11 @@ pub struct EmUser {
 
 #[derive(Clone, Serialize)]
 pub struct ListUser {
-    pub id: i32,
-    pub email: String,
-    pub username: String,
-    pub img: Option<String>,
+    pub id:         i32,
+    pub email:      String,
+    pub username:   String,
+    pub img:        Option<String>,
+    pub status:     Vec<String>,
     #[serde(with = "date_format")]
     pub created_at: DateTime<Utc>,
     #[serde(with = "ts_seconds_option")]
@@ -30,15 +32,16 @@ pub struct ListUser {
 
 #[derive(Deserialize, Serialize)]
 pub struct FormNewUser {
-    pub email: String,
+    pub email:    String,
     pub username: String,
     pub password: String,
 }
 
 #[derive(Serialize)]
 pub struct UpdateUser {
-    pub email: String,
-    pub username: String,
+    pub email:      String,
+    pub username:   String,
+    #[serde(with = "ts_seconds_option")]
     pub updated_at: Option<DateTime<Utc>>,
 }
 

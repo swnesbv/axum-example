@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %} update hours {% endblock title %}
+{% block content %}
+
+<p>{% if not_hour %} {{ not_hour }} {% endif %}</p>
+
+{% if i %}
+<h1 class="container lead my-3">update hours.. {{ i.title }}</h1>
+
+<p class="alert alert-primary">
+    {% if i.st_hour %}
+        <sup class="badge text-bg-light">start..</sup>
+            <time>
+                <sub>{{ i.st_hour | date(format="%Y-%m-%d %H:%M") }}</sub>
+            </time>
+    {% endif %}
+    {% if i.en_hour %}
+        <sup class="badge text-bg-light">end..</sup>
+        <time>
+            <sub>{{ i.en_hour | date(format="%Y-%m-%d %H:%M") }}</sub>
+        </time>
+    {% endif %}
+</p>
+
+<div class="card">
+<form class="mb-2" method="POST">
+    <div class="card-header">
+        <sup>title..</sup>
+        <input type="text" name="title" class="form-control" value="{{ i.title }}">
+        <sup>description..</sup>
+        <input type="text" name="description" class="form-control"value="{{ i.description }}">
+    </div>
+    <div class="card-body row">
+        <div class="col-sm">
+            <sup class="float-start">start..</sup>
+            <input
+                class="form-control my-2"
+                type="datetime-local"
+                name="st_hour"
+            />
+        </div>
+        <div class="col-sm">
+            <sup class="float-start">end..</sup>
+            <input
+                class="form-control my-2"
+                type="datetime-local"
+                name="en_hour"
+            />
+        </div>
+    </div>
+    <div class="card-footer">
+        <sup class="float-start m-2">completed..</sup>
+        <input
+            checked
+            type="checkbox"
+            name="completed"
+        />
+    </div>
+    <div class="card-footer">
+    <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+    </div>
+</form>
+</div>
+{% endif %}
+{% endblock content %}
