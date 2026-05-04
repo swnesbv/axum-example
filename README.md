@@ -1,3 +1,3 @@
 # axum-example
 
-axum-sqlx-tera-jwt-auth-csv-chat
+axum-tokio-postgres-tera-jwt-simple-auth-csv-chat
