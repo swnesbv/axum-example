@@ -8,6 +8,8 @@ pub mod distribution {
     pub mod routes_booking;
     pub mod routes_account;
     pub mod routes_provision;
+    pub mod routes_products;
+    pub mod routes_purchases;
     pub mod routes_room_chats;
     pub mod routes_user_chats;
     pub mod routes_subscriptions;
@@ -74,6 +76,20 @@ pub mod import_export {
 }
 pub mod comments {
     pub mod creat;
+    // pub mod handlers;
+    pub mod models;
+    // pub mod repository;
+    pub mod views;
+}
+pub mod products {
+    pub mod creat;
+    pub mod handlers;
+    pub mod models;
+    // pub mod repository;
+    pub mod views;
+}
+pub mod purchases {
+    pub mod order;
     // pub mod handlers;
     pub mod models;
     // pub mod repository;

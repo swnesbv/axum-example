@@ -23,16 +23,16 @@ pub struct AmountPrice {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Products {
-    pub id: i32,
-    pub user_id: i32,
-    pub title: String,
+    pub id:          i32,
+    pub user_id:     i32,
+    pub title:       String,
     pub description: Option<String>,
     pub categories:  Option<Vec<String>>,
     pub cts:         Option<Vec<String>>,
-    pub amount:      Option<sqlx::types::JsonValue>,
-    pub price:       Option<sqlx::types::JsonValue>,
+    pub amount:      Option<serde_json::Value>,
+    pub price:       Option<serde_json::Value>,
     pub img:         Option<String>,
-    pub completed: bool,
+    pub completed:   bool,
     #[serde(with = "date_format")]
     pub created_at: DateTime<Utc>,
     #[serde(with = "ts_seconds_option")]

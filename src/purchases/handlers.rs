@@ -1,11 +1,9 @@
-use sqlx::postgres::PgPool;
-
+use std::sync::Arc;
 use axum::{
     extract::{State, Path},
     response::{Html, IntoResponse, Redirect},
     Extension,
 };
-
 use tera::Context;
 
 use crate::{
@@ -16,11 +14,11 @@ use crate::{
 
 
 pub async fn get_all(
-    State(pool): State<PgPool>,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
 ) -> impl IntoResponse {
 
-    let all = all_products(pool).await.unwrap();
+    let all = all_products(i.pool).await.unwrap();
 
     let mut context = Context::new();
     context.insert("all", &all);
@@ -35,10 +33,10 @@ pub async fn get_select(
 }
 
 pub async fn post_select(
-    axum_extra::extract::Form(form): axum_extra::extract::Form<FormSelect>,
+    axum_extra::extract::Form(f): axum_extra::extract::Form<FormSelect>,
 ) -> impl IntoResponse {
 
-    let i = form_on_off(form).await;
+    let i = form_on_off(f).await;
     let s = serde_json::to_string(&i).unwrap();
 
     Redirect::to(&("/products/categories/".to_owned() + &s)).into_response()
@@ -46,17 +44,16 @@ pub async fn post_select(
 
 
 pub async fn get_categories(
-    Path(i): Path<String>,
-    State(pool): State<PgPool>,
+    Path(p): Path<String>,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
 ) -> impl IntoResponse {
 
-    let a: serde_json::Value = serde_json::from_str(&i).unwrap();
-
+    let a: serde_json::Value = serde_json::from_str(&p).unwrap();
     println!(" a..{:?}", a[0]);
 
     let all = i_categories(
-        pool, a[0].as_str(), a[1].as_str(), a[2].as_str(), a[3].as_str()
+        i.pool, a[0].as_str(), a[1].as_str(), a[2].as_str(), a[3].as_str()
     ).await.unwrap();
 
     let mut context = Context::new();

@@ -1,86 +1,108 @@
-use sqlx::postgres::PgPool;
-
+use std::sync::Arc;
 use axum::{
     body::Body,
     http::{StatusCode},
+    http::{header::{HeaderMap}},
     extract::{State, Path, Form},
-    response::{Html, IntoResponse, Redirect, Response},
+    response::{Html, IntoResponse, Response},
     Extension,
 };
-
 // use chrono::{Utc};
-
 use tera::Context;
 
-use axum_extra::TypedHeader;
-use headers::Cookie;
-
 use crate::{
-    auth,
     common::Templates,
+    auth::models::{AuthRedis},
     products::models::{AmountPrice},
     products::views::{id_products},
     purchases::models::{PurchasesCls, FormPurchases},
+    provision::models::{ParsePointError}
 };
 
 
 pub async fn get_order(
+    headers: HeaderMap,
     Path(id): Path<String>,
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let token = auth::views::request_user(cookie).await;
-    let _ = match token {
+    let mut context = Context::new();
+
+    let t = match i.ctx(headers).await {
         Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
+        Err(Some(err)) => {
+            context.insert("err", &err);
+            return Err(Html(templates.render("order", &context).unwrap()))
+        }
+        Ok(None) | Err(None) => {
+            context.insert("err", "Caramba bullfighting and damn it");
+            return Err(Html(templates.render("order", &context).unwrap()))
+        }
+    };
+    let number = match id.parse::<i32>().map_err(|_| ParsePointError) {
+        Ok(expr) => expr,
+        Err(err) => {
+            context.insert("err", &err);
+            return Ok(Html(templates.render("detail_days", &context).unwrap()))
+        }
     };
 
-    let number: i32 = id.parse().expect("Not a valid number");
-    let i = id_products(pool, number).await.unwrap();
+    let i = id_products(i.pool.clone(), number).await.unwrap();
 
-    let mut context = Context::new();
+    context.insert("t", &t);
     context.insert("i", &i);
     Ok(Html(templates.render("order", &context).unwrap()))
 }
 
 
-async fn convert(ia: Option<i32>, ib: Option<i32>) -> Option<i32> {
+async fn convert(
+    ia: Option<i32>, ib: Option<i32>
+) -> Option<i32> {
     let a: Option<i32> = ia;
     let b: Option<i32> = ib;
-    let f = |a, b| {
-        a * b
-    };
-    a.and_then(|a| b.map(|b| f(a, b)))
+    let c = |a, b| {a * b};
+    a.and_then(|a| b.map(|b| c(a, b)))
 }
 
 pub async fn post_order(
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
-    Form(form): Form<FormPurchases>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
+    Extension(templates): Extension<Templates>,
+    Form(f): Form<FormPurchases>,
 ) -> impl IntoResponse {
 
-    let token = auth::views::request_token(cookie).await.unwrap();
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Err(Some(err)) => {
+            let mut context = Context::new();
+            context.insert("err", &err);
+            return Err(Html(templates.render("detail_days", &context).unwrap()))
+        }
+        Ok(None) | Err(None) => {
+            let mut context = Context::new();
+            context.insert("err", "Caramba bullfighting and damn it");
+            return Err(Html(templates.render("detail_days", &context).unwrap()))
+        }
+    };
 
-    let i = id_products(pool, form.product_id).await.unwrap();
+    let id = id_products(i.pool.clone(), f.product_id).await.unwrap();
 
-    let a_container = form.a_container;
-    let a_boxes = form.a_boxes;
-    let a_carton = form.a_carton;
-    let a_units = form.a_units;
+    let a_container = f.a_container;
+    let a_boxes     = f.a_boxes;
+    let a_carton    = f.a_carton;
+    let a_units     = f.a_units;
 
     let a: AmountPrice = AmountPrice {
         container: a_container,
-        boxes: a_boxes,
-        carton: a_carton,
-        units: a_units
+        boxes:     a_boxes,
+        carton:    a_carton,
+        units:     a_units
     };
-    let str_a = serde_json::to_string(&a);
-    let amount: serde_json::Value = serde_json::from_str(&str_a);
+    let str_a = serde_json::to_string(&a).unwrap();
+    let amount: serde_json::Value = serde_json::from_str(&str_a).unwrap();
 
-    let str_i = serde_json::to_string(&i.price).unwrap();
+    let str_i = serde_json::to_string(&id.price).unwrap();
     let kv: AmountPrice = serde_json::from_str(&str_i).unwrap();
 
     let p_container = convert(a.container, kv.container).await;
@@ -95,12 +117,12 @@ pub async fn post_order(
         units:     p_units
     };
 
-    let str_p = serde_json::to_string(&p);
+    let str_p = serde_json::to_string(&p).unwrap();
     let price: serde_json::Value = serde_json::from_str(&str_p).unwrap();
 
     let entity = PurchasesCls {
-        user_id:    token.claims.id,
-        product_id: form.product_id,
+        user_id:    t.id,
+        product_id: f.product_id,
         amount:     Some(amount),
         price:      Some(price),
     };
@@ -115,7 +137,7 @@ pub async fn post_order(
     use base64::{engine::general_purpose::STANDARD, Engine as _};
     let token = STANDARD.encode(encoded);
 
-    Response::builder()
+    Ok(Response::builder()
         .status(StatusCode::FOUND)
         .header("Location", "/")
         .header(
@@ -126,6 +148,6 @@ pub async fn post_order(
             ),
         )
         .body(Body::from("not found"))
-        .unwrap()
+        .unwrap())
 
 }

@@ -1,47 +1,91 @@
-use sqlx::postgres::PgPool;
+use crate::{
+    common::PgPool,
+    products::models::{Products, FormSelect}
+};
 
-use crate::products::models::{Products, FormSelect};
 
+pub async fn all_products(
+    pool: PgPool
+) -> Result<Vec<Products>, Option<String>> {
 
-pub async fn all_products(pool: PgPool) -> Result<Vec<Products>, String> {
-    let result = sqlx::query_as!(Products, "SELECT * FROM products")
-        .fetch_all(&pool)
-        .await
-        .unwrap();
-    Ok(result)
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result = pg.query("SELECT * FROM products;", &[]).await;
+    let rows = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let mut r: Vec<Products> = vec![];
+    for i in rows {
+        r.push(Products {
+            id:           i.get(0),
+            user_id:      i.get(1),
+            title:        i.get(2),
+            description:  i.get(3),
+            categories:   i.get(4),
+            cts:          i.get(5),
+            amount:       i.get(6),
+            price:        i.get(7),
+            img:          i.get(8),
+            completed:    i.get(9),
+            created_at:   i.get(10),
+            updated_at:   i.get(11)
+        })
+    }
+    Ok(r)
 }
 
 pub async fn id_products(
-    pool: PgPool, id: i32
-) -> Result<Products, String> {
+    pool: PgPool,
+    id: i32
+) -> Result<Products, Option<String>> {
 
-    let result = sqlx::query_as!(
-        Products,
-        "SELECT * FROM products WHERE id=$1",
-        id
-    )
-    .fetch_one(&pool)
-    .await
-    .unwrap();
-    Ok(result)
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result =  pg.query_one(
+        "SELECT * FROM products WHERE id=$1;", &[&id]
+    ).await;
+    let i = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let r: Products = Products {
+        id:           i.get(0),
+        user_id:      i.get(1),
+        title:        i.get(2),
+        description:  i.get(3),
+        categories:   i.get(4),
+        cts:          i.get(5),
+        amount:       i.get(6),
+        price:        i.get(7),
+        img:          i.get(8),
+        completed:    i.get(9),
+        created_at:   i.get(10),
+        updated_at:   i.get(11)
+    };
+    Ok(r)
 }
 
 
 pub async fn form_on_off(
-    form: FormSelect,
+    f: FormSelect,
 ) -> Vec<String> {
 
-    let a = form.on_off;
-    let b = form.categories;
+    let a = f.on_off;
+    let b = f.categories;
 
-    let mut f: Vec<String> = vec![];
+    let mut v: Vec<String> = vec![];
     let mut e = vec![];
 
-    for i in a {
-        let g = i.parse::<String>().unwrap();
-        f.push(g);
+    for x in a {
+        let y = x.parse::<String>().unwrap();
+        v.push(y);
     }
-    for (c, d) in f.iter().zip(b.iter()) {
+    for (c, d) in v.iter().zip(b.iter()) {
         if *c == "1" {
             e.push(d.to_owned());
         }
@@ -51,29 +95,74 @@ pub async fn form_on_off(
 
 
 pub async fn i_categories(
-    pool: PgPool, a: Option<&str>, b: Option<&str>, c: Option<&str>, d: Option<&str>
-) -> Result<Vec<Products>, String> {
+    pool: PgPool,
+    a: Option<&str>, b: Option<&str>, c: Option<&str>, d: Option<&str>
+) -> Result<Vec<Products>, Option<String>> {
 
-    let result = sqlx::query_as!(
-        Products,
-        "SELECT * FROM products WHERE categories && ARRAY[$1,$2,$3,$4]::TEXT[]", a,b,c,d
-    )
-    .fetch_all(&pool)
-    .await
-    .unwrap();
-    Ok(result)
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result = pg.query(
+        "SELECT * FROM products WHERE categories && ARRAY[$1,$2,$3,$4]::TEXT[]",
+        &[&a, &b, &c, &d]
+    ).await;
+    let rows = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let mut r: Vec<Products> = vec![];
+    for i in rows {
+        r.push(Products {
+            id:           i.get(0),
+            user_id:      i.get(1),
+            title:        i.get(2),
+            description:  i.get(3),
+            categories:   i.get(4),
+            cts:          i.get(5),
+            amount:       i.get(6),
+            price:        i.get(7),
+            img:          i.get(8),
+            completed:    i.get(9),
+            created_at:   i.get(10),
+            updated_at:   i.get(11)
+        })
+    }
+    Ok(r)
 }
 
 pub async fn i_cts(
-    pool: PgPool, i: Option<Vec<String>>
-) -> Result<Vec<Products>, String> {
+    pool: PgPool,
+    i: Option<Vec<String>>
+) -> Result<Vec<Products>, Option<String>> {
 
-    let result = sqlx::query_as!(
-        Products,
-        "SELECT * FROM products WHERE $1 @> cts", i.as_deref()
-    )
-    .fetch_all(&pool)
-    .await
-    .unwrap();
-    Ok(result)
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result =  pg.query(
+        "SELECT * FROM products WHERE $1 @> cts;", &[&i.as_deref()]
+    ).await;
+    let rows = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let mut r: Vec<Products> = vec![];
+    for i in rows {
+        r.push(Products {
+            id:           i.get(0),
+            user_id:      i.get(1),
+            title:        i.get(2),
+            description:  i.get(3),
+            categories:   i.get(4),
+            cts:          i.get(5),
+            amount:       i.get(6),
+            price:        i.get(7),
+            img:          i.get(8),
+            completed:    i.get(9),
+            created_at:   i.get(10),
+            updated_at:   i.get(11)
+        })
+    }
+    Ok(r)
 }

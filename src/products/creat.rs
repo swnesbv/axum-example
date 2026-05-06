@@ -1,110 +1,120 @@
-use sqlx::postgres::PgPool;
-
+use std::sync::Arc;
 use axum::{
     extract::{State},
     response::{Html, IntoResponse, Redirect},
+    http::{header::{HeaderMap}},
     Extension,
 };
-
-use chrono::{Utc};
-
 use tera::Context;
 
-use axum_extra::TypedHeader;
-use headers::Cookie;
-
 use crate::{
-    auth,
     common::Templates,
+    auth::models::{AuthRedis},
     products::models::{FormProducts, AmountPrice}
 };
 
-
 pub async fn get_creat(
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
-    let token = auth::views::request_user(cookie).await;
-    let _ = match token {
+
+    let mut context = Context::new();
+
+    let t = match i.ctx(headers).await {
         Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
+        Err(Some(err)) => {
+            context.insert("err", &err.to_string());
+            return Ok(Html(templates.render("creat", &context).unwrap()));
+        }
+        Ok(None) | Err(None) => return Err(Redirect::to("/account/login").into_response()),
     };
-    Ok(Html(templates.render("creat", &Context::new()).unwrap()))
+
+    context.insert("t", &t);
+    Ok(Html(templates.render("creat", &context).unwrap()))
 }
 
 
 pub async fn post_creat(
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
-    axum_extra::extract::Form(form): axum_extra::extract::Form<FormProducts>,
+    axum_extra::extract::Form(f): axum_extra::extract::Form<FormProducts>,
 ) -> impl IntoResponse {
 
-    let token = auth::views::request_token(cookie).await.unwrap();
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Err(Some(err)) => {
+            let mut context = Context::new();
+            context.insert("err", &err.to_string());
+            return Err(Html(templates.render("creat", &context).unwrap()));
+        }
+        Ok(None) | Err(None) => {
+            let mut context = Context::new();
+            context.insert("is_no", "Caramba bullfighting and damn it");
+            return Err(Html(templates.render("creat", &context).unwrap()))
+        }
+    };
 
-    let on_off = form.on_off;
-    let categories = form.categories;
-
-    let mut f: Vec<String> = vec![];
+    let mut v: Vec<String> = vec![];
     let mut e = vec![];
 
-    for i in on_off {
-        let g = i.parse::<String>().unwrap();
-        f.push(g);
+    let on_off = f.on_off;
+    for x in on_off {
+        let y = x.parse::<String>().unwrap();
+        v.push(y);
     }
-    for (c, d) in f.iter().zip(categories.iter()) {
+    let categories = f.categories;
+    for (c, d) in v.iter().zip(categories.iter()) {
         if *c == "1" {
             e.push(d.to_owned());
         }
     }
 
-    let a_container = form.a_container;
-    let a_boxes = form.a_boxes;
-    let a_carton = form.a_carton;
-    let a_units = form.a_units;
+    let a_container = f.a_container;
+    let a_boxes     = f.a_boxes;
+    let a_carton    = f.a_carton;
+    let a_units     = f.a_units;
 
-    let p_container = form.p_container;
-    let p_boxes = form.p_boxes;
-    let p_carton = form.p_carton;
-    let p_units = form.p_units;
+    let p_container = f.p_container;
+    let p_boxes     = f.p_boxes;
+    let p_carton    = f.p_carton;
+    let p_units     = f.p_units;
 
     let a: AmountPrice = AmountPrice {
         container: a_container,
-        boxes: a_boxes,
-        carton: a_carton,
-        units: a_units
+        boxes:     a_boxes,
+        carton:    a_carton,
+        units:     a_units
     };
     let str_a = serde_json::to_string(&a).unwrap();
     let amount: serde_json::Value = serde_json::from_str(&str_a).unwrap();
 
     let p: AmountPrice = AmountPrice {
         container: p_container,
-        boxes: p_boxes,
-        carton: p_carton,
-        units: p_units
+        boxes:     p_boxes,
+        carton:    p_carton,
+        units:     p_units
     };
     let str_p = serde_json::to_string(&p).unwrap();
     let price: serde_json::Value = serde_json::from_str(&str_p).unwrap();
 
-    let result = sqlx::query(
-        "INSERT INTO products (user_id, title, description, categories, cts, amount, price, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
-        )
-        .bind(token.claims.id)
-        .bind(&form.title)
-        .bind(&form.description)
-        .bind(e)
-        .bind(form.cts.as_deref())
-        .bind(amount)
-        .bind(price)
-        .bind(Utc::now())
-        .execute(&pool)
-        .await;
-    match result {
-        Ok(result) => result,
+    let pg = match i.pool.get().await{
+        Ok(expr) => expr,
         Err(err) => {
             let mut context = Context::new();
-            context.insert("err_token", &err.to_string());
+            context.insert("err", &err.to_string());
+            return Err(Html(templates.render("creat", &context).unwrap()));
+        }
+    };
+    let result = pg.execute(
+        "INSERT INTO products (user_id, title, description, categories, cts, amount, price, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,now())", &[&t.id, &f.title, &f.description, &e, &f.cts.as_deref(), &amount, &price]
+    ).await;
+    match result {
+        Ok(expr) => expr,
+        Err(err) => {
+            let mut context = Context::new();
+            context.insert("err", &err.to_string());
             return Err(Html(templates.render("creat", &context).unwrap()));
         }
     };

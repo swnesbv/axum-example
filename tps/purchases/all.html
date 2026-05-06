@@ -12,19 +12,19 @@
 		{% include "completed.html" %}
 		<li class="list-group-item">
 			<sup class="badge text-bg-light">id..</sup>
-				<sup>{{ i.id }}</sup>
+				<sub>{{ i.id }}</sub>
 			<sup class="badge text-bg-light">owner..</sup>
-				<sup>{{ i.user_id }}</sup>
+				<sub>{{ i.user_id }}</sub>
 		</li>
 		<li class="list-group-item">
 			<sup class="badge text-bg-light">title..</sup>
-				<sup>{{ i.title }}</sup>
+				<sub>{{ i.title }}</sub>
 		</li>
 		<li class="list-group-item">
 			<sup class="badge text-bg-light">categories..</sup>
 			{% if i.categories %}
 				{% for c in i.categories %}
-				<sup>{{ c }}</sup>
+				<sub>{{ c }}</sub>
 				{% endfor %}
 			{% endif %}
 		</li>
@@ -37,25 +37,25 @@
 		{% if i.amount.container %}
 			<li class="list-group-item">
 				<sup class="badge text-bg-light">container..</sup>
-					<sup>{{ i.amount.container }}</sup>
+					<sub>{{ i.amount.container }}</sub>
 			</li>
 		{% endif %}
 		{% if i.amount.boxes %}
 			<li class="list-group-item">
 				<sup class="badge text-bg-light">boxes..</sup>
-					<sup>{{ i.amount.boxes }}</sup>
+					<sub>{{ i.amount.boxes }}</sub>
 			</li>
 		{% endif %}
 		{% if i.amount.carton %}
 			<li class="list-group-item">
 				<sup class="badge text-bg-light">carton..</sup>
-					<sup>{{ i.amount.carton }}</sup>
+					<sub>{{ i.amount.carton }}</sub>
 			</li>
 		{% endif %}
 		{% if i.amount.units %}
 			<li class="list-group-item">
 				<sup class="badge text-bg-light">units..</sup>
-					<sup>{{ i.amount.units }}</sup>
+					<sub>{{ i.amount.units }}</sub>
 			</li>
 		{% endif %}
 	</ul>
@@ -68,25 +68,25 @@
 		{% if i.price.container %}
 		<li class="list-group-item">
 			<sup class="badge text-bg-light">container..</sup>
-				<sup>{{ i.price.container }}</sup>
+				<sub>{{ i.price.container }}</sub>
 		</li>
 		{% endif %}
 		{% if i.price.container %}
 		<li class="list-group-item">
 			<sup class="badge text-bg-light">boxes..</sup>
-				<sup>{{ i.price.boxes }}</sup>
+				<sub>{{ i.price.boxes }}</sub>
 		</li>
 		{% endif %}
 		{% if i.price.container %}
 		<li class="list-group-item">
 			<sup class="badge text-bg-light">carton..</sup>
-				<sup>{{ i.price.carton }}</sup>
+				<sub>{{ i.price.carton }}</sub>
 		</li>
 		{% endif %}
 		{% if i.price.container %}
 		<li class="list-group-item">
 			<sup class="badge text-bg-light">units..</sup>
-				<sup>{{ i.price.units }}</sup>
+				<sub>{{ i.price.units }}</sub>
 		</li>
 		{% endif %}
 	</ul>

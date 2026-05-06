@@ -12,7 +12,7 @@ pub async fn all_days(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let result =  pg.query("SELECT * FROM provision_d", &[]).await;
+    let result =  pg.query("SELECT * FROM provision_d;", &[]).await;
     let rows = match result {
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
@@ -37,7 +37,10 @@ pub async fn all_days(
     Ok(r)
 }
 
-pub async fn all_hours(pool: PgPool) -> Result<Vec<AllPrH>, Option<String>> {
+pub async fn all_hours(
+    pool: PgPool
+) -> Result<Vec<AllPrH>, Option<String>> {
+
     let pg = match pool.get().await{
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))

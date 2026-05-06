@@ -1,20 +1,35 @@
-use sqlx::postgres::PgPool;
 use std::sync::Arc;
-
 use axum::{routing::get, Extension, Router};
-
 use tera::Tera;
 
-use crate::products;
+use crate::{
+    products,
+    auth::models::{AuthRedis}
+};
 
 
-pub fn build_routes(pool: PgPool) -> Router {
+pub fn rt(state: Arc<AuthRedis>) -> Router {
     let mut products_tera = Tera::default();
     products_tera
         .add_raw_templates(vec![
             ("base.html", include_str!("../../tps/base.html")),
             ("navbar.html", include_str!("../../tps/navbar.html")),
-            ("rq_user.html", include_str!("../../tps/rq_user.html")),
+            (
+                "rq_user.html",
+                include_str!("../../tps/element/rq_user.html")
+            ),
+            (
+                "created_updated.html",
+                include_str!("../../tps/element/created_updated.html")
+            ),
+            (
+                "comments.html",
+                include_str!("../../tps/element/comments.html")
+            ),
+            (
+                "completed.html",
+                include_str!("../../tps/element/completed.html")
+            ),
             (
                 "all",
                 include_str!("../../tps/products/all.html"),
@@ -41,12 +56,12 @@ pub fn build_routes(pool: PgPool) -> Router {
                 get(products::handlers::get_select).post(products::handlers::post_select),
             )
             .without_v07_checks()
-            .route("/categories/:i", get(products::handlers::get_categories))
-            .route("/cts/:i", get(products::handlers::get_cts))
+            .route("/categories/{i}", get(products::handlers::get_categories))
+            .route("/cts/{i}", get(products::handlers::get_cts))
             .route(
-                "/detail/:id", get(products::handlers::get_detail)
+                "/detail/{id}", get(products::handlers::get_detail)
             )
             .layer(Extension(Arc::new(products_tera))),
     );
-    Router::new().without_v07_checks().merge(products_routes.with_state(pool))
+    Router::new().without_v07_checks().merge(products_routes.with_state(state))
 }

@@ -1,20 +1,35 @@
-use sqlx::postgres::PgPool;
 use std::sync::Arc;
-
 use axum::{routing::get, Extension, Router};
-
 use tera::Tera;
 
-use crate::{purchases};
+use crate::{
+    purchases,
+    auth::models::{AuthRedis}
+};
 
 
-pub fn build_routes(pool: PgPool) -> Router {
+pub fn rt(state: Arc<AuthRedis>) -> Router {
     let mut purchases_tera = Tera::default();
     purchases_tera
         .add_raw_templates(vec![
             ("base.html", include_str!("../../tps/base.html")),
             ("navbar.html", include_str!("../../tps/navbar.html")),
-            ("rq_user.html", include_str!("../../tps/rq_user.html")),
+            (
+                "rq_user.html",
+                include_str!("../../tps/element/rq_user.html")
+            ),
+            (
+                "created_updated.html",
+                include_str!("../../tps/element/created_updated.html")
+            ),
+            (
+                "comments.html",
+                include_str!("../../tps/element/comments.html")
+            ),
+            (
+                "completed.html",
+                include_str!("../../tps/element/completed.html")
+            ),
             (
                 "all",
                 include_str!("../../tps/purchases/all.html"),
@@ -32,7 +47,7 @@ pub fn build_routes(pool: PgPool) -> Router {
         Router::new()
             .without_v07_checks()
             .route(
-                "/order/:id", get(purchases::order::get_order)
+                "/order/{id}", get(purchases::order::get_order)
                 .post(purchases::order::post_order),
             )
             // .route("/all", get(purchases::handlers::get_all))
@@ -42,5 +57,5 @@ pub fn build_routes(pool: PgPool) -> Router {
             // )
             .layer(Extension(Arc::new(purchases_tera))),
     );
-    Router::new().without_v07_checks().merge(purchases_routes.with_state(pool))
+    Router::new().without_v07_checks().merge(purchases_routes.with_state(state))
 }

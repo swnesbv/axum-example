@@ -47,7 +47,7 @@ pub fn to_bool(c: &str) -> bool {
         "yes"   => true,
         "y"     => true,
         "no"    => false,
-        "on"     => true,
+        "on"    => true,
         "n"     => false,
         "1"     => true,
         "0"     => false,
@@ -59,8 +59,8 @@ pub fn to_vec_bool(v: Vec<&str>) -> Vec<bool> {
     for i in v {
         match i {
             "true" => x.push(true),
-            "t" => x.push(true),
             "false" => x.push(false),
+            "t" => x.push(true),
             "f" => x.push(false),
             "yes" => x.push(true),
             "y" => x.push(true),

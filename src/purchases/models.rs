@@ -11,8 +11,8 @@ pub struct Purchases {
     pub user_id:    i32,
     pub product_id: i32,
     pub categories: Option<Vec<String>>,
-    pub amount:     Option<sqlx::types::JsonValue>,
-    pub price:      Option<sqlx::types::JsonValue>,
+    pub amount:     Option<serde_json::Value>,
+    pub price:      Option<serde_json::Value>,
     pub completed:  bool,
     #[serde(with = "date_format")]
     pub created_at: DateTime<Utc>,
@@ -24,8 +24,8 @@ pub struct Purchases {
 pub struct PurchasesCls {
     pub user_id:    i32,
     pub product_id: i32,
-    pub amount:     Option<sqlx::types::JsonValue>,
-    pub price:      Option<sqlx::types::JsonValue>,
+    pub amount:     Option<serde_json::Value>,
+    pub price:      Option<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

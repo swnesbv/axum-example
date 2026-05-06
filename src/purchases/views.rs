@@ -1,37 +1,67 @@
-use sqlx::postgres::PgPool;
-
-use crate::purchases::models::{Purchases};
-
+use crate::{
+    common::{PgPool},
+    purchases::models::{Purchases}
+};
 
 pub async fn all_purchases(
     pool: PgPool, id: i32
-) -> Result<Vec<Purchases>, String> {
-    let result = sqlx::query_as!(
-        Purchases,
-        "SELECT * FROM purchases WHERE id=$1",
-        id
-    )
-    .fetch_all(&pool)
-    .await
-    .unwrap();
-    Ok(result)
+) -> Result<Vec<Purchases>, Option<String>> {
+
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result = pg.query(
+        "SELECT * FROM purchases WHERE id=$1", &[&id]
+    ).await;
+    let rows = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let mut r: Vec<Purchases> = vec![];
+    for i in rows {
+        r.push(Purchases {
+            id:         i.get(0),
+            user_id:    i.get(1),
+            product_id: i.get(2),
+            categories: i.get(3),
+            amount:     i.get(4),
+            price:      i.get(5),
+            completed:  i.get(6),
+            created_at: i.get(7),
+            updated_at: i.get(8)
+        })
+    }
+    Ok(r)
 }
 
 pub async fn id_purchases(
     pool: PgPool, id: i32
-) -> Result<Purchases, String> {
+) -> Result<Purchases, Option<String>> {
 
-    let result = sqlx::query_as!(
-        Purchases,
-        "SELECT * FROM purchases WHERE id=$1",
-        id
-    )
-    .fetch_one(&pool)
-    .await;
-    match result {
-        Ok(result) => Ok(result),
-        Err(err) => Err(err.to_string()),
-    }
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result =  pg.query_one(
+        "SELECT * FROM purchases WHERE id=$1", &[&id]
+    ).await;
+    let i = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let r: Purchases = Purchases {
+        id:         i.get(0),
+        user_id:    i.get(1),
+        product_id: i.get(2),
+        categories: i.get(3),
+        amount:     i.get(4),
+        price:      i.get(5),
+        completed:  i.get(6),
+        created_at: i.get(7),
+        updated_at: i.get(8)
+    };
+    Ok(r)
 }
 
 

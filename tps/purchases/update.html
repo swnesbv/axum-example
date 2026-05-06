@@ -1,19 +1,16 @@
-{{template "./tpl/base.html"}}
-{{define "title"}} update art {{end}}
+{% extends "base.html" %}
+{% block title %} categories {% endblock title %}
+{% block content %}
 
-{{block "content" .}}
+<h1 class="container lead my-3">update form.. {{ i.title }}</h1>
 
-<h1 class="container lead my-3">update form.. {{ .Title }}</h1>
-	
-<form class="card" method="POST">
-
+<div class="card">
+<form class="" method="POST">
     <div class="card-body">
-    	
     <sup>title</sup>
-    <input type="text" name="title" class="form-control" value="{{ .Title }}">
+    <input type="text" name="title" class="form-control" value="{{ i.title }}">
     <sup>description</sup>
-    <input type="text" name="description" class="form-control"value="{{ .Description }}">
-
+    <input type="text" name="description" class="form-control"value="{{ i.description }}">
     <div class="mt-5">
         <sup class="float-start mb-2">completed</sup>
         <input
@@ -22,7 +19,6 @@
             name="completed"
         />
     </div>
-
     </div>
 
     <div class="card-footer">
@@ -30,5 +26,5 @@
     </div>
 
 </form>
-	  
-{{end}}
+</div>
+{% endblock content %}

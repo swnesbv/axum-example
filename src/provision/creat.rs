@@ -100,7 +100,7 @@ pub async fn post_creat_days(
         &[&t.id, &f.title, &f.description, &start, &end]
     ).await;
     match result {
-        Ok(result) => result,
+        Ok(expr) => expr,
         Err(err) => {
             let mut context = Context::new();
             context.insert("err", &err.to_string());

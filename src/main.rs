@@ -22,8 +22,9 @@ use axum_example::distribution::routes_booking;
 use axum_example::distribution::routes_provision;
 use axum_example::distribution::routes_room_chats;
 use axum_example::distribution::routes_user_chats;
+use axum_example::distribution::routes_products;
+use axum_example::distribution::routes_purchases;
 use axum_example::distribution::routes_subscriptions;
-
 
 
 #[tokio::main]
@@ -50,7 +51,8 @@ async fn main() {
     let provision_router = routes_provision::rt(Arc::new(a.clone()));
     let account_router = routes_account::rt(Arc::new(a.clone())).await;
     let subscription_router = routes_subscriptions::rt(Arc::new(a.clone()));
-
+    let product_router = routes_products::rt(Arc::new(a.clone()));
+    let purchases_router = routes_purchases::rt(Arc::new(a.clone()));
 
     let b = RoomChat {
         rooms: Mutex::new(HashMap::new()),
@@ -83,6 +85,10 @@ async fn main() {
         .without_v07_checks()
         .merge(provision_router)
         .merge(booking_router)
+        .without_v07_checks()
+        .merge(product_router)
+        .without_v07_checks()
+        .merge(purchases_router)
         .merge(photo_router);
 
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, 8000));

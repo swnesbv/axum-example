@@ -22,35 +22,35 @@ pub struct ListBkg {
     pub user_id: i32,
     pub provision_d_id: Option<i32>,
     pub provision_h_id: Option<i32>,
-    pub title: String,
-    pub description: Option<String>,
-    pub st_date: Option<NaiveDate>,
-    pub en_date: Option<NaiveDate>,
-    pub st_hour: Option<NaiveDateTime>,
-    pub en_hour: Option<NaiveDateTime>,
-    pub completed: bool,
+    pub title:          String,
+    pub description:    Option<String>,
+    pub st_date:        Option<NaiveDate>,
+    pub en_date:        Option<NaiveDate>,
+    pub st_hour:        Option<NaiveDateTime>,
+    pub en_hour:        Option<NaiveDateTime>,
+    pub completed:      bool,
     #[serde(with = "date_format")]
-    pub created_at: DateTime<Utc>,
+    pub created_at:     DateTime<Utc>,
     #[serde(with = "ts_seconds_option")]
-    pub updated_at: Option<DateTime<Utc>>
+    pub updated_at:     Option<DateTime<Utc>>
 }
 
 #[derive(Serialize)]
 pub struct AllPrD {
-    pub id: i32,
-    pub user_id: i32,
-    pub title: String,
+    pub id:          i32,
+    pub user_id:     i32,
+    pub title:       String,
     pub description: Option<String>,
-    pub st_date: Option<NaiveDate>,
-    pub en_date: Option<NaiveDate>,
-    pub s_dates: Option<Vec<NaiveDate>>,
-    pub e_dates: Option<Vec<NaiveDate>>,
-    pub dates:   Option<Vec<NaiveDate>>,
-    pub completed: bool,
+    pub st_date:     Option<NaiveDate>,
+    pub en_date:     Option<NaiveDate>,
+    pub s_dates:     Option<Vec<NaiveDate>>,
+    pub e_dates:     Option<Vec<NaiveDate>>,
+    pub dates:       Option<Vec<NaiveDate>>,
+    pub completed:   bool,
     #[serde(with = "date_format")]
-    pub created_at: DateTime<Utc>,
+    pub created_at:  DateTime<Utc>,
     #[serde(with = "ts_seconds_option")]
-    pub updated_at: Option<DateTime<Utc>>
+    pub updated_at:  Option<DateTime<Utc>>
 }
 
 #[derive(Clone, Default, Serialize)]
