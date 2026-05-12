@@ -16,6 +16,7 @@
             }, 800);
         });
 
+
         $('.sld_trigger').click(() => {
             setTimeout(() => {
                 $('.card_i:first-of-type').addClass('active');

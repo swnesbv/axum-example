@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>axum example</title>
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+<link href="
+https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css
+" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<h1 class="container lead my-4">create slider</h1>
+
+<div class="container mb-5">
+<div class="card">
+    <form class="" method="POST">
+
+        <div class="card-header">
+        <label class="mx-2" for="pet-select">choose products</label>
+        <select name="pets" id="pet-select">
+            <option value="">--please choose an option--</option>
+            <option value="dog">Dog</option>
+            <option value="cat">Cat</option>
+            <option value="hamster">Hamster</option>
+            <option value="parrot">Parrot</option>
+            <option value="spider">Spider</option>
+            <option value="goldfish">Goldfish</option>
+        </select>
+        </div>
+
+        <div class="card-header">
+            <sup>title</sup>
+            <input required type="text" name="title" class="form-control">
+            <div id="addtitle" class="card-footer">
+                <sup class="float-start my-2">add title</sup>
+            </div>
+            <div class="action-buttons mt-2">
+                <button class="btn btn-sm btn-outline-primary" onclick="addTitle(); return false;">add title</button>
+            </div>
+        </div>
+        <div class="card-header">
+            <sup>description</sup>
+            <input type="text" name="description" class="form-control">
+            <div id="adddescription" class="card-footer">
+                <sup class="float-start my-2">add description</sup>
+            </div>
+            <div class="action-buttons mt-2">
+                <button class="btn btn-sm btn-outline-primary" onclick="addDescription(); return false;">add description</button>
+            </div>
+        </div>
+
+        <div class="card-body">
+        <sup>choose categories</sup>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <sup class="ms-2">object_1</sup>
+            <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+            <input type="hidden" name="categories" value="object_1" />
+            </li>
+            <li class="list-group-item">
+                <sup class="ms-2">object_2</sup>
+            <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+            <input type="hidden" name="categories" value="object_2" />
+            </li>
+            <li class="list-group-item">
+                <sup class="ms-2">object_3</sup>
+            <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+            <input type="hidden" name="categories" value="object_3" />
+            </li>
+            <li class="list-group-item">
+                <sup class="ms-2">object_4</sup>
+            <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+            <input type="hidden" name="categories" value="object_4" />
+            </li>
+        </ul>
+        </div>
+
+        <div id="addinput" class="card-footer">
+            <sup class="float-start">add cts</sup>
+        </div>
+
+        <div class="card-footer action-buttons">
+            <button class="btn btn-sm btn-outline-primary" onclick="addFn(); return false;">add cts</button>
+        </div>
+
+        <div class="card-footer action-buttons">
+            <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+        </div>
+    </form>
+</div>
+</div>
+
+<script>
+    function addTitle() {
+        const divEle = document.getElementById("addtitle");
+        const wrapper = document.createElement("div");
+
+        const cFl = document.createElement("input");
+        cFl.setAttribute("type", "text");
+        cFl.setAttribute("name", "to_title");
+        cFl.classList.add("form-control");
+        cFl.classList.add("mt-4");
+
+        wrapper.appendChild(cFl);
+        divEle.appendChild(wrapper);
+    };
+    function addDescription() {
+        const divEle = document.getElementById("adddescription");
+        const wrapper = document.createElement("div");
+
+        const cFl = document.createElement("input");
+        cFl.setAttribute("type", "text");
+        cFl.setAttribute("name", "to_description");
+        cFl.classList.add("form-control");
+        cFl.classList.add("mt-4");
+
+        wrapper.appendChild(cFl);
+        divEle.appendChild(wrapper);
+    };
+    function addFn() {
+        const divEle = document.getElementById("addinput");
+        const wrapper = document.createElement("div");
+
+        const cFl = document.createElement("input");
+        cFl.setAttribute("type", "text");
+        cFl.setAttribute("name", "cts");
+        cFl.classList.add("w-auto");
+        cFl.classList.add("form-control");
+        cFl.classList.add("mt-4");
+
+        wrapper.appendChild(cFl);
+        divEle.appendChild(wrapper);
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+</body>
+
+</html>

@@ -9,7 +9,7 @@ use crate::{
     auth::models::AuthRedis,
     comments::models::{FormComment},
     comments::views::{insert_comment},
-    photo::views::{add_msg}
+    photo::repository::{add_msg}
 };
 
 pub async fn post_creat_cmt_user(

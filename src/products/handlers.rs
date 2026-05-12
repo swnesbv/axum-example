@@ -11,9 +11,11 @@ use crate::{
     auth::models::{AuthRedis},
     provision::models::ParsePointError,
     products::models::{FormSelect},
-    products::views::{all_products, id_products, form_on_off, i_categories, i_cts},
+    products::repository::{slider_products},
+    products::views::{
+        all_products, id_products, form_on_off, i_categories, i_cts
+    },
 };
-
 
 pub async fn get_all(
     State(i): State<Arc<AuthRedis>>,
@@ -42,9 +44,11 @@ pub async fn get_detail(
             return Err(Html(templates.render("detail", &context).unwrap()))
         }
     };
-    let i = id_products(i.pool.clone(), number).await.unwrap();
+    let p = id_products(i.pool.clone(), number).await.unwrap();
+    let s = slider_products(i.pool.clone(), number).await.unwrap();
 
-    context.insert("i", &i);
+    context.insert("i", &p);
+    context.insert("s", &s);
     Ok(Html(templates.render("detail", &context).unwrap()))
 }
 

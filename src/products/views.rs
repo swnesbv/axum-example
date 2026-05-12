@@ -4,6 +4,44 @@ use crate::{
 };
 
 
+pub async fn user_products(
+    pool: PgPool,
+    user_id: i32
+) -> Result<Vec<Products>, Option<String>> {
+
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result = pg.query(
+        "SELECT * FROM products WHERE user_id=$1;", &[&user_id]
+    )
+    .await;
+    let rows = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let mut r: Vec<Products> = vec![];
+    for i in rows {
+        r.push(Products {
+            id:           i.get(0),
+            user_id:      i.get(1),
+            title:        i.get(2),
+            description:  i.get(3),
+            categories:   i.get(4),
+            cts:          i.get(5),
+            amount:       i.get(6),
+            price:        i.get(7),
+            img:          i.get(8),
+            completed:    i.get(9),
+            created_at:   i.get(10),
+            updated_at:   i.get(11)
+        })
+    }
+    Ok(r)
+}
+
+
 pub async fn all_products(
     pool: PgPool
 ) -> Result<Vec<Products>, Option<String>> {
@@ -75,16 +113,15 @@ pub async fn form_on_off(
     f: FormSelect,
 ) -> Vec<String> {
 
-    let a = f.on_off;
-    let b = f.categories;
-
     let mut v: Vec<String> = vec![];
     let mut e = vec![];
 
+    let a = f.on_off;
     for x in a {
         let y = x.parse::<String>().unwrap();
         v.push(y);
     }
+    let b = f.categories;
     for (c, d) in v.iter().zip(b.iter()) {
         if *c == "1" {
             e.push(d.to_owned());

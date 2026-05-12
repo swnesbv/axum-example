@@ -11,7 +11,6 @@ pub async fn all(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-
     let result = pg.query(
         "SELECT id,email,username,img,status,created_at,updated_at FROM users;", &[]
     ).await;

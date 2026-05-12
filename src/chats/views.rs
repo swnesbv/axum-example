@@ -11,12 +11,10 @@ pub async fn dialogue_joined(
         Ok(expr) => expr,
         Err(_) => return false
     };
-    let result =
-        pg.execute(
-            "INSERT INTO chat_room (user_id, joined, room, created_at) VALUES ($1,$2,$3,now())",
-            &[&user_id, &joined, &room]
-        )
-        .await;
+    let result = pg.execute(
+        "INSERT INTO chat_room (user_id, joined, room, created_at) VALUES ($1,$2,$3,now())",
+        &[&user_id, &joined, &room]
+    ).await;
     match result {
         Err(e) => {
             println!(" Err..! INSERT joined..!");
@@ -37,12 +35,10 @@ pub async fn insert_msg_room(
         Ok(expr) => expr,
         Err(_) => return false
     };
-    let result =
-        pg.execute(
-            "INSERT INTO chat_room (user_id, message, room, created_at) VALUES ($1,$2,$3,now())",
-            &[&user_id, &message, &room]
-        )
-        .await;
+    let result = pg.execute(
+        "INSERT INTO chat_room (user_id, message, room, created_at) VALUES ($1,$2,$3,now())",
+        &[&user_id, &message, &room]
+    ).await;
     match result {
         Err(err) => {
             println!(" Err..! INSERT message");
@@ -63,12 +59,10 @@ pub async fn dialogue_came_out(
         Ok(expr) => expr,
         Err(_) => return false
     };
-    let result =
-        pg.execute(
-            "INSERT INTO chat_room (user_id, came_out, room, created_at) VALUES ($1,$2,$3,now())",
-            &[&user_id, &came_out, &room]
-        )
-        .await;
+    let result = pg.execute(
+        "INSERT INTO chat_room (user_id, came_out, room, created_at) VALUES ($1,$2,$3,now())",
+        &[&user_id, &came_out, &room]
+    ).await;
     match result {
         Err(e) => {
             println!("Err..! came out INSERT");
@@ -90,12 +84,10 @@ pub async fn insert_joined(
         Ok(expr) => expr,
         Err(_) => return false
     };
-    let result =
-        pg.execute(
-            "INSERT INTO chat_public (user_id, joined, created_at) VALUES ($1,$2,now())",
-            &[&user_id, &joined]
-        )
-        .await;
+    let result = pg.execute(
+        "INSERT INTO chat_public (user_id, joined, created_at) VALUES ($1,$2,now())",
+        &[&user_id, &joined]
+    ).await;
     match result {
         Err(e) => {
             println!("Err..! INSERT joined");
@@ -116,12 +108,10 @@ pub async fn insert_msg_pch(
         Ok(expr) => expr,
         Err(_) => return false
     };
-    let result =
-        pg.execute(
-            "INSERT INTO chat_public (user_id, message, created_at) VALUES ($1,$2,now())",
-            &[&user_id, &message]
-        )
-        .await;
+    let result = pg.execute(
+        "INSERT INTO chat_public (user_id, message, created_at) VALUES ($1,$2,now())",
+        &[&user_id, &message]
+    ).await;
     match result {
         Err(e) => {
             println!("Err..! INSERT message");
@@ -142,12 +132,10 @@ pub async fn insert_came_out(
         Ok(expr) => expr,
         Err(_) => return false
     };
-    let result =
-        pg.execute(
-            "INSERT INTO chat_public (user_id, came_out, created_at) VALUES ($1,$2,now())",
-            &[&user_id, &came_out]
-        )
-        .await;
+    let result = pg.execute(
+        "INSERT INTO chat_public (user_id, came_out, created_at) VALUES ($1,$2,now())",
+        &[&user_id, &came_out]
+    ).await;
     match result {
         Err(e) => {
             println!("Err..! came out INSERT");

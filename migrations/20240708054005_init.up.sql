@@ -27,7 +27,7 @@ CREATE TABLE article (
 	description TEXT,
 	img         VARCHAR(255),
 	completed   BOOLEAN      NOT NULL DEFAULT false,
-	comments    JSON,
+	comments    JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
 	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
@@ -43,7 +43,7 @@ CREATE TABLE products (
 	price  		JSON,
 	img         VARCHAR(255),
 	completed   BOOLEAN      NOT NULL DEFAULT false,
-	comments   JSON[],
+	comments   	JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
 	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
@@ -56,7 +56,7 @@ CREATE TABLE purchases (
 	amount  	JSON,
 	price  		JSON,
 	completed   BOOLEAN      NOT NULL DEFAULT false,
-	comments   JSON[],
+	comments   	JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
 	FOREIGN KEY (user_id) 	 REFERENCES users(id),
@@ -73,7 +73,7 @@ CREATE TABLE provision_d (
 	e_dates     Date[],
 	dates       Date[],
 	completed   BOOLEAN      NOT NULL DEFAULT false,
-	comments   TEXT[],
+	comments   	JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
 	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
@@ -89,7 +89,7 @@ CREATE TABLE provision_h (
 	e_hours     TIMESTAMP[],
 	hours       TIMESTAMP[],
 	completed   BOOLEAN      NOT NULL DEFAULT false,
-	comments    JSON,
+	comments    JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
 	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
@@ -106,7 +106,7 @@ CREATE TABLE booking (
 	st_hour        TIMESTAMP,
 	en_hour        TIMESTAMP,
 	completed      BOOLEAN      NOT NULL DEFAULT false,
-	comments       JSON,
+	comments       JSON[],
 	created_at     TIMESTAMPTZ  NOT NULL,
 	updated_at     TIMESTAMPTZ,
 	FOREIGN KEY (user_id) 		 REFERENCES users(id) ON DELETE CASCADE,
@@ -125,7 +125,7 @@ CREATE TABLE schedule (
 	places      INTEGER[],
 	non_places  INTEGER[],
 	completed   BOOLEAN      NOT NULL DEFAULT false,
-	comments    JSON,
+	comments    JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
 	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
@@ -139,7 +139,7 @@ CREATE TABLE recording (
 	places      INTEGER[],
 	tickets     JSON,
 	completed   BOOLEAN      NOT NULL DEFAULT false,
-	comments    JSON,
+	comments    JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
 	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE,
@@ -152,7 +152,7 @@ CREATE TABLE groups (
     description TEXT,
     img         TEXT,
     completed   BOOLEAN      NOT NULL DEFAULT false,
-    comments    JSON,
+    comments    JSON[],
 	created_at  TIMESTAMPTZ  NOT NULL,
     updated_at  TIMESTAMPTZ,
     FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE
@@ -167,7 +167,7 @@ CREATE TABLE subscriptions (
     dialogue     TEXT 		  UNIQUE,
     additionally JSON      	  NOT NULL,
     completed    BOOLEAN      NOT NULL DEFAULT false,
-    comments     JSON,
+    comments     JSON[],
 	created_at   TIMESTAMPTZ  NOT NULL,
     updated_at   TIMESTAMPTZ,
     FOREIGN KEY (user_id) 	  REFERENCES users(id) ON DELETE CASCADE,
@@ -202,4 +202,28 @@ CREATE TABLE chat_groups (
 	message     TEXT,
 	created_at  TIMESTAMPTZ NOT NULL,
 	FOREIGN KEY (user_id) 	REFERENCES users(id)
+);
+CREATE TABLE slider (
+	id          SERIAL        PRIMARY KEY,
+	user_id     INTEGER       NOT NULL,
+    to_product  INTEGER,
+	title       JSON,
+	description JSON,
+	img         JSON,
+	completed   BOOLEAN       NOT NULL DEFAULT false,
+	created_at  TIMESTAMPTZ   NOT NULL,
+	updated_at  TIMESTAMPTZ,
+    FOREIGN KEY (user_id) 	  REFERENCES users(id) 	  ON DELETE CASCADE,
+    FOREIGN KEY (to_product)  REFERENCES products(id) ON DELETE CASCADE
+);
+CREATE TABLE collections (
+	id          SERIAL        PRIMARY KEY,
+	user_id     INTEGER       NOT NULL,
+    to_product  INTEGER,
+	img         JSON,
+	completed   BOOLEAN       NOT NULL DEFAULT false,
+	created_at  TIMESTAMPTZ   NOT NULL,
+	updated_at  TIMESTAMPTZ,
+    FOREIGN KEY (user_id) 	  REFERENCES users(id) 	  ON DELETE CASCADE,
+    FOREIGN KEY (to_product)  REFERENCES products(id) ON DELETE CASCADE
 );

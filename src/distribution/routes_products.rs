@@ -7,7 +7,6 @@ use crate::{
     auth::models::{AuthRedis}
 };
 
-
 pub fn rt(state: Arc<AuthRedis>) -> Router {
     let mut products_tera = Tera::default();
     products_tera
@@ -29,6 +28,10 @@ pub fn rt(state: Arc<AuthRedis>) -> Router {
             (
                 "completed.html",
                 include_str!("../../tps/element/completed.html")
+            ),
+            (
+                "slider_products.html",
+                include_str!("../../tps/element/slider_products.html")
             ),
             (
                 "all",

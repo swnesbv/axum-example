@@ -1,4 +1,3 @@
-
 /*  */
     .bufer{
         margin-top: 12.5vh;
@@ -36,9 +35,6 @@
         height: 100%;
         width: auto;
     }
-
-/* first-of-type */
-
     .card_i:first-of-type{
         z-index: 3;
     }
@@ -49,16 +45,10 @@
     .card_i img.out{
         animation: left_0 .8s ease-in forwards;
     }
-
-/* nth-of-type(2) */
-
     .card_i:nth-of-type(2){
         left: -100%;
         z-index: 3;
     }
-
-/* text number */
-
     .card_i:nth-of-type(2) .content .number{
         box-shadow: none;
     }
@@ -138,9 +128,6 @@
     .item_name span::before{
         margin: 0 0 0 2em;
     }
-
-/* run */
-
     .card_i.active .content .item_name::before,
     .card_i.active .content .content_text::before{
         width: 0;
@@ -165,9 +152,6 @@
         transition: width .8s linear, background-color .4s linear 3s;
         animation: zero .8s;
     }
-
-/* after */
-
     .card_i .content .item_name::after,
     .card_i .content .content_text::after{
         content: '';
@@ -183,9 +167,6 @@
     .card_i.run .content .content_text::after{
         animation: left_right 1.6s ease 1 forwards 2s;
     }
-
-/* sld_trigger */
-
     .sld_trigger{
         width: 4em;
         height: 6.66vh;
@@ -295,8 +276,6 @@
 
 }
 
-
-/*  */
 
     @keyframes translateX_100{
         from{

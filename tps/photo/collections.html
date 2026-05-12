@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %} collections list {% endblock title %}
+{% block content %}
+
+<h1 class="lead my-3">all collections</h1>
+
+{% if all %}
+    {% for i in all %}
+    <div class="card mb-2">
+        <div class="card-header">
+        <ul class="list-group list-group-flush">
+        {% include "completed.html" %}
+        <li class="list-group-item">
+            <sup class="badge text-bg-light">id..</sup>
+                <sub>{{ i.id }}</sub>
+            <sup class="badge text-bg-light">to_product..</sup>
+                <sub>{{ i.to_product }}</sub>
+        </li>
+        </ul>
+        </div>
+        {% if i.img %}
+        <div class="card-body">
+            {% for i in i.img %}
+            <figure>
+            <img src="{{ i }}">
+            <figcaption>
+            <sup class="badge text-bg-light mt-2">figcaption..</sup>
+                <sub>figcaption</sub>
+            </figcaption>
+            </figure>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% include "created_updated.html" %}
+    </div>
+    {% endfor %}
+
+{% endif %}
+{% endblock content %}

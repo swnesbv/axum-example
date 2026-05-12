@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %} create slider {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-2">create slider</h1>
+
+<div class="card mb-5">
+<form class="" method="POST">
+	{% if products %}
+    <div class="card-header">
+    <sup>choose products</sup>
+    <select name="to_product" class="form-select w-auto">
+        <option selected>please choose an option</option>
+    	{% for i in products %}
+        	<option value="{{ i.id }}">{{ i.id }}</option>
+        {% endfor %}
+    </select>
+	</div>
+	{% endif %}
+
+    <div class="card-header">
+        <sup>title</sup>
+        <input required type="text" name="title" class="form-control">
+        <div id="addtitle" class="card-footer">
+            <sup class="float-start my-2">add title</sup>
+        </div>
+        <div class="action-buttons mt-2">
+            <button class="btn btn-sm btn-outline-primary" onclick="addTitle(); return false;">add title</button>
+        </div>
+    </div>
+    <div class="card-header">
+        <sup>description</sup>
+        <input type="text" name="description" class="form-control">
+        <div id="adddescription" class="card-footer">
+            <sup class="float-start my-2">add description</sup>
+        </div>
+        <div class="action-buttons mt-2">
+            <button class="btn btn-sm btn-outline-primary" onclick="addDescription(); return false;">add description</button>
+        </div>
+    </div>
+
+    {% if collection %}
+    {% for i in collection %}
+    <div class="card-body">
+        {% if i.img %}
+        <div class="d-flex">
+        {% for i in i.img %}
+        <input type="hidden" name="on_off" value="0"><input class="form-check-input me-2" type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+        <input type="hidden" name="img" value="{{ i }}" />
+        <figure>
+        <img height="120" src="{{ i }}">
+        <figcaption>
+        <sup class="badge text-bg-light mt-2">figcaption..</sup>
+            <sub>figcaption</sub>
+        </figcaption>
+        </figure>
+        {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+	<div class="card-footer action-buttons">
+		<input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+	</div>
+</form>
+</div>
+
+<script>
+    function addTitle() {
+        const divEle = document.getElementById("addtitle");
+        const wrapper = document.createElement("div");
+
+        const cFl = document.createElement("input");
+        cFl.setAttribute("type", "text");
+        cFl.setAttribute("name", "to_title");
+        cFl.classList.add("form-control");
+        cFl.classList.add("mt-4");
+
+        wrapper.appendChild(cFl);
+        divEle.appendChild(wrapper);
+    };
+    function addDescription() {
+        const divEle = document.getElementById("adddescription");
+        const wrapper = document.createElement("div");
+
+        const cFl = document.createElement("input");
+        cFl.setAttribute("type", "text");
+        cFl.setAttribute("name", "to_description");
+        cFl.classList.add("form-control");
+        cFl.classList.add("mt-4");
+
+        wrapper.appendChild(cFl);
+        divEle.appendChild(wrapper);
+    };
+</script>
+
+{% endblock content %}

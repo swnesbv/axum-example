@@ -1,0 +1,34 @@
+<section class="promo_slider container my-3">
+    <div class="sl_content">
+        {% if s.img %}
+        <div class="item">
+            {% for i in s.img %}
+                <img class="img" src="{{ i }}">
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if s.title %}
+        <div class="item_name">
+            {% for i in s.title %}
+                <div class="title">{{ i }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if s.description %}
+        <div class="item_text">
+            {% for i in s.description %}
+                <div class="description">{{ i }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <div class="sl_trigger"></div>
+</section>
+
+{% block css %}
+<link href="/assets/slider_products/slider.css" rel="stylesheet">
+{% endblock %}
+{% block script %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="/assets/slider_products/slider.js"></script>
+{% endblock %}

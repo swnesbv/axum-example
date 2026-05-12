@@ -63,6 +63,7 @@ pub mod booking {
     pub mod repository;
 }
 pub mod photo {
+    pub mod creat;
     pub mod handlers;
     pub mod models;
     pub mod repository;
@@ -85,7 +86,7 @@ pub mod products {
     pub mod creat;
     pub mod handlers;
     pub mod models;
-    // pub mod repository;
+    pub mod repository;
     pub mod views;
 }
 pub mod purchases {

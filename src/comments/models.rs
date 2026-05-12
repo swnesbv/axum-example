@@ -12,12 +12,12 @@ pub struct FormComment {
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Ord, Eq)]
 pub struct Cmt {
-    pub user_id:   i32,
-    pub tab_id:    i32,
-    pub email:     String,
-    pub name:      String,
-    pub msg:       String,
-    pub completed: bool,
+    pub user_id:    i32,
+    pub tab_id:     i32,
+    pub email:      String,
+    pub name:       String,
+    pub msg:        String,
+    pub completed:  bool,
     #[serde(with = "date_format")]
     pub created_at: DateTime<Utc>,
     #[serde(with = "ts_seconds_option")]

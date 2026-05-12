@@ -1,25 +1,28 @@
-use axum::{
-    body::Body,
-    http::{Response, StatusCode},
+use crate::{
+    common::PgPool,
+    //photo::models::{Collections}
 };
 
-pub async fn add_msg(
-    err: String, alert: String, url: String
-) -> Response<Body> {
+pub async fn insert_collection(
+    pool:       PgPool,
+    user_id:    i32,
+    to_product: i32,
+    vec_img:    serde_json::Value,
+) -> Result<u64, Option<String>> {
 
-    let token = err + "," + &alert;
-    Response::builder()
-        .status(StatusCode::FOUND)
-        .header("Location", &url)
-        .header(
-            "Set-Cookie",
-            format!(
-                "{}={}; Path={}; HttpOnly={}; SameSite={}; Max-Age={};",
-                "to_msg", token, url, "true", "lax", 60
-            ),
-        )
-        .body(Body::from("not found"))
-        .unwrap()
+    let pg = match pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    let result = pg.execute(
+        "INSERT INTO collections (user_id, to_product, img, created_at) VALUES ($1,$2,$3,now())",
+        &[&user_id, &to_product, &vec_img]
+    ).await;
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
+    Ok(r)
 }
 
 

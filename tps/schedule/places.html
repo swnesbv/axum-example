@@ -55,7 +55,7 @@
 	    <ul class="flex-wrap list-group list-group-horizontal">
 		    {% for p in i.places %}
 			<li class="list-group-item">
-		    <input type="hidden" name="on_off" value="0"><input type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+		    <input type="hidden" name="on_off" value="0"><input class="form-check-input me-2" type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
 		    <input type="hidden" name="places" value="{{ p }}" />
 		    <sup>append</sup>
 			<sup class="badge text-bg-light">places..</sup>
