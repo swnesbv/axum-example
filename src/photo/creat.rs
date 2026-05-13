@@ -85,10 +85,15 @@ pub async fn post_creat_slider(
         }
     }
     let vec_p = serde_json::to_value(&path).unwrap();
-    let jt = title.push(f.title);
-    let vec_t = serde_json::to_value(&jt).unwrap();
-    let jd = description.push(f.description);
-    let vec_d = serde_json::to_value(&jd).unwrap();
+    //..
+    for a in f.title {
+       title.push(a);
+    }
+    let vec_t = serde_json::to_value(title).unwrap();
+    for b in f.description {
+       description.push(b);
+    }
+    let vec_d = serde_json::to_value(description).unwrap();
 
     let pg = match i.pool.get().await{
         Ok(expr) => expr,

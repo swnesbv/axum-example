@@ -6,38 +6,48 @@
 
 <div class="card mb-5">
 <form class="" method="POST">
-	{% if products %}
     <div class="card-header">
-    <sup>choose products</sup>
-    <select name="to_product" class="form-select w-auto">
-        <option selected>please choose an option</option>
-    	{% for i in products %}
-        	<option value="{{ i.id }}">{{ i.id }}</option>
-        {% endfor %}
-    </select>
-	</div>
-	{% endif %}
-
-    <div class="card-header">
+        {% if i.title %}
+        {% for i in i.title %}
         <sup>title</sup>
-        <input required type="text" name="title" class="form-control">
+            <input type="text" name="title" value="{{ i }}"class="form-control">
+        {% endfor %}
         <div id="addtitle" class="card-footer">
             <sup class="float-start my-2">add title</sup>
         </div>
         <div class="action-buttons mt-2">
             <button class="btn btn-sm btn-outline-primary" onclick="addTitle(); return false;">add title</button>
         </div>
+        {% endif %}
     </div>
     <div class="card-header">
+        {% if i.description %}
+        {% for i in i.description %}
         <sup>description</sup>
-        <input type="text" name="description" class="form-control">
+            <input type="text" name="description" value="{{ i }}" class="form-control">
+        {% endfor %}
         <div id="adddescription" class="card-footer">
             <sup class="float-start my-2">add description</sup>
         </div>
         <div class="action-buttons mt-2">
             <button class="btn btn-sm btn-outline-primary" onclick="addDescription(); return false;">add description</button>
         </div>
+        {% endif %}
     </div>
+
+    {% if i.img %}
+    <div class="card-body">
+        <div class="flex_container alert alert-primary">
+        {% for i in i.img %}
+        <input type="hidden" name="on_off" value="0"><input class="form-check-input m-2" type="checkbox" onclick="this.previousSibling.value=1-this.previousSibling.value">
+        <input type="hidden" name="img" value="{{ i }}" />
+        <figure>
+            <img height="120" src="{{ i }}">
+        </figure>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
     {% if collection %}
     {% for i in collection %}
@@ -95,5 +105,4 @@
         divEle.appendChild(wrapper);
     };
 </script>
-
 {% endblock content %}

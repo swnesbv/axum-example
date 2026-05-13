@@ -42,6 +42,10 @@ pub fn rt(state: Arc<AuthRedis>) -> Router {
                 "collections",
                 include_str!("../../tps/photo/collections.html")
             ),
+            (
+                "update_slider",
+                include_str!("../../tps/photo/update_slider.html")
+            ),
         ])
         .unwrap();
 
@@ -69,6 +73,11 @@ pub fn rt(state: Arc<AuthRedis>) -> Router {
         .route(
             "/photo-zip/{id}",
             get(handlers::get_slider_photo)
+        )
+        .route(
+            "/update-slider/{id}/product/{to_product}",
+            get(handlers::get_update_slider)
+            .post(handlers::post_update_slider),
         )
         .layer(Extension(Arc::new(photo_tera)));
     Router::new().merge(photo_routes.with_state(state))

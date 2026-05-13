@@ -4,11 +4,20 @@ use chrono::serde::ts_seconds_option;
 
 use crate::util::date_config::date_format;
 
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FormUpdateSlider {
+    pub title:       Vec<String>,
+    pub description: Vec<String>,
+    pub img:         Vec<String>,
+    pub on_off:      Vec<String>
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FormSlider {
     pub to_product:  i32,
-    pub title:       String,
-    pub description: String,
+    pub title:       Vec<String>,
+    pub description: Vec<String>,
     pub img:         Vec<String>,
     pub on_off:      Vec<String>
 }

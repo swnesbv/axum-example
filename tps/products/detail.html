@@ -106,6 +106,9 @@
 	{% include "created_updated.html" %}
 
 	<div class="card-footer">
+	<a class="btn btn-outline-primary btn-sm me-2" href="/update-slider/{{ i.id }}/product/{{ i.to_product }}">
+		update slider
+	</a>
 	<a class="btn btn-outline-primary btn-sm" href="/purchases/order/{{ i.id }}">
 		order
 	</a>

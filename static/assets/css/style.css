@@ -54,9 +54,6 @@
     align-items: flex-start;
     align-content: stretch;
 }
-.base_main{
-    min-height: 80vh;
-}
 .li_comment{
     display: flex;
     flex-direction: row;
@@ -65,7 +62,18 @@
     align-items: center;
     align-content: space-between;
 }
+.flex_container{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
 
+.base_main{
+    min-height: 80vh;
+}
 .num hr{
     margin: 0;
 }

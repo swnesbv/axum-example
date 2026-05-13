@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 {% block title %} all products {% endblock title %}
-
 {% block content %}
 
 <h1 class="container lead my-3">all products</h1>
 
 {% for i in all %}
 <div class="card mb-2">
-
 <div class="card-body">
 
 	<ul class="list-group list-group-flush">
@@ -103,11 +101,8 @@
 		{% endif %}
 	</ul>
 	{% endif %}
-
 	</ul>
-
 	{% include "created_updated.html" %}
-
 </div>
 
 <div class="card-footer">
