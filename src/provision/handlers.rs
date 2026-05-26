@@ -12,7 +12,7 @@ use crate::{
     common::{Templates},
     auth::models::{AuthRedis},
     comments::models::{FormComment},
-    comments::views::{list_cmt},
+    comments::views::{list_cmt, len_cmt},
     booking::dates::{check_period_days},
     booking::hours::{check_period_hours},
     provision::dates::{creat_bkg_days},
@@ -59,7 +59,21 @@ pub async fn get_detail_days(
             return Ok(Html(templates.render("detail_days", &context).unwrap()))
         }
     };
-
+    let c = len_cmt(i.pool.clone(), &t.username, "provision_d").await;
+    let _ = match c {
+        Ok(expr) => {
+            context.insert("len_cmt", &expr);
+            Ok(Html(templates.render("detail_days", &context).unwrap()))
+        }
+        Err(Some(err)) => {
+            context.insert("err", &err);
+            Err(Html(templates.render("detail_days", &context).unwrap()))
+        }
+        Err(None) => {
+            context.insert("is_no", "Caramba bullfighting and damn it");
+            Err(Html(templates.render("detail_days", &context).unwrap()))
+        }
+    };
     let cmt = list_cmt(i.pool.clone(), number, "provision_d").await;
     let _ = match cmt {
         Ok(expr) => {
@@ -194,7 +208,9 @@ pub async fn post_detail_days(
 
     if f.comment.is_some() {
         let pat = FormComment {
-            to_id: f.to_id, comment: f.comment
+            to_id:   f.to_id,
+            len_cmt: f.len_cmt,
+            comment: f.comment
         };
         let result = pat.insert_cmt(
             i.pool.clone(), t.id, t.email, t.username, "provision_d"
@@ -248,7 +264,21 @@ pub async fn get_detail_hours(
             return Ok(Html(templates.render("detail_hours", &context).unwrap()))
         }
     };
-
+    let c = len_cmt(i.pool.clone(), &t.username, "provision_h").await;
+    let _ = match c {
+        Ok(expr) => {
+            context.insert("len_cmt", &expr);
+            Ok(Html(templates.render("detail_hours", &context).unwrap()))
+        }
+        Err(Some(err)) => {
+            context.insert("err", &err.to_string());
+            Err(Html(templates.render("detail_hours", &context).unwrap()))
+        }
+        Err(None) => {
+            context.insert("is_no", "Caramba bullfighting and damn it");
+            Err(Html(templates.render("detail_hours", &context).unwrap()))
+        }
+    };
     let cmt = list_cmt(i.pool.clone(), number, "provision_h").await;
     let _ = match cmt {
         Ok(expr) => {
@@ -382,7 +412,9 @@ pub async fn post_detail_hours(
 
     if f.comment.is_some() {
         let pat = FormComment {
-            to_id: f.to_id, comment: f.comment
+            to_id:   f.to_id,
+            len_cmt: f.len_cmt,
+            comment: f.comment
         };
         let result = pat.insert_cmt(
             i.pool.clone(), t.id, t.email, t.username, "provision_h"

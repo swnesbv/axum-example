@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-{% block title %} user {% if i %} {{ i.username }} {% endif %} {% endblock title %}
+{% block title %}
+user {% if i %} {{ i.username }} {% endif %}
+{% endblock title %}
 {% block content %}
 
 <h1 class="lead my-3">
-	{% if i %} user name  {{ i.username }} {% endif %}
+	{% if i %} name  {{ i.username }} {% endif %}
 </h1>
-
 {% if i %}
 <div class="card p-3">
 	<div class="card-header">

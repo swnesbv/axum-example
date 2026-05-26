@@ -10,7 +10,7 @@ pub fn build_routes(pool: PgPool) -> Router {
     schedule_tera
         .add_raw_templates(vec![
             ("base.html", include_str!("../../tps/base.html")),
-            ("navbar.html", include_str!("../../tps/navbar.html")),
+            ("navbar.html", include_str!("../../tps/element/navbar.html")),
             ("rq_user.html", include_str!("../../tps/rq_user.html")),
             (
                 "all_sch",
@@ -33,17 +33,20 @@ pub fn build_routes(pool: PgPool) -> Router {
         Router::new()
             .route(
                 "/creat",
-                get(schedule::creat::get_creat).post(schedule::creat::post_creat),
+                get(schedule::creat::get_creat)
+                .post(schedule::creat::post_creat),
             )
             .route("/all-sch", get(schedule::handlers::get_all_sch))
             .route("/all-recording", get(schedule::handlers::get_all_recording))
             .route(
                 "/select",
-                get(schedule::handlers::get_select).post(schedule::handlers::post_select),
+                get(schedule::handlers::get_select)
+                .post(schedule::handlers::post_select),
             )
             .route(
                 "/places",
-                get(schedule::handlers::get_places).post(schedule::handlers::post_places),
+                get(schedule::handlers::get_places)
+                .post(schedule::handlers::post_places),
             )
             // .route(
             //     "/detail", get(schedule::accreditation::get_password_change).post(schedule::accreditation::post_password_change)

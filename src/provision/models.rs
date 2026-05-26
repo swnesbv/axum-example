@@ -11,6 +11,7 @@ pub struct Prd {
     pub s_dates:     Option<NaiveDate>,
     pub e_dates:     Option<NaiveDate>,
     pub to_id:       Option<i32>,
+    pub len_cmt:     i32,
     pub comment:     Option<String>
 }
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
@@ -20,6 +21,7 @@ pub struct Prh {
     pub s_hours:     Option<NaiveDateTime>,
     pub e_hours:     Option<NaiveDateTime>,
     pub to_id:       Option<i32>,
+    pub len_cmt:     i32,
     pub comment:     Option<String>
 }
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]

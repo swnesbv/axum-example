@@ -12,6 +12,7 @@ use crate::{
     auth::models::{AuthRedis},
     auth::check::{in_check},
     common::{Templates},
+    comments::views::len_cmt,
     profile::views::{all, details},
     comments::views::{i_comments},
     subscriptions::repository::{check_ssc},
@@ -121,6 +122,7 @@ pub async fn users(
 }
 
 pub async fn user(
+    headers: HeaderMap,
     Path(name): Path<String>,
     State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
@@ -128,6 +130,40 @@ pub async fn user(
 
     let mut context = Context::new();
 
+    let _ = match i.ctx(headers).await {
+        Ok(Some(expr)) => {
+            context.insert("t", &expr);
+            Ok(Html(templates.render("user", &context).unwrap()))
+        }
+        Err(Some(err)) => {
+            context.insert("err", &err);
+            Err(
+                Html(templates.render("user", &context).unwrap())
+            )
+        }
+        Ok(None) | Err(None) => {
+            context.insert("err", "Caramba bullfighting and damn it");
+            Err(
+                Html(templates.render("user", &context).unwrap())
+            )
+        }
+    };
+    let c = len_cmt(i.pool.clone(), &name, "users").await;
+    let _ = match c {
+        Ok(expr) => {
+            context.insert("name", &name);
+            context.insert("len_cmt", &expr);
+            Ok(Html(templates.render("user", &context).unwrap()))
+        }
+        Err(Some(err)) => {
+            context.insert("err", &err.to_string());
+            Err(Html(templates.render("user", &context).unwrap()))
+        }
+        Err(None) => {
+            context.insert("is_no", "Caramba bullfighting and damn it");
+            Err(Html(templates.render("user", &context).unwrap()))
+        }
+    };
     let user = details(i.pool.clone(), name.clone()).await;
     let _ = match user {
         Ok(expr) => {
@@ -143,7 +179,7 @@ pub async fn user(
             Err(Html(templates.render("user", &context).unwrap()))
         }
     };
-    let cmt = i_comments(i.pool.clone(), &name).await;
+    let cmt = i_comments(i.pool.clone(), &name, "users").await;
     match cmt {
         Ok(expr) => {
             context.insert("cmt", &expr);

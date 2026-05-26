@@ -16,7 +16,7 @@ pub async fn rt(state: Arc<AuthRedis>) -> Router {
     user_tera
         .add_raw_templates(vec![
             ("base.html", include_str!("../../tps/base.html")),
-            ("navbar.html", include_str!("../../tps/navbar.html")),
+            ("navbar.html", include_str!("../../tps/element/navbar.html")),
             (
                 "rq_user.html",
                 include_str!("../../tps/element/rq_user.html")
@@ -96,6 +96,13 @@ pub async fn rt(state: Arc<AuthRedis>) -> Router {
                 get(import_export::handlers::get_export_users)
                 .post(import_export::handlers::post_export_users)
             )
+            // .without_v07_checks()
+            // .route(
+            //     "/del-comment/{}",
+            //     get(comments::handlers::get_update_cmt)
+            //     .post(comments::handlers::post_update_cmt)
+            // )
+
             .layer(Extension(Arc::new(user_tera.clone())))
     );
     Router::new()

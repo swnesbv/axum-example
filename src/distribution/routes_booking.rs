@@ -12,7 +12,7 @@ pub fn rt(state: Arc<AuthRedis>) -> Router {
     booking_tera
         .add_raw_templates(vec![
             ("base.html", include_str!("../../tps/base.html")),
-            ("navbar.html", include_str!("../../tps/navbar.html")),
+            ("navbar.html", include_str!("../../tps/element/navbar.html")),
             (
                 "rq_user.html",
                 include_str!("../../tps/element/rq_user.html")

@@ -12,7 +12,7 @@ pub fn rt(state: Arc<AuthRedis>) -> Router {
     products_tera
         .add_raw_templates(vec![
             ("base.html", include_str!("../../tps/base.html")),
-            ("navbar.html", include_str!("../../tps/navbar.html")),
+            ("navbar.html", include_str!("../../tps/element/navbar.html")),
             (
                 "rq_user.html",
                 include_str!("../../tps/element/rq_user.html")
@@ -51,12 +51,14 @@ pub fn rt(state: Arc<AuthRedis>) -> Router {
         Router::new()
             .route(
                 "/creat",
-                get(products::creat::get_creat).post(products::creat::post_creat),
+                get(products::creat::get_creat)
+                .post(products::creat::post_creat),
             )
             .route("/all", get(products::handlers::get_all))
             .route(
                 "/select",
-                get(products::handlers::get_select).post(products::handlers::post_select),
+                get(products::handlers::get_select)
+                .post(products::handlers::post_select),
             )
             .without_v07_checks()
             .route("/categories/{i}", get(products::handlers::get_categories))

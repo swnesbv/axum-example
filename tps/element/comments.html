@@ -1,47 +1,70 @@
-    <h2 class="lead my-2">comments..</h2>
-    <div class="card">
+<h2 class="lead my-2">comments..</h2>
+<div class="card">
+    <div class="card-header">
+    <form class="mb-2" method="POST">
         <div class="card-header">
-        <form class="mb-2" method="POST">
-            <div class="card-header">
-                <input type="hidden" name="to_id" value="{{ i.id }}" />
-                <sup class="m-2">msg..</sup>
-            </div>
-            <div class="card-body">
-                <input
-                    class="form-control my-2"
-                    type="text"
-                    name="comment"
-                />
-            </div>
-            <div class="card-footer action-buttons">
-            <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
-            </div>
-        </form>
+            <input type="hidden" name="to_id" value="{{ i.id }}" />
+            <input type="hidden" name="len_cmt" value="{{ len_cmt }}" />
+            <sup class="m-2">comments.. in total..{{ len_cmt }}</sup>
         </div>
-        {% if cmt %}
-        {% for c in cmt.comments %}
         <div class="card-body">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                    <sup class="badge text-bg-light">name..</sup>
-                    <sup class="badge text-bg-light">{{ c[0].name }}</sup>
-                    <p class="m-0">{{ c[0].msg }}</p>
-                </li>
-            </ul>
+            <input
+                class="form-control my-2"
+                type="text"
+                name="comment"
+            />
         </div>
-        <div class="card-footer">
-            <ul class="list-group list-group-horizontal ">
-                <li class="list-group-item">
-                    <sup class="badge text-bg-light">created..</sup>
-                    <time>
-                    <sub>
-                    {{ c[0].created_at | date(format="%Y-%m-%d %H:%M:%S") }}
-                    </sub>
-                    </time>
-                </li>
-            </ul>
+        <div class="card-footer action-buttons">
+        <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
         </div>
-        {% endfor %}
+    </form>
+    </div>
+
+    {% if cmt %}
+    {% for c in cmt.comments %}
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <sup class="badge text-bg-light">id..</sup>
+                <sub>{{ c.id }}</sub>
+                <sup class="badge text-bg-light">name..</sup>
+                <sub>{{ c.name }}</sub>
+                <p class="m-0">{{ c.msg }}</p>
+            </li>
+        </ul>
+    </div>
+    <div class="card-footer">
+        <ul class="list-group list-group-horizontal ">
+            {% if c.created_at %}
+            <li class="list-group-item">
+                <sup class="badge text-bg-light">created..</sup>
+                <time><sub>{{ c.created_at }}</sub></time>
+            </li>
+            {% endif %}
+            {% if c.updated_at %}
+            <li class="list-group-item">
+            <sup class="badge text-bg-light">updated..</sup>
+            <time>
+                <sub>
+                {{ c.updated_at | date(format="%Y-%m-%d %H:%M:%S") }}
+                </sub>
+            </time>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+    {% if c.user_id == t.id %}
+    <div class="card-footer">
+    <a class="btn btn-outline-primary btn-sm me-2" href="/update-cmt/user/{{ name }}/cmt/{{ c.id }}">
+        update
+    </a>
+    <a class="btn btn-outline-danger btn-sm" href="/del-cmt/user/{{ name }}/cmt/{{ c.id }}">
+        del
+    </a>
     </div>
     {% endif %}
+    {% endfor %}
+    {% endif %}
+</div>
+
 

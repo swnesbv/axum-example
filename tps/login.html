@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 {% block title %} Login {% endblock %}
 {% block content %}
@@ -19,35 +18,39 @@
     </sup>
 </p>
  {% endif %}
-<div class="card">
-<form class="mb-2" method="POST">
-    <div class="card-body">
-        <div class="mb-3">
-            <sup>email..</sup>
-            <input
-                required
-                type="email"
-                name="email"
-                placeholder="email"
-                class="form-control"
-            />
+
+<div class="flex-login height_60">
+    <div class="card">
+    <form class="mb-2" method="POST">
+        <div class="card-header flex-login">
+            <div class="mb-3">
+                <sup>email..</sup>
+                <input
+                    required
+                    type="email"
+                    name="email"
+                    placeholder="email"
+                    class="form-control w-auto"
+                    autocomplete="on"
+                />
+            </div>
+            <div class="mb-3">
+                <sup>password..</sup>
+                <input
+                    required
+                    type="password"
+                    name="password"
+                    placeholder="password"
+                    class="form-control w-auto"
+                />
+            </div>
         </div>
-        <div class="mb-3">
-            <sup>password..</sup>
-            <input
-                required
-                type="password"
-                name="password"
-                placeholder="password"
-                class="form-control"
-            />
+        <div class="card-footer flex-login">
+        <button type="submit" class="btn btn-outline-primary btn-sm">
+            submit
+        </button>
         </div>
+    </form>
     </div>
-    <div class="card-footer">
-    <button type="submit" class="btn btn-outline-primary btn-sm">
-        submit
-    </button>
-    </div>
-</form>
 </div>
 {% endblock content %}

@@ -13,6 +13,7 @@ pub mod distribution {
     pub mod routes_room_chats;
     pub mod routes_user_chats;
     pub mod routes_subscriptions;
+    pub mod routes_comments;
 }
 pub mod util {
     pub mod date_config;
@@ -77,9 +78,9 @@ pub mod import_export {
 }
 pub mod comments {
     pub mod creat;
-    // pub mod handlers;
+    pub mod handlers;
     pub mod models;
-    // pub mod repository;
+    pub mod repository;
     pub mod views;
 }
 pub mod products {
