@@ -2,14 +2,15 @@
 
 -- Your SQL goes here
 CREATE TABLE users (
-	id         SERIAL       PRIMARY KEY,
-	email      TEXT         NOT NULL UNIQUE,
-	username   TEXT         NOT NULL UNIQUE,
-	password   TEXT         NOT NULL,
+	id         SERIAL        PRIMARY KEY,
+	email      TEXT          NOT NULL UNIQUE,
+	username   TEXT          NOT NULL UNIQUE,
+	password   TEXT          NOT NULL,
 	img        VARCHAR(255),
-	status	   TEXT[] 		NOT NULL,
-	comments   JSON[],
-	created_at TIMESTAMPTZ  NOT NULL,
+	status	   TEXT[] 		 NOT NULL,
+	comments   JSONB[],
+	cmtjson	   JSONB         '[]',
+	created_at TIMESTAMPTZ   NOT NULL,
 	updated_at TIMESTAMPTZ
 );
 

@@ -1,17 +1,19 @@
-<h2 class="lead my-2">comments..</h2>
-<div class="card">
+{% extends "base.html" %}
+{% block title %} comments..! {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-2">comments..</h1>
+<div class="container card">
     <div class="card-header">
     <form class="mb-2" method="POST">
         <div class="card-header">
-            <input type="hidden" name="to_id" value="{{ i.id }}" />
-            <input type="hidden" name="len_cmt" value="{{ len_cmt }}" />
-            <span>in total.. {{ len_cmt }}</span>
+            <sup class="m-2">comments..</sup>
         </div>
         <div class="card-body">
             <input
                 class="form-control my-2"
                 type="text"
-                name="comment"
+                name="msg"
             />
         </div>
         <div class="card-footer action-buttons">
@@ -55,10 +57,10 @@
     </div>
     {% if c.user_id == t.id %}
     <div class="card-footer">
-    <a class="btn btn-outline-primary btn-sm me-2" href="/update-cmt/user/{{ name }}/cmt/{{ c.id }}">
+    <a class="btn btn-outline-primary btn-sm me-2" href="/update-cmtjson/user/{{ c.to_id }}/cmt/{{ c.id }}">
         update
     </a>
-    <a class="btn btn-outline-danger btn-sm" href="/del-cmt/user/{{ name }}/cmt/{{ c.id }}">
+    <a class="btn btn-outline-danger btn-sm" href="/del-cmtjson/user/{{ c.to_id }}/cmt/{{ c.id }}">
         del
     </a>
     </div>
@@ -67,4 +69,4 @@
     {% endif %}
 </div>
 
-
+{% endblock content %}

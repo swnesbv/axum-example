@@ -82,6 +82,8 @@ pub mod comments {
     pub mod models;
     pub mod repository;
     pub mod views;
+    pub mod creat_cmtjson;
+    pub mod cmtjson;
 }
 pub mod products {
     pub mod creat;

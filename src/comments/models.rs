@@ -4,20 +4,38 @@ use serde_json::Value;
 use chrono::serde::ts_seconds_option;
 use crate::util::date_config::date_format;
 
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct FormComment {
-    pub to_id:   Option<i32>,
-    pub len_cmt: i32,
-    pub comment: Option<String>
-}
 #[derive(Default, Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Ord, Eq)]
-pub struct UpCmt {
+pub struct JsCmt {
+    pub id:         i32,
+    pub to_id:      i32,
+    pub user_id:    i32,
+    pub tab_id:     i32,
+    pub email:      String,
+    pub name:       String,
     pub msg:        String,
     pub completed:  bool,
+    #[serde(with = "date_format")]
+    pub created_at: DateTime<Utc>,
     #[serde(with = "ts_seconds_option")]
     pub updated_at: Option<DateTime<Utc>>
 }
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct JsonComment {
+    pub comments: Option<Value>
+}
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct JsVecCmt {
+    pub comments: Vec<JsCmt>
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct FormJson {
+    pub msg: String
+}
+
+
 #[derive(Default, Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Ord, Eq)]
 pub struct Cmt {
     pub id:         String,
@@ -32,6 +50,21 @@ pub struct Cmt {
     #[serde(with = "ts_seconds_option")]
     pub updated_at: Option<DateTime<Utc>>
 }
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct FormComment {
+    pub to_id:   Option<i32>,
+    pub len_cmt: i32,
+    pub comment: Option<String>
+}
+#[derive(Default, Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Ord, Eq)]
+pub struct UpCmt {
+    pub msg:        String,
+    pub completed:  bool,
+    #[serde(with = "ts_seconds_option")]
+    pub updated_at: Option<DateTime<Utc>>
+}
+
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct Comment {
