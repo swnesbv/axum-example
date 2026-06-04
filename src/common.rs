@@ -99,6 +99,50 @@ pub async fn to_token(
     Ok(Some(token))
 }
 
+use serde_json::{Value, json};
+use std::iter::Enumerate;
+use std::str::Chars;
+use std::slice::Iter;
+use serde_json::map::Iter as MapIter;
+
+pub enum KVIter<'a> {
+    StrIter ( Enumerate<Chars<'a>>),
+    ArrIter (Enumerate<Iter<'a, Value>>),
+    MapIter (MapIter<'a>),
+}
+impl<'a> Iterator for KVIter<'a> {
+    type Item = (Value, Value);
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            Self::StrIter(chars) => {
+                let (idx, character) = chars.next()?;
+                Some((json!(idx), json!(character)))
+            }
+            Self::ArrIter(values) => {
+                let (idx, value) = values.next()?;
+                Some((json!(idx), value.clone()))
+            }
+            Self::MapIter(items) => {
+                let (key, value) = items.next()?;
+                Some((json!(key), value.clone()))
+            }
+        }
+    }
+}
+pub trait IntoKVIter {
+    fn items(&self) -> Option<KVIter<'_>>;
+}
+impl IntoKVIter for Value {
+    fn items(&self) -> Option<KVIter<'_>> {
+        Some(match self {
+            Value::String(string) => KVIter::StrIter(string.chars().enumerate()),
+            Value::Array(values) => KVIter::ArrIter(values.iter().enumerate()),
+            Value::Object(map) => KVIter::MapIter(map.into_iter()),
+            _ => return None,
+        })
+    }
+}
+
 /*fn main() {
     let a = vec!["1", "0", "1", "0"];
     let b = vec![1, 2, 3, 4];

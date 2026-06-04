@@ -84,6 +84,8 @@ pub mod comments {
     pub mod views;
     pub mod creat_cmtjson;
     pub mod cmtjson;
+    pub mod dict;
+    pub mod creat_dict;
 }
 pub mod products {
     pub mod creat;

@@ -105,12 +105,12 @@ pub async fn sl_photo(
         "SELECT img FROM slider WHERE id=$1;", &[&id]
     )
     .await;
-    let rows = match result {
+    let row = match result {
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r = VecImg::default();
-    let v: Img = Img{img: rows.get("img")};
+    let v: Img = Img{img: row.get("img")};
     if v.img.is_some() {
         let str_msg = serde_json::to_string(&v).unwrap();
         r = serde_json::from_str::<VecImg>(&str_msg).unwrap();

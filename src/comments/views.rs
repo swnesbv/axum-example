@@ -65,13 +65,13 @@ pub async fn arrayposition(
     s.insert_str(21, tab);
     let result = pg.query_one(&s, &[&name]
     ).await;
-    let rows = match result {
+    let row = match result {
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
 
     let mut r = 0;
-    let v: Comment = Comment{comments: rows.get("comments")};
+    let v: Comment = Comment{comments: row.get("comments")};
     if v.comments.is_some() {
         let a: String   = serde_json::to_string(&v).unwrap();
         let b = serde_json::from_str::<VecCmt>(&a).unwrap();
@@ -103,13 +103,13 @@ pub async fn len_cmt(
     s.insert_str(21, tab);
     let result = pg.query_one(&s, &[&name]
     ).await;
-    let rows = match result {
+    let row = match result {
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
 
     let mut r = VecCmt::default();
-    let v: Comment = Comment{comments: rows.get("comments")};
+    let v: Comment = Comment{comments: row.get("comments")};
     if v.comments.is_some() {
         let str_msg = serde_json::to_string(&v).unwrap();
         r = serde_json::from_str::<VecCmt>(&str_msg).unwrap();
@@ -173,13 +173,13 @@ pub async fn list_cmt(
     s.insert_str(21, tab);
     let result = pg.query_one(&s, &[&number]
     ).await;
-    let rows = match result {
+    let row = match result {
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
 
     let mut r = VecCmt::default();
-    let v: Comment = Comment{comments: rows.get("comments")};
+    let v: Comment = Comment{comments: row.get("comments")};
     if v.comments.is_some() {
         let str_msg = serde_json::to_string(&v).unwrap();
         r = serde_json::from_str::<VecCmt>(&str_msg).unwrap();
@@ -204,13 +204,13 @@ pub async fn i_comments(
     s.insert_str(21, tab);
     let result = pg.query_one(&s, &[&name]
     ).await;
-    let rows = match result {
+    let row = match result {
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
 
     let mut r = VecCmt::default();
-    let v: Comment = Comment{comments: rows.get("comments")};
+    let v: Comment = Comment{comments: row.get("comments")};
     if v.comments.is_some() {
         let str_msg = serde_json::to_string(&v).unwrap();
         r = serde_json::from_str::<VecCmt>(&str_msg).unwrap();

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %} dict comments..! {% endblock title %}
+{% block content %}
+
+<h1 class="container lead my-2">dict comments..</h1>
+<div class="container card">
+    <div class="card-header">
+    <form class="mb-2" method="POST">
+        <div class="card-header">
+            <sup class="m-2">comments..</sup>
+        </div>
+        <div class="card-body">
+            <input
+                class="form-control my-2"
+                type="text"
+                name="msg"
+            />
+        </div>
+        <div class="card-footer action-buttons">
+        <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+        </div>
+    </form>
+    </div>
+
+    {% if dict %}
+    {% for _,c in dict %}
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <sup class="badge text-bg-light">id..</sup>
+                <sub>{{ c["id"] }}</sub>
+                <sup class="badge text-bg-light">name..</sup>
+                <sub>{{ c["name"] }}</sub>
+                <p class="m-0">{{ c["msg"] }}</p>
+            </li>
+        </ul>
+    </div>
+    <div class="card-footer">
+        <ul class="list-group list-group-horizontal ">
+            {% if c["created_at"] %}
+            <li class="list-group-item">
+                <sup class="badge text-bg-light">created..</sup>
+                <time><sub>{{ c["created_at"] }}</sub></time>
+            </li>
+            {% endif %}
+            {% if c["updated_at"] %}
+            <li class="list-group-item">
+            <sup class="badge text-bg-light">updated..</sup>
+            <time>
+                <sub>
+                {{ c["updated_at"] | date(format="%Y-%m-%d %H:%M:%S") }}
+                </sub>
+            </time>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+    {% if c["user_id"] == t.id %}
+    <div class="card-footer">
+    <a class="btn btn-outline-primary btn-sm me-2" href="/update-dict/user/{{ c['to_id'] }}/cmt/{{ c['id'] }}">
+        update
+    </a>
+    <a class="btn btn-outline-danger btn-sm" href="/del-dict/user/{{ c['to_id'] }}/cmt/{{ c['id'] }}">
+        del
+    </a>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+</div>
+
+{% endblock content %}

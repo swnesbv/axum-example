@@ -28,6 +28,13 @@ pub fn rt(state: Arc<AuthRedis>) -> Router {
             (
                 "cmtjson", include_str!("../../tps/comments/cmtjson.html")
             ),
+            (
+                "dict", include_str!("../../tps/comments/dict.html")
+            ),
+            (
+                "update_dict",
+                include_str!("../../tps/comments/update_dict.html")
+            )
         ])
         .unwrap();
 
@@ -56,6 +63,21 @@ pub fn rt(state: Arc<AuthRedis>) -> Router {
                 "/del-cmtjson/user/{to_id}/cmt/{cid}",
                 get(comments::creat_cmtjson::get_cmt_del)
                 .post(comments::creat_cmtjson::post_cmt_del)
+            )
+            .route(
+                "/creat-dict/{to_id}",
+                get(comments::creat_dict::get_creat_cmt)
+                .post(comments::creat_dict::post_creat_cmt)
+            )
+            .route(
+                "/update-dict/user/{to_id}/cmt/{cid}",
+                get(comments::creat_dict::get_update_cmt)
+                .post(comments::creat_dict::post_update_cmt)
+            )
+            .route(
+                "/del-dict/user/{to_id}/cmt/{cid}",
+                get(comments::creat_dict::get_cmt_del)
+                .post(comments::creat_dict::post_cmt_del)
             )
         .layer(Extension(Arc::new(comments_tera)));
     Router::new().merge(comments_routes.with_state(state))

@@ -10,6 +10,7 @@ CREATE TABLE users (
 	status	   TEXT[] 		 NOT NULL,
 	comments   JSONB[],
 	cmtjson	   JSONB         '[]',
+	dict	   JSONB         '{}',
 	created_at TIMESTAMPTZ   NOT NULL,
 	updated_at TIMESTAMPTZ
 );

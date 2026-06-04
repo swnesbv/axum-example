@@ -23,13 +23,13 @@ pub async fn all_cmt(
     s.insert_str(20, tab);
     let result = pg.query_one(&s, &[&to_id]
     ).await;
-    let rows = match result {
+    let row = match result {
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
 
     let mut r = JsVecCmt::default();
-    let v: JsonComment = JsonComment{comments: rows.get("cmtjson")};
+    let v: JsonComment = JsonComment{comments: row.get("cmtjson")};
     if v.comments.is_some() {
         let str_msg = serde_json::to_string(&v).unwrap();
         r = serde_json::from_str::<JsVecCmt>(&str_msg).unwrap();
@@ -51,9 +51,9 @@ pub async fn id_cmt(
     };
 
     let mut x = String::from(
-        "SELECT jsonb_path_query(cmtjson, format('$[*] ? (@.user_id == %s && @.id == %s)', $1::int, $2::int)::jsonpath) FROM  WHERE id=$3;"
+        "SELECT jsonb_path_query(cmtjson,format('$[*] ? (@.user_id == %s && @.id == %s)', $1::int, $2::int)::jsonpath) FROM  WHERE id=$3;"
     );
-    x.insert_str(116, tab);
+    x.insert_str(115, tab);
     println!("{:?}", x);
     let row = pg.query_one(&x, &[&user_id, &cid, &to_id]
     ).await.unwrap();
@@ -72,7 +72,7 @@ pub async fn id_cmt(
 
 pub async fn creat_cmt(
     pool:    PgPool,
-    to_id: i32,
+    to_id:   i32,
     user_id: i32,
     email:   String,
     name:    String,

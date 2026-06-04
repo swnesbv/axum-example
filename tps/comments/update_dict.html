@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %} update comment {% endblock %}
+{% block content %}
+
+<h1 class="container lead my-3">update comment..</h1>
+<div class="card">
+<form class="mb-2" method="POST">
+    <div class="card-header">
+    <sup>comment.. id {{ i["id"] }}</sup>
+    {% if i %}
+    <input type="text" name="msg" class="form-control" value="{{ i['msg'] }}">
+    {% endif %}
+    </div>
+
+    <div class="card-footer">
+        <sup class="float-start m-2">completed..</sup>
+        <input
+            type="checkbox"
+            name="completed"
+            class="form-check-input"
+        />
+    </div>
+
+    <div class="card-footer">
+    <input type="submit" value="submit" class="btn btn-sm btn-outline-primary mt-2">
+    </div>
+</form>
+</div>
+{% endblock %}
