@@ -98,26 +98,22 @@ pub async fn get_update_cmt(
     };
     let cmt = id_cmt(
         i.pool.clone(), to_id, t.id, cid, "users"
-    ).await.unwrap();
-    // match cmt {
-    //     Ok(expr) => {
-    //         context.insert("t", &t);
-    //         context.insert("i", &expr);
-    //         Ok(Html(templates.render("update_cmt", &context).unwrap()))
-    //     }
-    //     Err(Some(err)) => {
-    //         context.insert("err", &err.to_string());
-    //         Err(Html(templates.render("update_cmt", &context).unwrap()))
-    //     }
-    //     Err(None) => {
-    //         context.insert("is_no", "Caramba bullfighting and damn it");
-    //         Err(Html(templates.render("update_cmt", &context).unwrap()))
-    //     }
-    // }
-    context.insert("t", &t);
-    context.insert("i", &cmt);
-    Ok(Html(templates.render("update_cmt", &context).unwrap()))
-
+    ).await;
+    match cmt {
+        Ok(expr) => {
+            context.insert("t", &t);
+            context.insert("i", &expr);
+            Ok(Html(templates.render("update_cmt", &context).unwrap()))
+        }
+        Err(Some(err)) => {
+            context.insert("err", &err.to_string());
+            Err(Html(templates.render("update_cmt", &context).unwrap()))
+        }
+        Err(None) => {
+            context.insert("is_no", "Caramba bullfighting and damn it");
+            Err(Html(templates.render("update_cmt", &context).unwrap()))
+        }
+    }
 }
 
 pub async fn post_update_cmt(
@@ -141,20 +137,20 @@ pub async fn post_update_cmt(
         }
     };
 
-    let _ = update_cmt(i.pool.clone(), to_id, t.id, cid, f, "users").await.unwrap();
-    // match result {
-    //     Ok(expr) => expr,
-    //     Err(None) => return Err(Redirect::to("/account/login").into_response()),
-    //     Err(Some(err)) => {
-    //         return Err(
-    //                 add_msg(
-    //                     "insert comment..! ".to_string() + &err.to_string(),
-    //                     "danger".to_string(),
-    //                     "/account/login".to_string(),
-    //             ).await
-    //         )
-    //     }
-    // };
+    let result = update_cmt(i.pool.clone(), to_id, t.id, cid, f, "users").await;
+    match result {
+        Ok(expr) => expr,
+        Err(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(Some(err)) => {
+            return Err(
+                    add_msg(
+                        "insert comment..! ".to_string() + &err.to_string(),
+                        "danger".to_string(),
+                        "/account/login".to_string(),
+                ).await
+            )
+        }
+    };
 
     Ok(
         Redirect::to(&("/creat-cmtjson/".to_owned() + &to_id.to_string()))
@@ -210,20 +206,20 @@ pub async fn post_cmt_del(
         }
     };
 
-    let _ = del_cmt(i.pool.clone(), cid, t.id, to_id, "users").await.unwrap();
-    // match result {
-    //     Ok(expr) => expr,
-    //     Err(None) => return Err(Redirect::to("/account/login").into_response()),
-    //     Err(Some(err)) => {
-    //         return Err(
-    //                 add_msg(
-    //                     "insert comment..! ".to_string() + &err.to_string(),
-    //                     "danger".to_string(),
-    //                     "/account/login".to_string(),
-    //             ).await
-    //         )
-    //     }
-    // };
+    let result = del_cmt(i.pool.clone(), cid, t.id, to_id, "users").await;
+    match result {
+        Ok(expr) => expr,
+        Err(None) => return Err(Redirect::to("/account/login").into_response()),
+        Err(Some(err)) => {
+            return Err(
+                    add_msg(
+                        "insert comment..! ".to_string() + &err.to_string(),
+                        "danger".to_string(),
+                        "/account/login".to_string(),
+                ).await
+            )
+        }
+    };
 
     Ok(
         Redirect::to(&("/creat-cmtjson/".to_owned() + &to_id.to_string()))

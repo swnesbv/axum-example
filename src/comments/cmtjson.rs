@@ -54,13 +54,12 @@ pub async fn id_cmt(
         "SELECT jsonb_path_query(cmtjson,format('$[*] ? (@.user_id == %s && @.id == %s)', $1::int, $2::int)::jsonpath) FROM  WHERE id=$3;"
     );
     x.insert_str(115, tab);
-    println!("{:?}", x);
-    let row = pg.query_one(&x, &[&user_id, &cid, &to_id]
-    ).await.unwrap();
-    // let row = match result {
-    //     Ok(expr) => expr,
-    //     Err(err) => return Err(Some(err.to_string()))
-    // };
+    let result = pg.query_one(&x, &[&user_id, &cid, &to_id]
+    ).await;
+    let row = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
     let mut r = JsCmt::default();
     if !row.is_empty() {
         let cmt: JsonComment = JsonComment{comments: row.get(0)};
@@ -116,13 +115,13 @@ pub async fn creat_cmt(
         "UPDATE  SET cmtjson=JSONB_INSERT(cmtjson, array[$1::text], $2) WHERE id=$3"
     );
     b.insert_str(7, tab);
-    let r = pg.execute(
+    let result = pg.execute(
         &b, &[&length.to_string(), &val, &to_id]
-    ).await.unwrap();
-    // let r = match result {
-    //     Ok(expr) => expr,
-    //     Err(err) => return Err(Some(err.to_string()))
-    // };
+    ).await;
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
     Ok(r)
 }
 
@@ -148,11 +147,13 @@ pub async fn update_cmt(
         {"user_id": user_id}
     );
     let index = cid - 1;
-    let r = pg.execute(&x, &[&index.to_string(), &f.msg, &to_id, &index, &check]).await.unwrap();
-    // let r = match result {
-    //     Ok(expr) => expr,
-    //     Err(err) => return Err(Some(err.to_string()))
-    // };
+    let result = pg.execute(
+        &x, &[&index.to_string(), &f.msg, &to_id, &index, &check]
+    ).await;
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
     Ok(r)
 }
 
@@ -181,10 +182,12 @@ pub async fn del_cmt(
     );
     let index = cid - 1;
     let pat = "deleted comment";
-    let r = pg.execute(&x, &[&index.to_string(), &pat, &to_id, &index, &check]).await.unwrap();
-    // let r = match result {
-    //     Ok(expr) => expr,
-    //     Err(err) => return Err(Some(err.to_string()))
-    // };
+    let result = pg.execute(
+        &x, &[&index.to_string(), &pat, &to_id, &index, &check]
+    ).await;
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
     Ok(r)
 }

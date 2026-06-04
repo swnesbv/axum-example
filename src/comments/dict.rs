@@ -101,12 +101,13 @@ pub async fn id_cmt(
         r#"SELECT jsonb_path_query(dict,format('$."%s" ? (@.user_id == %s && @.id == %s)', $1::text, $2::int, $3::int)::jsonpath) FROM  WHERE id=$4;"#
     );
     x.insert_str(124, tab);
-    let row = pg.query_one(&x, &[&cid.to_string(), &user_id, &cid, &to_id]
-    ).await.unwrap();
-    // let row = match result {
-    //     Ok(expr) => expr,
-    //     Err(err) => return Err(Some(err.to_string()))
-    // };
+    let result = pg.query_one(
+        &x, &[&cid.to_string(), &user_id, &cid, &to_id]
+    ).await;
+    let row = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
     let mut r = JsCmt::default();
     if !row.is_empty() {
         let cmt: JsonComment = JsonComment{comments: row.get(0)};
@@ -126,20 +127,20 @@ pub async fn update_cmt(
 ) -> Result<u64, Option<String>> {
 
     let mut x = String::from(
-        "UPDATE  SET dict=JSONB_SET(dict, ARRAY[$1::text,'msg'], to_jsonb($2::text), false) WHERE id=$3 AND dict[$4::int]['user_id'] @> to_jsonb($5::int);"
+        "UPDATE  SET dict=JSONB_SET(JSONB_SET(dict, ARRAY[$1::text,'msg'], to_jsonb($2::text), false), ARRAY[$1::text,'updated_at'], to_jsonb(now()), false) WHERE id=$3 AND dict[$4::int]['user_id'] @> to_jsonb($5::int);"
     );
     x.insert_str(7, tab);
     let pg = match pool.get().await{
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let r = pg.execute(
+    let result = pg.execute(
         &x, &[&cid.to_string(), &f.msg, &to_id, &cid, &user_id]
-    ).await.unwrap();
-    // let r = match result {
-    //     Ok(expr) => expr,
-    //     Err(err) => return Err(Some(err.to_string()))
-    // };
+    ).await;
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
     Ok(r)
 }
 
@@ -152,7 +153,7 @@ pub async fn del_cmt(
 ) -> Result<u64, Option<String>> {
 
     let mut x = String::from(
-        "UPDATE  SET dict=JSONB_SET(dict, ARRAY[$1::text,'msg'], to_jsonb($2::text), false) WHERE id=$3 AND dict[$4::int]['user_id'] @> to_jsonb($5::int);"
+        "UPDATE  SET dict=JSONB_SET(JSONB_SET(dict, ARRAY[$1::text,'msg'], to_jsonb($2::text), false), ARRAY[$1::text,'updated_at'], to_jsonb(now()), false) WHERE id=$3 AND dict[$4::int]['user_id'] @> to_jsonb($5::int);"
     );
     x.insert_str(7, tab);
     let pg = match pool.get().await{
@@ -161,13 +162,13 @@ pub async fn del_cmt(
     };
 
     let pat = "deleted comment";
-    let r = pg.execute(
+    let result = pg.execute(
         &x, &[&cid.to_string(), &pat, &to_id, &cid, &user_id]
-    ).await.unwrap();
-    // let r = match result {
-    //     Ok(expr) => expr,
-    //     Err(err) => return Err(Some(err.to_string()))
-    // };
+    ).await;
+    let r = match result {
+        Ok(expr) => expr,
+        Err(err) => return Err(Some(err.to_string()))
+    };
     Ok(r)
 }
 
