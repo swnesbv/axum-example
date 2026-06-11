@@ -96,9 +96,9 @@ pub async fn get_cts(
 
     let a: Vec<&str> = p.split(",").collect();
     let mut b = Vec::<String>::new();
-    for c in &a {
+    a.iter().for_each(|c| {
         b.push(c.to_string());
-    }
+    });
     let all = i_cts(
         i.pool.clone(), Some(b)
         // pool, Some(vec!["c1".to_string(),"c2".to_string()])

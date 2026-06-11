@@ -18,7 +18,7 @@ pub async fn all(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<ListBkg> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(ListBkg {
             id:             i.get("id"),
             user_id:        i.get("user_id"),
@@ -34,6 +34,6 @@ pub async fn all(
             created_at:     i.get("created_at"),
             updated_at:     i.get("updated_at")
         })
-    }
+    });
     Ok(r)
 }

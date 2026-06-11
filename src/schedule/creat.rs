@@ -71,7 +71,7 @@ pub async fn post_creat(
     let l_val = form.list.as_deref().unwrap();
     let mut hours = Some(Vec::new());
     if form.list.is_some() {
-        for i in l_val {
+        for i in &l_val {
             if !i.is_empty() {
                 hours.as_mut().expect("REASON").push(NaiveDateTime::parse_from_str(i, "%Y-%m-%dT%H:%M").unwrap())
             }

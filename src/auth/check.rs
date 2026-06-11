@@ -25,11 +25,13 @@ pub async fn in_check(
     };
     let ss = s.replace("; ", ";");
     let all: Vec<&str> = ss.split(";").collect();
-    for i in &all {
-        if i.split("=").next() == Some("sess") {
-            session.push_str(i.split("=").last().unwrap());
+    all.iter().for_each(
+        |i: &&str| {
+            if i.split("=").next() == Some("sess") {
+                session.push_str(i.split("=").last().unwrap());
+            }
         }
-    }
+    );
     // ..Redis
     let mut rs = match conn.get().await {
         Ok(expr) => expr,
@@ -46,7 +48,7 @@ pub async fn in_check(
     let email: String = j.email;
     let path = "./static/de_key/user/".to_string() + &email + "/" + &key + ".der";
     //..
-    for i in all {
+    for i in &all {
         if i.split("=").next() == Some("visit") {
             visit.push_str(i.split("=").last().unwrap());
             let key = match a_read(path.clone()).await {

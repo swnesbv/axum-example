@@ -89,10 +89,10 @@ pub async fn post_del_dialogue(
     let mut f: Vec<i32> = vec![];
     let mut e = vec![];
 
-    for x in on_off {
+    on_off.iter().for_each(|x| {
         let g = x.parse::<i32>().unwrap();
         f.push(g);
-    }
+    });
     for (c, d) in f.iter().zip(to_del.iter()) {
         if *c == 1 {
             e.push(*d);

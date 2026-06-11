@@ -19,7 +19,7 @@ pub async fn all_purchases(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<Purchases> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(Purchases {
             id:         i.get(0),
             user_id:    i.get(1),
@@ -31,7 +31,7 @@ pub async fn all_purchases(
             created_at: i.get(7),
             updated_at: i.get(8)
         })
-    }
+    });
     Ok(r)
 }
 
@@ -75,7 +75,7 @@ pub async fn id_purchases(
 //     let mut f: Vec<String> = vec![];
 //     let mut e = vec![];
 
-//     for i in a {
+//     for i in &a {
 //         let g = i.parse::<String>().unwrap();
 //         f.push(g);
 //     }

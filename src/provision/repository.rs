@@ -20,7 +20,7 @@ pub async fn all_days(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<AllPrD> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(AllPrD {
             id:           i.get("id"),
             user_id:      i.get("user_id"),
@@ -35,7 +35,7 @@ pub async fn all_days(
             created_at:   i.get("created_at"),
             updated_at:   i.get("updated_at")
         })
-    }
+    });
     Ok(r)
 }
 
@@ -53,7 +53,7 @@ pub async fn all_hours(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<AllPrH> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(AllPrH {
             id:           i.get("id"),
             user_id:      i.get("user_id"),
@@ -68,7 +68,7 @@ pub async fn all_hours(
             created_at:   i.get("created_at"),
             updated_at:   i.get("updated_at")
         })
-    }
+    });
     Ok(r)
 }
 

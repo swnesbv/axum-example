@@ -71,10 +71,10 @@ pub async fn post_update_slider(
     let mut description    = vec![];
 
     let on_off = f.on_off;
-    for x in on_off {
+    on_off.iter().for_each(|x| {
         let y = x.parse::<String>().unwrap();
         v.push(y);
-    }
+    });
     let img = f.img;
     for (a, b) in v.iter().zip(img.iter()) {
         if *a == "1" {
@@ -83,13 +83,13 @@ pub async fn post_update_slider(
     }
     let vec_p = serde_json::to_value(&path).unwrap();
     //..
-    for a in f.title {
+    f.title.iter().for_each(|a| {
        title.push(a);
-    }
+    });
     let vec_t = serde_json::to_value(title).unwrap();
-    for b in f.description {
+    f.description.iter().for_each(|b| {
        description.push(b);
-    }
+    });
     let vec_d = serde_json::to_value(description).unwrap();
     //..
     let pg = match i.pool.get().await{

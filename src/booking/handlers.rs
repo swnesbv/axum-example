@@ -50,13 +50,13 @@ pub async fn get_search_days(
 
     let obj: Vec<&str> = token.split(",").collect();
     let mut v: Vec<NaiveDate> = Vec::new();
-    for i in obj {
+    obj.iter().for_each(|i| {
         if !i.is_empty() {
             v.push(
                 NaiveDate::parse_from_str(i, "%Y-%m-%d").unwrap()
             )
         }
-    }
+    });
     let a: Option<NaiveDate> = v.first().copied();
     let b: Option<NaiveDate> = v.get(1).copied();
     let mut pr_list = vec!(CheckListPrD::default());
@@ -125,13 +125,13 @@ pub async fn get_search_hours(
 
     let obj: Vec<&str> = token.split(",").collect();
     let mut v: Vec<NaiveDateTime> = Vec::new();
-    for i in obj {
+    obj.iter().for_each(|i| {
         if !i.is_empty() {
             v.push(
                 NaiveDateTime::parse_from_str(i, "%Y-%m-%dT%H:%M").unwrap()
             )
         }
-    }
+    });
     let a: Option<NaiveDateTime> = v.first().copied();
     let b: Option<NaiveDateTime> = v.get(1).copied();
     let mut pr_list = vec!(CheckListPrH::default());

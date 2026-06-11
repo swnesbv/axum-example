@@ -37,7 +37,6 @@ pub struct DoubleConn {
     pub conn: RedisPool
 }
 
-
 pub fn to_bool(c: &str) -> bool {
     match c {
         "true"  => true,
@@ -56,21 +55,21 @@ pub fn to_bool(c: &str) -> bool {
 }
 pub fn to_vec_bool(v: Vec<&str>) -> Vec<bool> {
     let mut x: Vec<bool> = vec![];
-    for i in v {
-        match i {
-            "true" => x.push(true),
+    v.iter().for_each(|i| {
+        match *i {
+            "true"  => x.push(true),
             "false" => x.push(false),
-            "t" => x.push(true),
-            "f" => x.push(false),
-            "yes" => x.push(true),
-            "y" => x.push(true),
-            "no" => x.push(false),
-            "n" => x.push(false),
-            "1" => x.push(true),
-            "0" => x.push(false),
-            _ => panic!("err.. {:?}", i),
+            "t"     => x.push(true),
+            "f"     => x.push(false),
+            "yes"   => x.push(true),
+            "y"     => x.push(true),
+            "no"    => x.push(false),
+            "n"     => x.push(false),
+            "1"     => x.push(true),
+            "0"     => x.push(false),
+            _       => panic!("err.. {:?}", i),
         };
-    }
+    });
     x
 }
 
@@ -91,11 +90,11 @@ pub async fn to_token(
     };
     let ss = s.replace("; ", ";");
     let all: Vec<&str> = ss.split(";").collect();
-    for i in &all {
+    all.iter().for_each(|i| {
         if i.split("=").next() == Some(&name) {
             token.push_str(i.split("=").last().unwrap());
         }
-    }
+    });
     Ok(Some(token))
 }
 
@@ -105,12 +104,12 @@ use std::str::Chars;
 use std::slice::Iter;
 use serde_json::map::Iter as MapIter;
 
-pub enum KVIter<'a> {
+pub enum KvIter<'a> {
     StrIter ( Enumerate<Chars<'a>>),
     ArrIter (Enumerate<Iter<'a, Value>>),
     MapIter (MapIter<'a>),
 }
-impl<'a> Iterator for KVIter<'a> {
+impl<'a> Iterator for KvIter<'a> {
     type Item = (Value, Value);
     fn next(&mut self) -> Option<Self::Item> {
         match self {
@@ -129,15 +128,15 @@ impl<'a> Iterator for KVIter<'a> {
         }
     }
 }
-pub trait IntoKVIter {
-    fn items(&self) -> Option<KVIter<'_>>;
+pub trait IntoKvIter {
+    fn items(&self) -> Option<KvIter<'_>>;
 }
-impl IntoKVIter for Value {
-    fn items(&self) -> Option<KVIter<'_>> {
+impl IntoKvIter for Value {
+    fn items(&self) -> Option<KvIter<'_>> {
         Some(match self {
-            Value::String(string) => KVIter::StrIter(string.chars().enumerate()),
-            Value::Array(values) => KVIter::ArrIter(values.iter().enumerate()),
-            Value::Object(map) => KVIter::MapIter(map.into_iter()),
+            Value::String(string) => KvIter::StrIter(string.chars().enumerate()),
+            Value::Array(values) => KvIter::ArrIter(values.iter().enumerate()),
+            Value::Object(map) => KvIter::MapIter(map.into_iter()),
             _ => return None,
         })
     }

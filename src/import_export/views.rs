@@ -23,7 +23,7 @@ pub async fn all(
     };
 
     let mut r: Vec<AllUser> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(AllUser {
             id:         i.get(0),
             email:      i.get(1),
@@ -34,7 +34,7 @@ pub async fn all(
             created_at: i.get(6),
             updated_at: i.get(7)
         })
-    }
+    });
     Ok(r)
 }
 
@@ -48,19 +48,19 @@ pub fn w_status(
     v: Vec<String>
 ) -> String {
     let mut s = String::from("");
-    for i in v {
-        s.push_str(&i);
+    v.iter().for_each(|i| {
+        s.push_str(i);
         s.push(',');
-    }
+    });
     rem_last(&s)
 }
 
 
 pub async fn write_to_csv(data: Vec<AllUser>) -> Result<(), Box<dyn Error>> {
     let mut wtr = Writer::from_writer(vec![]);
-    for pat in data {
-        wtr.serialize(pat)?;
-    }
-    wtr.flush()?;
+    data.iter().for_each(|i| {
+        wtr.serialize(i).unwrap();
+    });
+    wtr.flush().unwrap();
     Ok(())
 }

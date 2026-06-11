@@ -22,7 +22,7 @@ pub async fn user_products(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<Products> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(Products {
             id:           i.get(0),
             user_id:      i.get(1),
@@ -37,7 +37,7 @@ pub async fn user_products(
             created_at:   i.get(10),
             updated_at:   i.get(11)
         })
-    }
+    });
     Ok(r)
 }
 
@@ -56,7 +56,7 @@ pub async fn all_products(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<Products> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(Products {
             id:           i.get(0),
             user_id:      i.get(1),
@@ -71,7 +71,7 @@ pub async fn all_products(
             created_at:   i.get(10),
             updated_at:   i.get(11)
         })
-    }
+    });
     Ok(r)
 }
 
@@ -117,10 +117,10 @@ pub async fn form_on_off(
     let mut e = vec![];
 
     let a = f.on_off;
-    for x in a {
+    a.iter().for_each(|x| {
         let y = x.parse::<String>().unwrap();
         v.push(y);
-    }
+    });
     let b = f.categories;
     for (c, d) in v.iter().zip(b.iter()) {
         if *c == "1" {
@@ -149,7 +149,7 @@ pub async fn i_categories(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<Products> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(Products {
             id:           i.get(0),
             user_id:      i.get(1),
@@ -164,7 +164,7 @@ pub async fn i_categories(
             created_at:   i.get(10),
             updated_at:   i.get(11)
         })
-    }
+    });
     Ok(r)
 }
 
@@ -185,7 +185,7 @@ pub async fn i_cts(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<Products> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(Products {
             id:           i.get(0),
             user_id:      i.get(1),
@@ -200,6 +200,6 @@ pub async fn i_cts(
             created_at:   i.get(10),
             updated_at:   i.get(11)
         })
-    }
+    });
     Ok(r)
 }

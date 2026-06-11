@@ -48,18 +48,18 @@ pub async fn import_users(
 
         wtr.write_record(["id","email","username","password","img","status","created_at","updated_at"]).unwrap();
         let data = all(i.pool.clone()).await.unwrap();
-        for w in data {
+        data.iter().for_each(|w| {
             wtr.write_record(&[
                 w.id.to_string(),
                 w.email.to_string(),
                 w.username.to_string(),
                 w.password.to_string(),
-                w.img.unwrap_or_default(),
-                w_status(w.status),
+                w.img.clone().unwrap_or_default(),
+                w_status(w.status.clone()),
                 w.created_at.to_string(),
                 format!("{:?}", w.updated_at),
             ]).unwrap();
-        }
+        });
         wtr.flush().unwrap();
         Ok(
             Response::builder()

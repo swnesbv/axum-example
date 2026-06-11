@@ -60,10 +60,10 @@ pub async fn post_creat(
     let mut e = vec![];
 
     let on_off = f.on_off;
-    for x in on_off {
+    on_off.iter().for_each(|x| {
         let y = x.parse::<String>().unwrap();
         v.push(y);
-    }
+    });
     let categories = f.categories;
     for (c, d) in v.iter().zip(categories.iter()) {
         if *c == "1" {

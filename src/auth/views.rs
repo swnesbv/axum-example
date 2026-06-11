@@ -6,7 +6,6 @@ use axum::{
 
 use crate::auth::models::{AuToken};
 
-
 pub async fn a_read(
     path: String,
 ) -> Result<Vec<u8>, Option<std::io::Error>> {
@@ -48,11 +47,13 @@ pub async fn get_cookie(
         let rs = s.replace("; ", ";");
         let a: Vec<&str> = rs.split(";").collect();
         let mut b = String::from("");
-        for i in a {
-            if i.split("=").next() == Some(&name) {
-               b.push_str(i.split("=").last().unwrap())
+        a.iter().for_each(
+            |i: &&str| {
+                if i.split("=").next() == Some(&name) {
+                   b.push_str(i.split("=").last().unwrap())
+                }
             }
-        }
+        );
         b
     } else {
         "None".to_string()
@@ -68,16 +69,36 @@ pub async fn some_cookie(
         let rs = s.replace("; ", ";");
         let a: Vec<&str> = rs.split(";").collect();
         let mut b = String::from("");
-        for i in a {
-            if i.split("=").next() == Some(&name) {
-               b.push_str(i.split("=").last().unwrap())
+        a.iter().for_each(
+            |i: &&str| {
+                if i.split("=").next() == Some(&name) {
+                   b.push_str(i.split("=").last().unwrap())
+                }
             }
-        }
+        );
         Some(b)
     } else {
         Some("".to_string())
     }
 }
+
+pub async fn read_msg(
+    cookie: HeaderMap
+) -> Result<Option<Vec<String>>, Option<String>> {
+
+    let token = some_cookie(
+        "to_msg".to_string(), cookie
+    ).await.unwrap_or("".to_string());
+
+    let v: Vec<&str> = token.split(",").collect();
+    let mut vec = Vec::new();
+    v.iter().for_each(
+        |i: &&str| {
+        vec.push(i.to_string());
+    });
+    Ok(Some(vec))
+}
+
 
 pub async fn parse_cookie(
     name: String,
@@ -92,28 +113,11 @@ pub async fn parse_cookie(
     let rs = s.replace("; ", ";");
     let a: Vec<&str> = rs.split(";").collect();
     let mut c = String::from("");
-    for i in a {
+    a.iter().for_each(
+        |i: &&str| {
         if i.split("=").next() == Some(&name) {
            c.push_str(i.split("=").last().unwrap())
         }
-    }
+    });
     Ok(Some(c))
 }
-
-
-pub async fn read_msg(
-    cookie: HeaderMap
-) -> Result<Option<Vec<String>>, Option<String>> {
-
-    let token = some_cookie(
-        "to_msg".to_string(), cookie
-    ).await.unwrap_or("".to_string());
-
-    let v: Vec<&str> = token.split(",").collect();
-    let mut vec = Vec::new();
-    for i in v {
-        vec.push(i.to_string());
-    }
-    Ok(Some(vec))
-}
-

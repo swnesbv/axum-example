@@ -24,7 +24,7 @@ pub async fn check_period_days(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    for i in rows {
+    for i in &rows {
         if i.get::<&str, i32>("id") == prv_id {
             return Ok(true)
         }
@@ -51,7 +51,7 @@ pub async fn check_prd_list(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<CheckListPrD> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(CheckListPrD {
             id:          i.get("id"),
             user_id:     i.get("user_id"),
@@ -66,7 +66,7 @@ pub async fn check_prd_list(
             created_at:  i.get("created_at"),
             updated_at:  i.get("updated_at")
         })
-    }
+    });
     Ok(Some(r))
 }
 
@@ -89,7 +89,7 @@ pub async fn check_prd_start(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<CheckListPrD> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(CheckListPrD {
             id:          i.get("id"),
             user_id:     i.get("user_id"),
@@ -104,7 +104,7 @@ pub async fn check_prd_start(
             created_at:  i.get("created_at"),
             updated_at:  i.get("updated_at")
         })
-    }
+    });
     Ok(Some(r))
 }
 
@@ -127,7 +127,7 @@ pub async fn check_prd_end(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<CheckListPrD> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(CheckListPrD {
             id:          i.get("id"),
             user_id:     i.get("user_id"),
@@ -142,6 +142,6 @@ pub async fn check_prd_end(
             created_at:  i.get("created_at"),
             updated_at:  i.get("updated_at")
         })
-    }
+    });
     Ok(Some(r))
 }

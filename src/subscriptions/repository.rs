@@ -21,14 +21,14 @@ pub async fn check_ssc(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<CheckSsc> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(CheckSsc {
             id:           i.get("id"),
             user_id:      i.get("user_id"),
             to_user:      i.get("to_user"),
             completed:    i.get("completed"),
         })
-    }
+    });
     Ok(r)
 }
 
@@ -51,7 +51,7 @@ pub async fn ssc_owner(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<Subscription> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(Subscription {
             id:           i.get("id"),
             user_id:      i.get("user_id"),
@@ -65,25 +65,7 @@ pub async fn ssc_owner(
             created_at:   i.get("created_at"),
             updated_at:   i.get("updated_at")
         })
-    }
-
-    // let r: Vec<Subscription> = rows.into_iter().map(
-    // 	|i| Subscription {
-    // 		id:           i.get(0),
-    // 		user_id:      i.get(1),
-    // 		title:        i.get(2),
-    // 		description:  i.get(3),
-    // 		to_user:      i.get(4),
-    // 		to_group:     i.get(5),
-    // 		dialogue:     i.get(6),
-    //         additionally: i.get(7),
-    // 		completed:    i.get(8),
-    // 		created_at:   i.get(9),
-    // 		updated_at:   i.get(10)
-    // 	}
-	// )
-    // .collect::<Vec<Subscription>>();
-
+    });
     Ok(r)
 }
 
@@ -105,8 +87,9 @@ pub async fn ssc_to_user(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let r: Vec<Subscription> = rows.into_iter().map(
-    	|i| Subscription {
+    let mut r: Vec<Subscription> = vec![];
+    rows.iter().for_each(|i| {
+    	r.push(Subscription {
     		id:           i.get(0),
     		user_id:      i.get(1),
     		title:        i.get(2),
@@ -118,9 +101,8 @@ pub async fn ssc_to_user(
     		completed:    i.get(8),
     		created_at:   i.get(9),
     		updated_at:   i.get(10)
-    	}
-	)
-    .collect::<Vec<Subscription>>();
+        })
+    });
     Ok(r)
 }
 
@@ -142,8 +124,9 @@ pub async fn to_ssc_user(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let r: Vec<Subscription> = rows.into_iter().map(
-    	|i| Subscription {
+    let mut r: Vec<Subscription> = vec![];
+    rows.iter().for_each(|i| {
+        r.push(Subscription {
     		id:           i.get(0),
     		user_id:      i.get(1),
     		title:        i.get(2),
@@ -155,9 +138,8 @@ pub async fn to_ssc_user(
     		completed:    i.get(8),
     		created_at:   i.get(9),
     		updated_at:   i.get(10)
-    	}
-	)
-    .collect::<Vec<Subscription>>();
+        })
+    });
     Ok(r)
 }
 
@@ -178,8 +160,9 @@ pub async fn all_groups(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let r: Vec<Group> = rows.into_iter().map(
-    	|i| Group {
+    let mut r: Vec<Group> = vec![];
+    rows.iter().for_each(|i| {
+        r.push(Group {
     		id:          i.get(0),
     		user_id:     i.get(1),
     		title:       i.get(2),
@@ -188,9 +171,8 @@ pub async fn all_groups(
     		completed:   i.get(5),
     		created_at:  i.get(6),
     		updated_at:  i.get(7)
-    	}
-	)
-    .collect::<Vec<Group>>();
+        })
+    });
     Ok(r)
 }
 
@@ -212,8 +194,9 @@ pub async fn all_groups_user(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let r: Vec<Group> = rows.into_iter().map(
-    	|i| Group {
+    let mut r: Vec<Group> = vec![];
+    rows.iter().for_each(|i| {
+        r.push(Group {
     		id:          i.get(0),
     		user_id:     i.get(1),
     		title:       i.get(2),
@@ -222,9 +205,8 @@ pub async fn all_groups_user(
     		completed:   i.get(5),
     		created_at:  i.get(6),
     		updated_at:  i.get(7)
-    	}
-	)
-    .collect::<Vec<Group>>();
+        })
+    });
     Ok(r)
 }
 
@@ -246,8 +228,9 @@ pub async fn to_ssc_group(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let r: Vec<Subscription> = rows.into_iter().map(
-    	|i| Subscription {
+    let mut r: Vec<Subscription> = vec![];
+    rows.iter().for_each(|i| {
+        r.push(Subscription {
     		id:           i.get(0),
     		user_id:      i.get(1),
     		title:        i.get(2),
@@ -259,8 +242,7 @@ pub async fn to_ssc_group(
     		completed:    i.get(8),
     		created_at:   i.get(9),
     		updated_at:   i.get(10)
-    	}
-	)
-    .collect::<Vec<Subscription>>();
+        })
+    });
     Ok(r)
 }

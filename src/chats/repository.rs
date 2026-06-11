@@ -85,7 +85,7 @@ pub async fn to_room(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<Room> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         r.push(Room {
 			id: 		i.get(0),
 			user_id: 	i.get(1),
@@ -95,19 +95,7 @@ pub async fn to_room(
 			room: 		i.get(5),
 			created_at: i.get(6),
         })
-    }
-    // let r: Vec<Room> = rows.into_iter().map(
-    // 	|i| Room {
-    // 		id: 		i.get(0),
-    // 		user_id: 	i.get(1),
-    // 		joined: 	i.get(2),
-    // 		came_out: 	i.get(3),
-    // 		message:  	i.get(4),
-    // 		room: 		i.get(5),
-    // 		created_at: i.get(6),
-    // 	}
-	// )
-    // .collect::<Vec<Room>>();
+    });
     Ok(r)
 }
 
@@ -165,8 +153,9 @@ pub async fn user_id_dialogue(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let r: Vec<Room> = rows.into_iter().map(
-    	|i| Room {
+    let mut r: Vec<Room> = vec![];
+    rows.iter().for_each(|i| {
+        r.push(Room {
     		id: 		i.get(0),
     		user_id: 	i.get(1),
     		joined: 	i.get(2),
@@ -174,9 +163,8 @@ pub async fn user_id_dialogue(
     		message:  	i.get(4),
     		room: 		i.get(5),
     		created_at: i.get(6),
-    	}
-	)
-    .collect::<Vec<Room>>();
+        })
+    });
     Ok(r)
 }
 
@@ -188,7 +176,7 @@ pub async fn vec_del_dialogue(
 
     let pg = pool.get().await.unwrap();
 
-	for i in id {
+	for i in &id {
 		let result = pg.execute(
 			"DELETE FROM chat_room WHERE id=$1 AND user_id=$2",
 			&[&i, &user_id]

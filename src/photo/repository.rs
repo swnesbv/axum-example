@@ -74,7 +74,7 @@ pub async fn zip_collection(
         Err(err) => return Err(Some(err.to_string()))
     };
     let mut r: Vec<Collections> = vec![];
-    for i in rows {
+    rows.iter().for_each(|i| {
         let a: String = serde_json::to_string::<serde_json::Value>(
             &i.get::<&str, serde_json::Value>("img")
         ).unwrap();
@@ -88,7 +88,7 @@ pub async fn zip_collection(
             created_at:   i.get("created_at"),
             updated_at:   i.get("updated_at")
         })
-    }
+    });
     Ok(r)
 }
 
