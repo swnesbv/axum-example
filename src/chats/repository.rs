@@ -1,3 +1,5 @@
+use futures::prelude::*;
+
 use crate::{
 	common::{PgPool},
 	chats::models::{PublicChat, Room, DialogueChat},
@@ -22,17 +24,17 @@ pub async fn all_public(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let r: Vec<PublicChat> = rows.into_iter().map(
-    	|i| PublicChat {
+    let mut r: Vec<PublicChat> = vec![];
+    rows.iter().for_each(|i| {
+        r.push(PublicChat {
     		id: 	    i.get(0),
     		user_id:    i.get(1),
     		joined:     i.get(2),
     		came_out:   i.get(3),
     		message:    i.get(4),
     		created_at: i.get(5),
-    	}
-	)
-    .collect::<Vec<PublicChat>>();
+        })
+    });
     Ok(r)
 }
 
@@ -55,14 +57,14 @@ pub async fn ssc_dialogue(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let r: Vec<ToDialogue> = rows.into_iter().map(
-    	|i| ToDialogue {
+    let mut r: Vec<ToDialogue> = vec![];
+    rows.iter().for_each(|i| {
+        r.push(ToDialogue {
     		to_user: 	  i.get(0),
     		additionally: i.get(1),
     		completed: 	  i.get(2),
-    	}
-	)
-    .collect::<Vec<ToDialogue>>();
+        })
+    });
     Ok(r)
 }
 
@@ -169,30 +171,22 @@ pub async fn user_id_dialogue(
 }
 
 pub async fn vec_del_dialogue(
-	pool: PgPool,
-	id: Vec<i32>,
+	pool:    PgPool,
+	id:   	 Vec<i32>,
 	user_id: i32
-) -> bool {
+) -> Result<(), String> {
 
-    let pg = pool.get().await.unwrap();
-
-	for i in &id {
-		let result = pg.execute(
-			"DELETE FROM chat_room WHERE id=$1 AND user_id=$2",
-			&[&i, &user_id]
-		)
-		.await;
-		match result {
-			Err(err) => {
-				println!("Err DELETE: {}", err);
-				return false;
-			}
-			Ok(_expr) => {
-				println!("DELETE number: {} has been deleted.", i);
-			}
+	futures::stream::iter(id.clone()).for_each(|i| {
+		let value = pool.clone();
+		async move {
+		    let pg = value.get().await.unwrap();
+		    pg.execute(
+				"DELETE FROM chat_room WHERE id=$1 AND user_id=$2",
+				&[&i, &user_id]
+		    ).await.unwrap();
 		}
-	}
-	true
+	}).await;
+	Ok(())
 }
 
 pub async fn del_dialogue(
@@ -205,14 +199,13 @@ pub async fn del_dialogue(
 	let result = pg.execute(
 		"DELETE FROM chat_room WHERE id=$1 AND user_id=$2",
 		&[&id, &user_id]
-	)
-	.await;
+	).await;
 	match result {
 		Err(err) => {
 			println!("Err DELETE: {}\n", err);
 			return false;
 		}
-		Ok(_expr) => {
+		Ok(_) => {
 			println!("DELETE number: {} has been deleted.", id);
 			//println!("Amount deleted: {}", expr.rows_affected());
 		}

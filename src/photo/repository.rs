@@ -119,8 +119,36 @@ pub async fn sl_photo(
     Ok(Some(r))
 }
 
+pub fn del_msg(
+    err:   String,
+    alert: String,
+    url:   String
+) -> Response<Body> {
+
+    let mut s = url.clone();
+    if s.contains("?") {
+        let s_offset = s.rfind('?').unwrap_or(s.len());
+         s.replace_range(s_offset.., "");
+    }
+    let token = err + "," + &alert;
+    Response::builder()
+        .status(StatusCode::FOUND)
+        .header("Location", url)
+        .header(
+            "Set-Cookie",
+            format!(
+                "{}={}; Path={}; HttpOnly={}; SameSite={}; Max-Age={};",
+                "to_msg", token, s, "true", "lax", 60
+            ),
+        )
+        .body(Body::from("not found"))
+        .unwrap()
+}
+
 pub async fn add_msg(
-    err: String, alert: String, url: String
+    err:   String,
+    alert: String,
+    url:   String
 ) -> Response<Body> {
 
     let token = err + "," + &alert;

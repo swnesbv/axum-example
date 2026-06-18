@@ -26,7 +26,7 @@ impl RoomChat {
         let conn = &self.conn;
         match in_check(conn.clone(), headers).await {
             Ok(expr) => Ok(expr),
-            Err(_) => Ok(None),
+            Err(_)   => Ok(None),
         }
     }
 }
@@ -46,6 +46,8 @@ impl RoomState {
     }
 }
 
+
+#[derive(Debug)]
 pub struct UserChat {
     pub user_set: Mutex<HashSet<String>>,
     pub tx:       broadcast::Sender<String>,
@@ -63,6 +65,7 @@ impl UserChat {
         }
     }
 }
+
 
 #[derive(Serialize, Deserialize)]
 pub struct Connect {

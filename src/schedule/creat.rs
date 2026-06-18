@@ -1,97 +1,89 @@
-use sqlx::postgres::PgPool;
-
+use std::sync::Arc;
 use axum::{
-    extract::{
-        // Form,
-        State,
-    },
+    extract::{State},
     response::{Html, IntoResponse, Redirect},
+    http::{header::{HeaderMap}},
     Extension,
 };
-
-use chrono::{NaiveDateTime, Utc};
-
+use chrono::{NaiveDateTime};
 use tera::Context;
 
-use axum_extra::TypedHeader;
-use headers::Cookie;
-
 use crate::{
-    auth,
     common::Templates,
+    auth::models::{AuthRedis},
     schedule::models::FormSch,
     // util::r_body::InputBody
 };
 
-
 pub async fn get_creat(
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
-    let token = auth::views::request_user(cookie).await;
-    let _ = match token {
+
+    let mut context = Context::new();
+
+    let t = match i.ctx(headers).await {
         Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
+        Err(Some(err)) => {
+            context.insert("err", &err.to_string());
+            return Ok(Html(templates.render("creat", &context).unwrap()));
+        }
+        Ok(None) | Err(None) => return Err(Redirect::to("/account/login").into_response()),
     };
-    Ok(
-        Html(templates.render("creat", &Context::new()).unwrap())
-    )
+
+    context.insert("t", &t);
+    Ok(Html(templates.render("creat", &context).unwrap()))
 }
 
-
+#[axum::debug_handler()]
 pub async fn post_creat(
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
-    axum_extra::extract::Form(form): axum_extra::extract::Form<FormSch>,
+    axum_extra::extract::Form(f): axum_extra::extract::Form<FormSch>,
 ) -> impl IntoResponse {
 
-    let token = auth::views::request_token(cookie).await.unwrap();
-
-    println!("form..{:?}", form);
-
-    let s_val = form.st_hour.as_deref().unwrap_or("err..");
-    let e_val = form.en_hour.as_deref().unwrap_or("err..");
-    let start: Option<NaiveDateTime> = if form.st_hour.is_some() {
-        Some(
-            NaiveDateTime::parse_from_str(s_val, "%Y-%m-%dT%H:%M").unwrap()
-        )
-    } else {
-        None
-    };
-    let end: Option<NaiveDateTime> = if form.en_hour.is_some() {
-        Some(
-            NaiveDateTime::parse_from_str(e_val, "%Y-%m-%dT%H:%M").unwrap()
-        )
-    } else {
-        None
-    };
-
-    let l_val = form.list.as_deref().unwrap();
-    let mut hours = Some(Vec::new());
-    if form.list.is_some() {
-        for i in &l_val {
-            if !i.is_empty() {
-                hours.as_mut().expect("REASON").push(NaiveDateTime::parse_from_str(i, "%Y-%m-%dT%H:%M").unwrap())
-            }
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Err(Some(err)) => {
+            let mut context = Context::new();
+            context.insert("err", &err.to_string());
+            return Err(Html(templates.render("creat", &context).unwrap()));
         }
-    } else {
-        hours = None
-    }
+        Ok(None) | Err(None) => return Ok(Redirect::to("/account/login").into_response()),
+    };
 
-    let result = sqlx::query(
-        "INSERT INTO schedule (user_id, title, description, st_hour, en_hour, hours, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)"
-        )
-        .bind(token.claims.id)
-        .bind(&form.title)
-        .bind(&form.description)
-        .bind(start)
-        .bind(end)
-        .bind(&hours)
-        .bind(Utc::now())
-        .execute(&pool)
-        .await;
+
+
+    let start: Option<NaiveDateTime> = f.st_hour.map(|expr| NaiveDateTime::parse_from_str(&expr, "%Y-%m-%dT%H:%M").unwrap());
+    let end: Option<NaiveDateTime> = f.en_hour.map(|expr| NaiveDateTime::parse_from_str(&expr, "%Y-%m-%dT%H:%M").unwrap());
+
+    let mut hours: Option<Vec<NaiveDateTime>> = Some(Vec::new());
+    hours = match f.list {
+        Some(expr) => {
+            for i in expr {
+                if !i.is_empty() {
+                    hours.as_mut().expect("REASON").push(NaiveDateTime::parse_from_str(&i, "%Y-%m-%dT%H:%M").unwrap())
+                }
+            }
+            None
+        }
+        None => None
+    };
+
+    let pg = match i.pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => {
+            let mut context = Context::new();
+            context.insert("err", &err.to_string());
+            return Err(Html(templates.render("creat", &context).unwrap()));
+        }
+    };
+    let result = pg.execute(
+        "INSERT INTO schedule (user_id, title, description, st_hour, en_hour, hours, created_at) VALUES ($1,$2,$3,$4,$5,$6,now())",
+         &[&t.id, &f.title, &f.description, &start, &end, &hours]
+    ).await;
     match result {
         Ok(result) => result,
         Err(err) => {

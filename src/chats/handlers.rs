@@ -1,5 +1,5 @@
 use axum::{
-    extract::{State, Path, Query},
+    extract::{State, Path, Query, OriginalUri},
     response::{Html, IntoResponse, Redirect},
     http::{header::{HeaderMap}},
     Extension,
@@ -8,29 +8,31 @@ use std::sync::Arc;
 use tera::Context;
 
 use crate::{
+    common::Templates,
+    pgnation::Paginate,
+    auth::views::{read_msg},
     chats::models::{UserChat, FormDel, GetParam},
     chats::repository::{
        total_dialogue, user_id_dialogue, vec_del_dialogue, del_dialogue
     },
-    common::Templates,
-    pgnation::Paginate,
+    photo::repository::{del_msg}
 };
 
 
 pub async fn get_dialogue_owner(
     headers: HeaderMap,
     Query(params): Query<GetParam>,
-    State(state): State<Arc<UserChat>>,
+    State(i): State<Arc<UserChat>>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let i = match state.ctx(headers).await {
+    let t = match i.ctx(headers.clone()).await {
         Ok(Some(expr)) => expr,
         Ok(None) | Err(Some(_)) => return Err(Redirect::to("/account/login").into_response()),
         Err(None) => return Err(Redirect::to("/account/login").into_response()),
     };
 
-    let total = total_dialogue(state.pool.clone(), i.id).await;
+    let total = total_dialogue(i.pool.clone(), t.id).await;
 
     let param = match params.page {
         Some(expr) => expr,
@@ -40,14 +42,18 @@ pub async fn get_dialogue_owner(
     let p = Paginate::new(page, 5, 5, total);
 
     let all = user_id_dialogue(
-        state.pool.clone(), i.id, p.p.per_page, p.offset
+        i.pool.clone(), t.id, p.p.per_page, p.offset
     ).await.unwrap();
 
+    let msg = read_msg(headers).await.unwrap();
+
     let mut context = Context::new();
-    context.insert("i", &i);
-    context.insert("cls", &i.id);
+
+    context.insert("msg", &msg);
+    context.insert("cls", &t.id);
     context.insert("all", &all);
     context.insert("p", &p);
+    context.insert("i", &t);
     Ok(Html(templates.render("dialogue_owner", &context).unwrap()))
 }
 
@@ -55,28 +61,30 @@ pub async fn get_dialogue_owner(
 pub async fn get_del_dialogue(
     headers: HeaderMap,
     Path(p_int): Path<String>,
-    State(state): State<Arc<UserChat>>,
+    State(i): State<Arc<UserChat>>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let i = match state.ctx(headers).await {
+    let t = match i.ctx(headers).await {
         Ok(Some(expr)) => expr,
         Ok(None) | Err(Some(_)) => return Err(Redirect::to("/account/login").into_response()),
         Err(None) => return Err(Redirect::to("/account/login").into_response()),
     };
 
     let id_i: i32 = p_int.parse().unwrap();
-    let _ = del_dialogue(state.pool.clone(), id_i, i.id).await;
+    let _ = del_dialogue(i.pool.clone(), id_i, t.id).await;
 
     Ok(Redirect::to("/").into_response())
 }
 
+
 pub async fn post_del_dialogue(
     headers: HeaderMap,
-    State(state): State<Arc<UserChat>>,
-    axum_extra::extract::Form(form): axum_extra::extract::Form<FormDel>,
+    State(i): State<Arc<UserChat>>,
+    OriginalUri(original_uri): OriginalUri,
+    axum_extra::extract::Form(form): axum_extra::extract::Form<FormDel>
 ) -> impl IntoResponse {
 
-    let i = match state.ctx(headers).await {
+    let t = match i.ctx(headers).await {
         Ok(Some(expr)) => expr,
         Ok(None) | Err(Some(_)) => return Err(Redirect::to("/account/login").into_response()),
         Err(None) => return Err(Redirect::to("/account/login").into_response()),
@@ -84,7 +92,6 @@ pub async fn post_del_dialogue(
 
     let on_off = form.on_off;
     let to_del = form.to_del;
-    println!(" on_off.. {:?}", on_off);
 
     let mut f: Vec<i32> = vec![];
     let mut e = vec![];
@@ -98,10 +105,13 @@ pub async fn post_del_dialogue(
             e.push(*d);
         }
     }
-    println!(" e.. {:?}", e);
 
-    let _ = vec_del_dialogue(state.pool.clone(), e, i.id).await;
+    let _ = vec_del_dialogue(i.pool.clone(), e.clone(), t.id).await;
 
-    Ok(Redirect::to("/chat-user/dialogue-owne").into_response())
+    Ok({
+        del_msg(
+            format!("DELETE number: {:?} has been deleted.", e),"danger".to_string(), original_uri.to_string()
+        )
+    })
 }
 

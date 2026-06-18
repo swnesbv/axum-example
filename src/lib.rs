@@ -14,6 +14,7 @@ pub mod distribution {
     pub mod routes_user_chats;
     pub mod routes_subscriptions;
     pub mod routes_comments;
+    pub mod routes_schedule;
 }
 pub mod util {
     pub mod date_config;
@@ -99,5 +100,11 @@ pub mod purchases {
     // pub mod handlers;
     pub mod models;
     // pub mod repository;
+    pub mod views;
+}
+pub mod schedule {
+    pub mod creat;
+    pub mod handlers;
+    pub mod models;
     pub mod views;
 }

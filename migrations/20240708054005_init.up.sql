@@ -127,7 +127,7 @@ CREATE TABLE schedule (
 	places      INTEGER[],
 	non_places  INTEGER[],
 	completed   BOOLEAN      NOT NULL DEFAULT false,
-	comments    JSON[],
+	comments    JSONB        '{}',
 	created_at  TIMESTAMPTZ  NOT NULL,
 	updated_at  TIMESTAMPTZ,
 	FOREIGN KEY (user_id) 	 REFERENCES users(id) ON DELETE CASCADE

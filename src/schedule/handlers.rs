@@ -1,29 +1,24 @@
-use sqlx::postgres::PgPool;
-
+use std::sync::Arc;
 use axum::{
     extract::{Form, State},
     response::{Html, IntoResponse, Redirect},
+    http::{header::{HeaderMap}},
     Extension,
 };
-use chrono::Utc;
-
 use tera::Context;
 
-use axum_extra::TypedHeader;
-use headers::Cookie;
-
 use crate::{
-    auth,
-    common::{DatabaseConn, Templates},
+    common::{Templates},
+    auth::models::{AuthRedis},
     schedule::models::{FormPlaces, FormSelect, Tickets},
     schedule::views::{all_rec, all_sch, details, places_select, sch_select},
 };
 
 pub async fn get_all_sch(
-    State(pool): State<PgPool>,
-    Extension(templates): Extension<Templates>,
+    State(i): State<Arc<AuthRedis>>,
+    Extension(templates): Extension<Templates>
 ) -> impl IntoResponse {
-    let all = all_sch(pool).await.unwrap();
+    let all = all_sch(i.pool.clone()).await.unwrap();
 
     let mut context = Context::new();
     context.insert("all", &all);
@@ -31,10 +26,10 @@ pub async fn get_all_sch(
 }
 
 pub async fn get_all_recording(
-    State(pool): State<PgPool>,
-    Extension(templates): Extension<Templates>,
+    State(i): State<Arc<AuthRedis>>,
+    Extension(templates): Extension<Templates>
 ) -> impl IntoResponse {
-    let all = all_rec(pool).await.unwrap();
+    let all = all_rec(i.pool.clone()).await.unwrap();
 
     let mut context = Context::new();
     context.insert("all", &all);
@@ -42,139 +37,180 @@ pub async fn get_all_recording(
 }
 
 pub async fn get_select(
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
-    Extension(templates): Extension<Templates>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
+    Extension(templates): Extension<Templates>
 ) -> Result<impl IntoResponse, impl IntoResponse> {
 
-    let token = auth::views::request_user(cookie).await;
-    let _ = match token {
-        Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
-    };
-    let all = sch_select(pool).await.unwrap();
-
     let mut context = Context::new();
+
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Err(Some(err)) => {
+            context.insert("err", &err);
+            return Err(Html(templates.render("detail_days", &context).unwrap()))
+        }
+        Ok(None) | Err(None) => {
+            context.insert("err", "Caramba bullfighting and damn it");
+            return Err(Html(templates.render("select", &context).unwrap()))
+        }
+    };
+
+    let all = sch_select(i.pool.clone()).await.unwrap();
+
+    context.insert("t", &t);
     context.insert("all", &all);
     Ok(Html(templates.render("select", &context).unwrap()))
 }
 
 pub async fn post_select(
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
-    Form(form): Form<FormSelect>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
+    Extension(templates): Extension<Templates>,
+    Form(f): Form<FormSelect>,
 ) -> impl IntoResponse {
-    let token = auth::views::request_token(cookie).await.unwrap();
-    let owner = &token.claims.id;
 
-    let to_schedule = form.to_schedule;
-    let record_d = form.record_d;
-    let record_h = form.record_h;
+    let mut context = Context::new();
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Err(Some(err)) => {
+            context.insert("err", &err);
+            return Err(Html(templates.render("select", &context).unwrap()))
+        }
+        Ok(None) | Err(None) => {
+            context.insert("err", "Caramba bullfighting and damn it");
+            return Err(Html(templates.render("select", &context).unwrap()))
+        }
+    };
 
-    let _ = sqlx::query(
-        "INSERT INTO recording (user_id, to_schedule, record_d, record_h, created_at) VALUES ($1,$2,$3,$4,$5)"
-        )
-        .bind(owner)
-        .bind(to_schedule)
-        .bind(record_d)
-        .bind(record_h)
-        .bind(Utc::now())
-        .execute(&pool)
-        .await
-        .unwrap();
+    let to_schedule = f.to_schedule;
+    let record_d    = f.record_d;
+    let record_h    = f.record_h;
+
+    let pg = match i.pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => {
+            context.insert("err", &err.to_string());
+            return Err(Html(templates.render("select", &context).unwrap()))
+        }
+    };
+
+    let _ = pg.query(
+        "INSERT INTO recording (user_id, to_schedule, record_d, record_h, created_at) VALUES ($1,$2,$3,$4,now())",
+        &[&t.id, &to_schedule, &record_d, &record_h]
+        ).await.unwrap();
 
     let occupied = vec![record_h];
-    let result = sqlx::query!(
-        "UPDATE schedule SET occupied=ARRAY_CAT(occupied, $2), completed=$3, updated_at=$4 WHERE id=$1",
-        to_schedule, &occupied, false, Some(Utc::now())
-    )
-    .fetch_one(&pool).await;
+    let result = pg.query(
+        "UPDATE schedule SET occupied=ARRAY_CAT(occupied, $2), completed=$3, updated_at=now() WHERE id=$1",
+        &[&to_schedule, &occupied, &false]
+    ).await;
 
     let _ = match result {
         Ok(result) => Ok(result),
         Err(err) => Err(err.to_string()),
     };
-    Redirect::to("/schedule/all-sch").into_response()
+    Ok(Redirect::to("/schedule/all-sch").into_response())
 }
 
 pub async fn get_places(
-    State(pool): State<PgPool>,
-    TypedHeader(cookie): TypedHeader<Cookie>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
     Extension(templates): Extension<Templates>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
-    let token = auth::views::request_user(cookie).await;
-    let _ = match token {
-        Ok(Some(expr)) => expr,
-        Ok(None) => return Err(Redirect::to("/account/login").into_response()),
-        Err(_) => return Err(Redirect::to("/account/login").into_response()),
-    };
-    let all = places_select(pool).await.unwrap();
 
     let mut context = Context::new();
+
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Err(Some(err)) => {
+            context.insert("err", &err);
+            return Err(Html(templates.render("places", &context).unwrap()))
+        }
+        Ok(None) | Err(None) => {
+            context.insert("err", "Caramba bullfighting and damn it");
+            return Err(Html(templates.render("places", &context).unwrap()))
+        }
+    };
+
+    let all = places_select(i.pool.clone()).await.unwrap();
+
+    context.insert("t", &t);
     context.insert("all", &all);
     Ok(Html(templates.render("places", &context).unwrap()))
 }
 
 pub async fn post_places(
-    DatabaseConn(mut conn): DatabaseConn,
-    TypedHeader(cookie): TypedHeader<Cookie>,
-    axum_extra::extract::Form(form): axum_extra::extract::Form<FormPlaces>,
+    headers: HeaderMap,
+    State(i): State<Arc<AuthRedis>>,
+    Extension(templates): Extension<Templates>,
+    axum_extra::extract::Form(f): axum_extra::extract::Form<FormPlaces>,
 ) -> impl IntoResponse {
 
-    let token = auth::views::request_token(cookie).await.unwrap();
-    let owner = &token.claims.id;
+    let t = match i.ctx(headers).await {
+        Ok(Some(expr)) => expr,
+        Err(Some(err)) => {
+            let mut context = Context::new();
+            context.insert("err", &err);
+            return Err(Html(templates.render("places", &context).unwrap()))
+        }
+        Ok(None) | Err(None) => {
+            let mut context = Context::new();
+            context.insert("err", "Caramba bullfighting and damn it");
+            return Err(Html(templates.render("places", &context).unwrap()))
+        }
+    };
 
-    let to_schedule = form.to_schedule;
-    let record_h = form.record_h;
-    let on_off = form.on_off;
-    let places = form.places;
+    let to_schedule = f.to_schedule;
+    let record_h    = f.record_h;
+    let on_off      = f.on_off;
+    let places      = f.places;
 
-    let mut f: Vec<i32> = vec![];
+    let mut v: Vec<i32> = vec![];
     let mut e = vec![];
 
     for i in on_off {
         let g = i.parse::<i32>().unwrap();
-        f.push(g);
+        v.push(g);
     }
-    for (c, d) in f.iter().zip(places.iter()) {
+    for (c, d) in v.iter().zip(places.iter()) {
         if *c == 1 {
             e.push(*d);
         }
     }
 
-    let title = details(&mut conn, to_schedule).await.unwrap();
-    let t: Tickets = Tickets {
+    let title = details(i.pool.clone(), to_schedule).await.unwrap();
+    let sch: Tickets = Tickets {
         to_schedule,
         title,
         record_h,
         places,
     };
-    let str_t = serde_json::to_string(&t).unwrap();
+    let str_t = serde_json::to_string(&sch).unwrap();
     let tickets: serde_json::Value = serde_json::from_str(&str_t).unwrap();
 
-    let _ = sqlx::query(
-        "INSERT INTO recording (user_id, to_schedule, record_h, places, tickets, created_at) VALUES ($1,$2,$3,$4,$5,$6)"
-        )
-        .bind(owner)
-        .bind(to_schedule)
-        .bind(record_h)
-        .bind(&e)
-        .bind(tickets)
-        .bind(Utc::now())
-        .execute(&mut *conn)
-        .await
-        .unwrap();
+    let pg = match i.pool.get().await{
+        Ok(expr) => expr,
+        Err(err) => {
+            let mut context = Context::new();
+            context.insert("err", &err.to_string());
+            return Err(Html(templates.render("places", &context).unwrap()))
+        }
+    };
 
-    let result = sqlx::query!(
+    let _ = pg.query(
+        "INSERT INTO recording (user_id, to_schedule, record_h, places, tickets, created_at) VALUES ($1,$2,$3,$4,$5,now())",
+        &[&t.id, &to_schedule, &record_h, &e, &tickets]
+    ).await.unwrap();
+
+    let result = pg.query(
         "UPDATE schedule SET non_places=ARRAY_CAT(non_places, $2), completed=$3, updated_at=$4 WHERE id=$1",
-        to_schedule, &e, false, Some(Utc::now())
-    )
-    .fetch_one(&mut *conn).await;
+        &[&to_schedule, &e, &false]
+    ).await;
 
     let _ = match result {
         Ok(result) => Ok(result),
         Err(err) => Err(err.to_string()),
     };
-    Redirect::to("/schedule/all-recording").into_response()
+    Ok(Redirect::to("/schedule/all-recording").into_response())
 }

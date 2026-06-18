@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% block title %} create schedule {% endblock title %}
-
 {% block content %}
 
 <h1 class="container lead my-3">create schedule</h1>
 
-<form class="card" method="POST">
-	<div class="card-body">
+<div class="card">
+<form class="" method="POST">
+
+	<div class="card-header">
 	<sup>title</sup>
 	<input required type="text" name="title" class="form-control">
 	<sup>description</sup>
@@ -32,7 +33,7 @@
 	    </div>
 	</div>
 
-    <div id="addinput" class="card-body">
+    <div id="addinput" class="card-footer">
     	<sup class="float-start">the beginning of the reception</sup>
 	</div>
     <div class="card-footer action-buttons">
@@ -46,6 +47,7 @@
 	</div>
 
 </form>
+</div>
 
 <script>
     function addFn() {

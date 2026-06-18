@@ -28,11 +28,11 @@ use crate::{
 };
 
 pub async fn get_login(
-	cookie: HeaderMap,
+	headers: HeaderMap,
 	Extension(templates): Extension<Templates>,
 ) -> impl IntoResponse {
 
-	let msg = read_msg(cookie).await.unwrap();
+	let msg = read_msg(headers).await.unwrap();
 
 	let mut context = Context::new();
 	context.insert("msg", &msg.unwrap());
@@ -172,6 +172,7 @@ pub async fn post_login(
 				"sess", sess, "/", "true", "lax",
 			),
 		)
-		.body(Body::from("not found")).unwrap()
+		.body(Body::from("not found"))
+		.unwrap()
 	)
 }

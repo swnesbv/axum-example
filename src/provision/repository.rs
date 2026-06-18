@@ -12,9 +12,7 @@ pub async fn all_days(
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
     };
-    let result =  pg.query(
-        "SELECT * FROM provision_d;", &[]
-    ).await;
+    let result =  pg.query("SELECT * FROM provision_d;", &[]).await;
     let rows = match result {
         Ok(expr) => expr,
         Err(err) => return Err(Some(err.to_string()))
@@ -81,8 +79,7 @@ pub async fn details_prd(
         Err(err) => return Err(Some(err.to_string()))
     };
     let result = pg.query_one(
-        "SELECT * FROM provision_d WHERE id=$1;",
-    &[&prv_id]
+        "SELECT * FROM provision_d WHERE id=$1;", &[&prv_id]
     ).await;
     let i = match result {
         Ok(expr) => expr,

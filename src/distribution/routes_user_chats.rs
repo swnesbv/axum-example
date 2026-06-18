@@ -37,7 +37,7 @@ pub fn rt(state: Arc<UserChat>) -> Router {
                 .post(chats::handlers::post_del_dialogue)
             )
             .route(
-                "/del_dialogue",
+                "/del-dialogue",
                 get(chats::handlers::get_del_dialogue)
             )
             .layer(Extension(Arc::new(chat_tera))),

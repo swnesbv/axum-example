@@ -26,18 +26,20 @@ use axum_example::distribution::routes_products;
 use axum_example::distribution::routes_purchases;
 use axum_example::distribution::routes_subscriptions;
 use axum_example::distribution::routes_comments;
-
+use axum_example::distribution::routes_schedule;
 
 #[tokio::main]
 async fn main() {
 
-    //..Postgres
-    let cfg = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let manager = PostgresConnectionManager::new_from_stringlike(cfg, NoTls).unwrap();
-    let pool = bb8::Pool::builder().build(manager).await.unwrap();
-    //..Redis
-    let client = redis::Client::open("redis://localhost").unwrap();
-    let conn = bb8::Pool::builder().build(client).await.unwrap();
+    // ..
+    let cfg = dotenv::var("DATABASE_URL").expect("DB_URL must be set");
+    let manager   = PostgresConnectionManager::new_from_stringlike(
+        &cfg, NoTls
+    ).unwrap();
+    let pool     = bb8::Pool::builder().build(manager).await.unwrap();
+    // ..
+    let client   = redis::Client::open("redis://localhost").unwrap();
+    let conn     = bb8::Pool::builder().build(client).await.unwrap();
     // ..
 
     let a = AuthRedis {
@@ -55,6 +57,7 @@ async fn main() {
     let product_router = routes_products::rt(Arc::new(a.clone()));
     let purchases_router = routes_purchases::rt(Arc::new(a.clone()));
     let comments_router = routes_comments::rt(Arc::new(a.clone()));
+    let schedule_router = routes_schedule::rt(Arc::new(a.clone()));
 
     let b = RoomChat {
         rooms: Mutex::new(HashMap::new()),
@@ -70,7 +73,7 @@ async fn main() {
         user_set,
         tx,
         pool: pool.clone(),
-        conn: conn.clone()
+        conn: conn.clone(),
     };
     let chat_us_state = Arc::new(c);
     let chat_us_router = routes_user_chats::rt(chat_us_state);
@@ -93,7 +96,8 @@ async fn main() {
         .merge(purchases_router)
         .merge(photo_router)
         .without_v07_checks()
-        .merge(comments_router);
+        .merge(comments_router)
+        .merge(schedule_router);
 
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, 8000));
     let listener = TcpListener::bind(&addr).await.unwrap();

@@ -1,17 +1,30 @@
-use sqlx::postgres::PgPool;
 use std::sync::Arc;
 use axum::{routing::get, Extension, Router};
 use tera::Tera;
 
-use crate::schedule;
+use crate::{
+    schedule,
+    auth::models::{AuthRedis},
+};
 
-pub fn build_routes(pool: PgPool) -> Router {
+pub fn rt(state: Arc<AuthRedis>) -> Router {
     let mut schedule_tera = Tera::default();
     schedule_tera
         .add_raw_templates(vec![
             ("base.html", include_str!("../../tps/base.html")),
             ("navbar.html", include_str!("../../tps/element/navbar.html")),
-            ("rq_user.html", include_str!("../../tps/rq_user.html")),
+            (
+                "rq_user.html",
+                include_str!("../../tps/element/rq_user.html")
+            ),
+            (
+                "created_updated.html",
+                include_str!("../../tps/element/created_updated.html")
+            ),
+            (
+                "completed.html",
+                include_str!("../../tps/element/completed.html")
+            ),
             (
                 "all_sch",
                 include_str!("../../tps/schedule/all_sch.html"),
@@ -22,9 +35,9 @@ pub fn build_routes(pool: PgPool) -> Router {
             ),
             ("creat", include_str!("../../tps/schedule/creat.html")),
             ("select", include_str!("../../tps/schedule/select.html")),
-            ("places", include_str!("../../tps/schedule/places.html")),
+            ("places", include_str!("../../tps/schedule/places.html"))
             // ("detail", include_str!("../../tps/schedule/detail.html")),
-            // ("delete", include_str!("../../tps/schedule/delete.html")),
+            // ("delete", include_str!("../../tps/schedule/delete.html"))
         ])
         .unwrap();
 
@@ -34,24 +47,29 @@ pub fn build_routes(pool: PgPool) -> Router {
             .route(
                 "/creat",
                 get(schedule::creat::get_creat)
-                .post(schedule::creat::post_creat),
+                .post(schedule::creat::post_creat)
             )
-            .route("/all-sch", get(schedule::handlers::get_all_sch))
-            .route("/all-recording", get(schedule::handlers::get_all_recording))
+            .route(
+                "/all-sch",
+                get(schedule::handlers::get_all_sch))
+            .route(
+                "/all-recording",
+                get(schedule::handlers::get_all_recording)
+            )
             .route(
                 "/select",
                 get(schedule::handlers::get_select)
-                .post(schedule::handlers::post_select),
+                .post(schedule::handlers::post_select)
             )
             .route(
                 "/places",
                 get(schedule::handlers::get_places)
-                .post(schedule::handlers::post_places),
+                .post(schedule::handlers::post_places)
             )
             // .route(
             //     "/detail", get(schedule::accreditation::get_password_change).post(schedule::accreditation::post_password_change)
             // )
-            .layer(Extension(Arc::new(schedule_tera))),
+            .layer(Extension(Arc::new(schedule_tera)))
     );
-    Router::new().merge(schedule_routes.with_state(pool))
+    Router::new().merge(schedule_routes.with_state(state))
 }

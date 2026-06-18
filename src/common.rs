@@ -11,8 +11,9 @@ use tokio_postgres::NoTls;
 pub type Templates = Arc<Tera>;
 
 
-pub type PgPool = bb8::Pool<PostgresConnectionManager<NoTls>>;
+pub type PgPool    = bb8::Pool<PostgresConnectionManager<NoTls>>;
 pub type RedisPool = bb8::Pool<redis::Client>;
+
 
 #[derive(Debug)]
 pub struct RedisConn(pub bb8::PooledConnection<'static, redis::Client>);
@@ -36,6 +37,51 @@ pub struct DoubleConn {
     pub pool: PgPool,
     pub conn: RedisPool
 }
+
+use serde_json::{Value, json};
+use std::iter::Enumerate;
+use std::str::Chars;
+use std::slice::Iter;
+use serde_json::map::Iter as MapIter;
+
+pub enum KvIter<'a> {
+    StrIter ( Enumerate<Chars<'a>>),
+    ArrIter (Enumerate<Iter<'a, Value>>),
+    MapIter (MapIter<'a>),
+}
+impl<'a> Iterator for KvIter<'a> {
+    type Item = (Value, Value);
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            Self::StrIter(chars) => {
+                let (idx, character) = chars.next()?;
+                Some((json!(idx), json!(character)))
+            }
+            Self::ArrIter(values) => {
+                let (idx, value) = values.next()?;
+                Some((json!(idx), value.clone()))
+            }
+            Self::MapIter(items) => {
+                let (key, value) = items.next()?;
+                Some((json!(key), value.clone()))
+            }
+        }
+    }
+}
+pub trait IntoKvIter {
+    fn items(&self) -> Option<KvIter<'_>>;
+}
+impl IntoKvIter for Value {
+    fn items(&self) -> Option<KvIter<'_>> {
+        Some(match self {
+            Value::String(string) => KvIter::StrIter(string.chars().enumerate()),
+            Value::Array(values) => KvIter::ArrIter(values.iter().enumerate()),
+            Value::Object(map) => KvIter::MapIter(map.iter()),
+            _ => return None,
+        })
+    }
+}
+
 
 pub fn to_bool(c: &str) -> bool {
     match c {
@@ -98,49 +144,7 @@ pub async fn to_token(
     Ok(Some(token))
 }
 
-use serde_json::{Value, json};
-use std::iter::Enumerate;
-use std::str::Chars;
-use std::slice::Iter;
-use serde_json::map::Iter as MapIter;
 
-pub enum KvIter<'a> {
-    StrIter ( Enumerate<Chars<'a>>),
-    ArrIter (Enumerate<Iter<'a, Value>>),
-    MapIter (MapIter<'a>),
-}
-impl<'a> Iterator for KvIter<'a> {
-    type Item = (Value, Value);
-    fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            Self::StrIter(chars) => {
-                let (idx, character) = chars.next()?;
-                Some((json!(idx), json!(character)))
-            }
-            Self::ArrIter(values) => {
-                let (idx, value) = values.next()?;
-                Some((json!(idx), value.clone()))
-            }
-            Self::MapIter(items) => {
-                let (key, value) = items.next()?;
-                Some((json!(key), value.clone()))
-            }
-        }
-    }
-}
-pub trait IntoKvIter {
-    fn items(&self) -> Option<KvIter<'_>>;
-}
-impl IntoKvIter for Value {
-    fn items(&self) -> Option<KvIter<'_>> {
-        Some(match self {
-            Value::String(string) => KvIter::StrIter(string.chars().enumerate()),
-            Value::Array(values) => KvIter::ArrIter(values.iter().enumerate()),
-            Value::Object(map) => KvIter::MapIter(map.into_iter()),
-            _ => return None,
-        })
-    }
-}
 
 /*fn main() {
     let a = vec!["1", "0", "1", "0"];
@@ -155,32 +159,4 @@ impl IntoKvIter for Value {
         }
     }
     println!("f.. {:?}", f);
-}*/
-
-
-/*fn internal_error<E>(err: E) -> (StatusCode, String)
-where
-    E: std::error::Error,
-{
-    (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
-}
-
-#[derive(Debug)]
-pub struct DatabaseConn(pub sqlx::pool::PoolConnection<sqlx::Postgres>);
-
-impl<S> FromRequestParts<S> for DatabaseConn
-where
-    PgPool: FromRef<S>,
-    S: Send + Sync,
-{
-    type Rejection = (StatusCode, String);
-
-    async fn from_request_parts(
-        _parts: &mut Parts, state: &S
-    ) -> Result<Self, Self::Rejection> {
-
-        let pool = PgPool::from_ref(state);
-        let conn = pool.acquire().await.map_err(internal_error)?;
-        Ok(Self(conn))
-    }
 }*/

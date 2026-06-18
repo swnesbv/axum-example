@@ -25,8 +25,7 @@ pub async fn in_check(
     };
     let ss = s.replace("; ", ";");
     let all: Vec<&str> = ss.split(";").collect();
-    all.iter().for_each(
-        |i: &&str| {
+    all.iter().for_each(|i: &&str| {
             if i.split("=").next() == Some("sess") {
                 session.push_str(i.split("=").last().unwrap());
             }
